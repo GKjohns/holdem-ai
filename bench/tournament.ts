@@ -394,22 +394,28 @@ async function estimate() {
 
 // ── resume: compact the run file, load the decision cache ────────────────────────────────────
 
-function loadAndCompact(): { done: Set<string>, cache: Map<string, CacheEntry> } {
+/**
+ * `priorSpend` is every live call this run has ever made (each cache line is one paid call, even
+ * ones later superseded), so --budget caps the run's total across invocations, not each invocation.
+ */
+function loadAndCompact(): { done: Set<string>, cache: Map<string, CacheEntry>, priorSpend: number } {
   mkdirSync(DIR, { recursive: true })
   const cache = new Map<string, CacheEntry>()
+  let priorSpend = 0
   if (existsSync(CACHE_FILE)) {
     for (const raw of readFileSync(CACHE_FILE, 'utf8').split('\n')) {
       if (!raw.trim()) continue
       try {
         const e = JSON.parse(raw)
         cache.set(e.key, { viewHash: e.viewHash, decision: e.decision })
+        priorSpend += costUsd(e.decision.model, e.decision.usage)
       } catch { /* half-written last line */ }
     }
   }
   const startLine: RunStartLine = { type: 'run_start', ...base, ts: now(), lineup, format, tournament: tournamentFormat, baseSeed, fake, narrator: false }
   if (!existsSync(RUN_FILE)) {
     writeFileSync(RUN_FILE, `${JSON.stringify(startLine)}\n`)
-    return { done: new Set(), cache }
+    return { done: new Set(), cache, priorSpend }
   }
   const text = readFileSync(RUN_FILE, 'utf8')
   const run = parseRun(text)
@@ -434,7 +440,7 @@ function loadAndCompact(): { done: Set<string>, cache: Map<string, CacheEntry> }
     renameSync(`${RUN_FILE}.tmp`, RUN_FILE)
     console.log(`resume: dropped ${run.partialHands.length} hand lines of unfinished tournaments (replayed from cache) and ${run.badLines} bad lines`)
   }
-  return { done: doneIds, cache }
+  return { done: doneIds, cache, priorSpend }
 }
 
 // ── scouting report for the lineup ───────────────────────────────────────────────────────────
@@ -474,13 +480,13 @@ async function scout() {
 const est = await estimate()
 if (args['dry-run']) process.exit(0)
 
-const { done, cache } = loadAndCompact()
+const { done, cache, priorSpend } = loadAndCompact()
 const pending = plan.filter(t => !done.has(t.tournamentId))
-console.log(`\n── ${fake ? 'FAKE ' : ''}run ${slug}: ${plan.length - pending.length}/${plan.length} tournaments already done, ${cache.size} cached decisions, concurrency ${concurrency}, budget $${budget}`)
-if (est.perHand * est.handsPerMatch * matches > budget && !fake) console.log(`  note: the estimate is over the budget; the run halts cleanly at $${budget} and resumes later`)
+console.log(`\n── ${fake ? 'FAKE ' : ''}run ${slug}: ${plan.length - pending.length}/${plan.length} tournaments already done, ${cache.size} cached decisions, $${priorSpend.toFixed(3)} spent by earlier invocations, concurrency ${concurrency}, budget $${budget} for the whole run`)
+if (priorSpend + est.perHand * est.handsPerMatch * pending.length / lineup.length > budget && !fake) console.log(`  note: the estimate is over the budget; the run halts cleanly at $${budget} and resumes later`)
 
 const ctx: Ctx = {
-  spent: 0, live: 0, replayed: 0, halted: false, cache, inFlight: new Map(),
+  spent: priorSpend, live: 0, replayed: 0, halted: false, cache, inFlight: new Map(),
   write: line => appendFileSync(RUN_FILE, `${JSON.stringify(line)}\n`)
 }
 let interrupted = false
@@ -495,7 +501,7 @@ process.on('SIGINT', stop)
 process.on('SIGTERM', stop)
 const heartbeat = setInterval(() => {
   const live = [...ctx.inFlight.entries()].map(([id, h]) => `${id}#${h}`).join(' ')
-  console.log(`  … $${ctx.spent.toFixed(3)} live · ${ctx.live} live / ${ctx.replayed} replayed decisions · in flight: ${live || '—'}`)
+  console.log(`  … $${(ctx.spent - priorSpend).toFixed(3)} live this invocation, $${ctx.spent.toFixed(3)} run total · ${ctx.live} live / ${ctx.replayed} replayed decisions · in flight: ${live || '—'}`)
 }, 60_000)
 
 let next = 0
@@ -518,11 +524,11 @@ clearInterval(heartbeat)
 const finished = parseRun(readFileSync(RUN_FILE, 'utf8')).tournaments.length
 const status: RunEndLine['status'] = interrupted ? 'interrupted' : ctx.halted ? 'budget' : failures ? 'errors' : 'complete'
 const end: RunEndLine = {
-  type: 'run_end', ...base, ts: now(), status, spentUsd: ctx.spent, liveDecisions: ctx.live, replayedDecisions: ctx.replayed,
+  type: 'run_end', ...base, ts: now(), status, spentUsd: ctx.spent - priorSpend, totalSpentUsd: ctx.spent, liveDecisions: ctx.live, replayedDecisions: ctx.replayed,
   tournamentsDone: finished, tournamentsPlanned: plan.length
 }
 ctx.write(end)
-console.log(`\n══ ${status}: ${finished}/${plan.length} tournaments · live spend this invocation $${ctx.spent.toFixed(4)} (${ctx.live} live, ${ctx.replayed} replayed decisions) → data/runs/${slug}.jsonl`)
+console.log(`\n══ ${status}: ${finished}/${plan.length} tournaments · live spend this invocation $${(ctx.spent - priorSpend).toFixed(4)} (run total $${ctx.spent.toFixed(4)}) (${ctx.live} live, ${ctx.replayed} replayed decisions) → data/runs/${slug}.jsonl`)
 if (status === 'budget') console.log(`  budget reached; rerun with a higher --budget to continue`)
 
 if (args.scout && status === 'complete') await scout()

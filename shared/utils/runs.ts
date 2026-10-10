@@ -90,6 +90,8 @@ export interface RunEndLine extends Base {
   status: 'complete' | 'budget' | 'interrupted' | 'errors'
   /** Live gateway spend in this invocation (replayed decisions cost nothing). */
   spentUsd: number
+  /** Every live call the run has made across invocations (what --budget caps). */
+  totalSpentUsd: number
   liveDecisions: number
   replayedDecisions: number
   tournamentsDone: number
