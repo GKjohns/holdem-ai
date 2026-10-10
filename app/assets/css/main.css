@@ -1,0 +1,77 @@
+@import "tailwindcss";
+@import "@nuxt/ui";
+
+@theme static {
+  --font-sans: 'Geist', sans-serif;
+  --font-serif: 'Fraunces', serif;
+}
+
+:root {
+  --ui-radius: 0.5rem;
+  --ui-bg: #f7f3ec;
+  --ui-bg-muted: #f1ece3;
+  --ui-bg-elevated: #ece6db;
+  --ui-bg-accented: #e2dbcf;
+  --ui-border: #e4ddd0;
+  --ui-border-muted: #ebe5da;
+  --ui-border-accented: #d6cebf;
+  --ui-text-dimmed: #a39a8c;
+  --ui-text-muted: #7a7066;
+  --ui-text-toned: #5c5348;
+  --ui-text: #3d3630;
+  --ui-text-highlighted: #1f1a16;
+
+  /* Table: felt sits on the warm paper page; cards stay paper-white with red/ink suits. */
+  --felt-bg: #2f5d46;
+  --felt-border: #6b4f36;
+  --card-red: #c0392b;
+  --card-black: #1f1a16;
+
+  /* Series: hue = vendor (validated all-pairs on this surface), TypeSafe/Jev = ink. */
+  --series-anthropic: #2a78d6;
+  --series-openai: #eb6834;
+  --series-google: #1baf7a;
+  --series-eval: #3d3630;
+  --chart-grid: #e6dfd2;
+  --chart-axis: #cfc6b7;
+}
+
+.dark {
+  --ui-bg: #14120f;
+  --ui-bg-muted: #1a1714;
+  --ui-bg-elevated: #211d19;
+  --ui-bg-accented: #2c2722;
+  --ui-border: #2a2521;
+  --ui-border-muted: #221e1a;
+  --ui-border-accented: #38322c;
+  --ui-text-dimmed: #6b6259;
+  --ui-text-muted: #948a7e;
+  --ui-text-toned: #b5aa9c;
+  --ui-text: #d6ccbe;
+  --ui-text-highlighted: #f3ede4;
+
+  --felt-bg: #1d3a2c;
+  --felt-border: #3f2f21;
+  --card-red: #e05a4b;
+  --card-black: #1f1a16;
+
+  --series-anthropic: #3987e5;
+  --series-openai: #d95926;
+  --series-google: #199e70;
+  --series-eval: #d6ccbe;
+  --chart-grid: #26221d;
+  --chart-axis: #3a342d;
+}
+
+@utility stat-label {
+  font-size: 11px;
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ui-text-muted);
+}
+
+@keyframes think-pulse {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 1; }
+}
