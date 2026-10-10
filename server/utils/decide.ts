@@ -49,7 +49,7 @@ const RULES = `Rules you know as a player:
 - At showdown the best five-card hand from your two cards plus the board wins. Hand ranks, best to worst: straight flush, four of a kind, full house, flush, straight, three of a kind, two pair, one pair, high card. Ace plays high or low (A-2-3-4-5 is the lowest straight). Suits never break ties.
 - Cards are written rank then suit: ranks 2-9, T (ten), J, Q, K, A; suits s (spades), h (hearts), d (diamonds), c (clubs). "Ah" is the ace of hearts. Your own cards and the board are also spelled out in words.
 
-Each turn you see the table details, the earlier hands at this table you remember (up to the last 19: every action and bet size, everything said, every hand shown at showdown, and who won), your own cards in those hands, then the current hand: your cards, the board, every player's chips (behind, in front of them this street, and in the pot this hand), the pot and any side pots, who still acts after you, the action so far, and a menu of legal options with exact chip amounts. Pick exactly one option id from the menu.
+Each turn you see the table details, the earlier hands at this table you remember (the last one to two orbits, up to 11 hands: every action and bet size, everything said, every hand shown at showdown, and who won), your own cards in those hands, then the current hand: your cards, the board, every player's chips (behind, in front of them this street, and in the pot this hand), the pot and any side pots, who still acts after you, the action so far, and a menu of legal options with exact chip amounts. Pick exactly one option id from the menu.
 
 Answer fields:
 - reasoning: one or two plain sentences on why you chose this option.
@@ -183,6 +183,22 @@ function fallbackDecision(menu: MenuOption[], model: string, started: number, wh
   }
 }
 
+/** Every menu id. The answer schema lists all of them, not just this turn's legal ones (checked after). */
+const ALL_MENU_IDS = ['fold', 'check', 'call', 'raise_min', 'raise_third_pot', 'raise_half_pot', 'raise_3q_pot', 'raise_pot', 'raise_1_5x_pot', 'raise_2x_pot', 'raise_to', 'all_in'] as const satisfies readonly MenuId[]
+
+/**
+ * One answer schema for every turn. v1 built `choice` from the turn's legal ids, but the schema sits
+ * ahead of the messages in the provider's prompt, so a different menu (check vs fold) broke the
+ * cached prefix on most calls (measured 2026-10-11). An id that isn't on this turn's menu is an
+ * illegal choice → fallback, as before.
+ */
+const LLM_SCHEMA = z.object({
+  reasoning: z.string().describe('One or two plain sentences on why.'),
+  tableTalk: z.string().describe('One short line said out loud at the table, or an empty string. Never reveal your cards.'),
+  choice: z.enum(ALL_MENU_IDS).describe('One option id from this turn\'s menu.'),
+  amount: z.number().describe('Only for raise_to: the total you bet or raise to. Otherwise 0.')
+})
+
 /** Prompt-token usage with the cache split (v2). `inputTokens` already includes cached tokens. */
 function usageOf(usage: { inputTokens?: number, outputTokens?: number, inputTokenDetails?: { cacheReadTokens?: number, cacheWriteTokens?: number } } | undefined): Decision['usage'] {
   const read = usage?.inputTokenDetails?.cacheReadTokens ?? 0
@@ -194,13 +210,7 @@ function usageOf(usage: { inputTokens?: number, outputTokens?: number, inputToke
 const CACHE_HERE = { anthropic: { cacheControl: { type: 'ephemeral' as const } } }
 
 async function decideWithLlm(option: ModelOption, input: DecideInput, menu: MenuOption[], signal: AbortSignal): Promise<Decision> {
-  const ids = menu.map(o => o.id) as [MenuId, ...MenuId[]]
-  const schema = z.object({
-    reasoning: z.string().describe('One or two plain sentences on why.'),
-    tableTalk: z.string().describe('One short line said out loud at the table, or an empty string. Never reveal your cards.'),
-    choice: z.enum(ids),
-    amount: z.number().describe('Only for raise_to: the total you bet or raise to. Otherwise 0.')
-  })
+  const schema = LLM_SCHEMA
   const reasoning = input.reasoning === 'unset' ? undefined : (input.reasoning ?? option.reasoning)
   const parts = promptParts(input.view, menu, input.strategyCard)
   const started = Date.now()
@@ -213,7 +223,9 @@ async function decideWithLlm(option: ModelOption, input: DecideInput, menu: Menu
     messages: [{
       role: 'user',
       content: [
-        ...parts.shared.map((text, i) => ({ type: 'text' as const, text, ...(i === parts.shared.length - 1 ? { providerOptions: CACHE_HERE } : {}) })),
+        // Breakpoints after the table details (so a new memory block reuses system + header) and
+        // after the last remembered hand.
+        ...parts.shared.map((text, i) => ({ type: 'text' as const, text, ...(i === 0 || i === parts.shared.length - 1 ? { providerOptions: CACHE_HERE } : {}) })),
         { type: 'text' as const, text: parts.seat }
       ]
     }],
@@ -224,6 +236,9 @@ async function decideWithLlm(option: ModelOption, input: DecideInput, menu: Menu
     maxOutputTokens: 8000,
     abortSignal: signal,
     maxRetries: 1,
+    // Prompt caches live per provider; letting the gateway alternate Anthropic backends turned
+    // cache reads into fresh writes (measured 2026-10-11), so Claude models prefer Anthropic itself.
+    ...(option.vendor === 'Anthropic' ? { providerOptions: { gateway: { order: ['anthropic'] } } } : {}),
     ...(reasoning ? { reasoning } : {})
   })
   const usageOut = usageOf(usage)
@@ -427,7 +442,8 @@ function tableWords(view: SeatView): string {
     const lines = [`Table: a sit-and-go for ${g.entrants} players, ${g.startingStack} chips each. The blinds double every ${g.handsPerLevel ?? 10} hands. No hand limit: it plays until one player has every chip.`]
     if (g.payouts?.length) {
       const paid = g.payouts.map((p, i) => `${ordinal(i + 1)} ${p}%`).join(', ')
-      const unpaid = g.entrants > g.payouts.length ? `; ${ordinal(g.payouts.length + 1)}${g.entrants > g.payouts.length + 1 ? `–${ordinal(g.entrants)}` : ''} get nothing` : ''
+      const several = g.entrants > g.payouts.length + 1
+      const unpaid = g.entrants > g.payouts.length ? `; ${ordinal(g.payouts.length + 1)}${several ? `–${ordinal(g.entrants)} get` : ' gets'} nothing` : ''
       lines.push(`Payouts: ${paid} of the prize pool${unpaid}.`)
     }
     return lines.join('\n')
@@ -436,7 +452,29 @@ function tableWords(view: SeatView): string {
   return g?.type === 'cash' ? 'Table: a cash game; the blinds never change.' : 'Table: no-limit Texas Hold\'em.'
 }
 
-const MEMORY_HEADING = 'Earlier hands you remember at this table (up to the last 19: every action and bet, everything said, every hand shown at showdown, who won):'
+const MEMORY_HEADING = 'Earlier hands you remember at this table (the last one to two orbits, up to 11 hands: every action and bet, everything said, every hand shown at showdown, who won):'
+
+/** One street's actions for the memory log; silent folds in a row read as one clause ("A, B and C fold"). */
+function compactActions(evs: ActionEvent[], log: ActionEvent[], name: (id: string) => string): string[] {
+  const out: string[] = []
+  let folds: string[] = []
+  const flush = () => {
+    if (folds.length) out.push(folds.length === 1 ? `${folds[0]} folds` : `${folds.slice(0, -1).join(', ')} and ${folds.at(-1)} fold`)
+    folds = []
+  }
+  for (const e of evs) {
+    if (e.action.type === 'fold' && !e.tableTalk) {
+      folds.push(name(e.seatId))
+      continue
+    }
+    flush()
+    const i = log.indexOf(e)
+    const facingBet = e.street === 'preflop' || log.slice(0, i).some(p => p.street === e.street && p.raiseTo !== undefined)
+    out.push(`${name(e.seatId)} ${eventWords(e, facingBet)}${e.tableTalk ? ` — says "${e.tableTalk}"` : ''}`)
+  }
+  flush()
+  return out
+}
 
 /**
  * One remembered hand, the same text for every seat (no "you"), so the shared prompt prefix is
@@ -458,8 +496,7 @@ export function pastHandText(h: PastHand): string {
     if (!evs.length) continue
     const cards = street === 'preflop' ? '' : ` ${h.board.slice(0, boardAt[street]).slice(street === 'flop' ? 0 : boardAt[street]! - 1).join(' ')}`
     dealt = boardAt[street]!
-    const said = logLines(evs, name).map(l => l.slice(l.indexOf(': ') + 2))
-    lines.push(`- ${street}${cards}: ${said.join('; ')}`)
+    lines.push(`- ${street}${cards}: ${compactActions(evs, h.log, name).join('; ')}`)
   }
   if (h.board.length > dealt) lines.push(`- the board ran out: ${h.board.join(' ')}`)
   const shown = Object.entries(h.shown)

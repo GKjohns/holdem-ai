@@ -300,13 +300,17 @@ export function pastHand(state: TableState): PastHand {
   }
 }
 
-/** Hands per memory block: a seat remembers this block of 10 hands and the one before. */
-export const MEMORY_BLOCK = 10
+/**
+ * Hands per memory block: a seat remembers this block of 6 hands and the one before, i.e. the last
+ * one to two orbits of a 6-max table (6–11 hands). 10–19 hands (the first v2 draft) put ~3,900
+ * tokens in front of every decision, 4× v1's whole prompt, mostly other seats' chatter.
+ */
+export const MEMORY_BLOCK = 6
 
 /**
  * The earlier hands a seat remembers on hand `handNo`: those since the start of the previous block
- * of MEMORY_BLOCK hands (10–19 hands). Within a block the window only grows, so the rendered
- * history is a stable prompt prefix that prompt caching can reuse.
+ * of MEMORY_BLOCK hands. Within a block the window only grows, so the rendered history is a stable
+ * prompt prefix that prompt caching can reuse.
  */
 export function memoryWindow(history: PastHand[], handNo: number, block = MEMORY_BLOCK): PastHand[] {
   const start = Math.floor((handNo - 1) / block) * block + 1 - block

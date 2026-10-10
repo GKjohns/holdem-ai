@@ -44,7 +44,7 @@ test('pastHand: public events only — no hole cards unless shown, starting stac
   assert.equal(JSON.stringify(h).includes('hole'), false)
   const text = pastHandText(h)
   assert.match(text, /^Hand #1 \(blinds 10\/20; button GPT-6 Sol, small blind Jev, big blind Claude Opus 5\.5\)/)
-  assert.match(text, /preflop: GPT-6 Luna raises to 60; GPT-6 Sol folds; Jev folds; Claude Opus 5\.5 folds/)
+  assert.match(text, /preflop: GPT-6 Luna raises to 60; GPT-6 Sol, Jev and Claude Opus 5\.5 fold/)
   assert.match(text, /GPT-6 Luna won the pot \(50\), no showdown\./)
 })
 
@@ -62,16 +62,16 @@ test('pastHand at showdown lists shown cards and pot winners, never a hand name'
   if (h.busted.length) assert.match(text, /ran out of chips/)
 })
 
-test('memoryWindow: this block of 10 hands plus the previous one, growing by appending', () => {
+test('memoryWindow: this block of 6 hands plus the previous one (one to two orbits), growing by appending', () => {
   const hands = Array.from({ length: 40 }, (_, i) => ({ handNo: i + 1 }) as PastHand)
   const nos = (n: number) => memoryWindow(hands, n).map(h => h.handNo)
   assert.deepEqual(nos(1), [])
   assert.deepEqual(nos(5), [1, 2, 3, 4])
-  assert.deepEqual(nos(11), Array.from({ length: 10 }, (_, i) => i + 1))
-  assert.deepEqual(nos(21), Array.from({ length: 10 }, (_, i) => i + 11))
-  assert.deepEqual(nos(30), Array.from({ length: 19 }, (_, i) => i + 11))
+  assert.deepEqual(nos(7), [1, 2, 3, 4, 5, 6])
+  assert.deepEqual(nos(13), [7, 8, 9, 10, 11, 12])
+  assert.deepEqual(nos(18), Array.from({ length: 11 }, (_, i) => i + 7))
   // Within a block the earlier window is a prefix of the later one.
-  assert.deepEqual(nos(25).slice(0, nos(24).length), nos(24))
+  assert.deepEqual(nos(23).slice(0, nos(22).length), nos(22))
 })
 
 test('withMemory: the seat sees remembered hands and only its own past hole cards', () => {
@@ -97,7 +97,7 @@ test('the shared prompt part is identical for every seat (so it caches), the sea
   assert.notEqual(parts[0]!.seat, parts[1]!.seat)
   assert.equal(parts[0]!.shared.length, 1 + 4, 'table details + one part per remembered hand')
   assert.match(parts[0]!.shared[0]!, /a sit-and-go for 4 players, 1500 chips each\. The blinds double every 10 hands\. No hand limit/)
-  assert.match(parts[0]!.shared[0]!, /Payouts: 1st 50%, 2nd 30%, 3rd 20% of the prize pool; 4th get nothing\./)
+  assert.match(parts[0]!.shared[0]!, /Payouts: 1st 50%, 2nd 30%, 3rd 20% of the prize pool; 4th gets nothing\./)
   assert.doesNotMatch(parts[0]!.shared.join('\n'), /\(you\)/)
   assert.match(parts[0]!.seat, /^Your own cards in those hands: #1 \w\w \w\w; #2/)
 })
@@ -181,6 +181,8 @@ test('decide(): shared part ends in a cache breakpoint, raise_to amounts are app
   const user = (prompt as { role: string, content: { type: string, text: string, providerOptions?: unknown }[] }[]).find(m => m.role === 'user')!
   assert.equal(user.content.length, 1 + 2 + 1, 'table details, 2 remembered hands, the seat part')
   assert.deepEqual(user.content[2]!.providerOptions, { anthropic: { cacheControl: { type: 'ephemeral' } } })
+  assert.deepEqual(user.content[0]!.providerOptions, { anthropic: { cacheControl: { type: 'ephemeral' } } })
+  assert.equal(user.content[1]!.providerOptions, undefined)
   assert.equal(user.content[3]!.providerOptions, undefined)
   const low = await decide({ modelId: 'anthropic/claude-opus-5.5', view, model: answer(1) })
   assert.deepEqual(low.action, { type: 'raise', to: view.minRaiseTo })
