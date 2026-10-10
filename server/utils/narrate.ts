@@ -179,18 +179,23 @@ export async function narrateHand(input: { hand: NarrateHand, seats: NarrateSeat
   }
 }
 
-export function renderScoutingPrompt(seats: NarrateSeat[], hands: NarrateHand[], headlines: Record<number, string> = {}): { prompt: string, stats: ReturnType<typeof seatStats> } {
+/**
+ * `statsHands` (batch runs): compute the stats over every hand of a run while the prompt lists and
+ * replays only `hands` (one sample tournament), so the prompt stays small. Defaults to `hands`.
+ */
+export function renderScoutingPrompt(seats: NarrateSeat[], hands: NarrateHand[], headlines: Record<number, string> = {}, statsHands: NarrateHand[] = hands): { prompt: string, stats: ReturnType<typeof seatStats> } {
   const ais = seats.filter(s => s.modelId)
   const stats = seatStats(
     seats.map(s => s.id),
-    hands,
-    hands.flatMap(h => h.decisions)
+    statsHands,
+    statsHands.flatMap(h => h.decisions)
   )
   const name = (id: string) => seats.find(s => s.id === id)?.name ?? id
   const lines = [`Seats to scout (seatId = name): ${ais.map(s => `${s.id} = ${s.name} (${kindWords(s.modelId)})`).join(', ')}`]
   const human = seats.find(s => !s.modelId)
   if (human) lines.push(`Also at the table, not to be scouted: ${human.name} (human).`)
-  lines.push('', `Stats over ${hands.length} finished hands (from stats.ts; percentages with numerator/denominator):`)
+  lines.push('', `Stats over ${statsHands.length} finished hands (from stats.ts; percentages with numerator/denominator):`)
+  if (statsHands !== hands) lines.push(`The hands listed below are one sample tournament of ${hands.length} hands; hand numbers refer to it.`)
   for (const st of stats) lines.push(`- ${name(st.seatId)}: ${statsLine(st)}`)
   lines.push('', 'Every hand:')
   for (const h of hands) lines.push(`- ${handLine(h, seats)}${headlines[h.handNo] ? ` · Booth: "${headlines[h.handNo]}"` : ''}`)
@@ -207,7 +212,7 @@ export function renderScoutingPrompt(seats: NarrateSeat[], hands: NarrateHand[],
   return { prompt: lines.join('\n'), stats }
 }
 
-export async function scoutingReport(input: { seats: NarrateSeat[], hands: NarrateHand[], headlines?: Record<number, string>, modelId?: string, signal?: AbortSignal }): Promise<ScoutingReport> {
+export async function scoutingReport(input: { seats: NarrateSeat[], hands: NarrateHand[], statsHands?: NarrateHand[], headlines?: Record<number, string>, modelId?: string, signal?: AbortSignal }): Promise<ScoutingReport> {
   const model = narratorModel(input.modelId)
   const ais = input.seats.filter(s => s.modelId)
   const ids = ais.map(s => s.id) as [string, ...string[]]
@@ -222,7 +227,7 @@ export async function scoutingReport(input: { seats: NarrateSeat[], hands: Narra
       voice: z.string()
     }))
   })
-  const { prompt, stats } = renderScoutingPrompt(input.seats, input.hands, input.headlines)
+  const { prompt, stats } = renderScoutingPrompt(input.seats, input.hands, input.headlines, input.statsHands)
   const started = Date.now()
   const { output, usage } = await generateText({
     model,
@@ -234,7 +239,7 @@ export async function scoutingReport(input: { seats: NarrateSeat[], hands: Narra
   if (!output) throw new Error('Narrator returned no report')
   const order = new Map(ids.map((id, i) => [id, i]))
   return {
-    hands: input.hands.length,
+    hands: (input.statsHands ?? input.hands).length,
     overview: output.overview.trim(),
     seats: output.seats.slice().sort((a, b) => (order.get(a.seatId) ?? 0) - (order.get(b.seatId) ?? 0)),
     stats: stats.filter(s => order.has(s.seatId)),

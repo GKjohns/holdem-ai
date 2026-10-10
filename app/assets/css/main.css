@@ -41,6 +41,9 @@
   --series-human: #b03a8c;
   --chart-grid: #e6dfd2;
   --chart-axis: #cfc6b7;
+  /* Diverging (chip flow): two poles, neutral midpoint is the surface. Not series or status colors. */
+  --div-pos: #0a7fb5;
+  --div-neg: #b8562f;
 }
 
 .dark {
@@ -74,6 +77,8 @@
   --series-human: #b04fb0;
   --chart-grid: #26221d;
   --chart-axis: #3a342d;
+  --div-pos: #2c9fd0;
+  --div-neg: #d0714a;
 }
 
 @utility stat-label {

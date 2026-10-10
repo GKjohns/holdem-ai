@@ -7,7 +7,8 @@
  * positions, the action so far, and the menu (chip amounts + resulting pot).
  * No odds, equity, or hand strength — that's the model's job.
  */
-import { generateText, Output, experimental_decide as decideWithModel, Experimental_DecisionRefusalError } from 'ai'
+import { generateText, Output, experimental_decide as decideWithModel, Experimental_DecisionRefusalError, InvalidResponseDataError } from 'ai'
+import type { Experimental_DecisionModel, LanguageModel } from 'ai'
 import { z } from 'zod'
 import { buildMenu } from '../../shared/utils/menu.ts'
 import { findModel } from '../../shared/utils/models.ts'
@@ -20,10 +21,16 @@ export interface DecideInput {
   signal?: AbortSignal
   /** Bench-only override of the roster's reasoning effort ('unset' sends none). */
   reasoning?: Reasoning | 'unset'
+  /** Test seam: a model instance used in place of the gateway id (the roster entry still picks the path). */
+  model?: LanguageModel | Experimental_DecisionModel
+  /** Defaults to CALL_TIMEOUT_MS; tests shorten it. */
+  timeoutMs?: number
 }
 
 /** A player waiting a minute is worse than a fallback check/fold. */
 export const CALL_TIMEOUT_MS = 30_000
+/** Wall clock minus awake time above this means the machine slept mid-call (see decide()). */
+const SLEEP_SKEW_MS = 5_000
 const TABLE_TALK_MAX = 80
 
 export const INSTRUCTIONS = `You are an AI player seated at a no-limit Texas Hold'em cash game against other AI players and possibly a human. Play to win chips.
@@ -56,25 +63,76 @@ const ACTION_WORDS: Record<MenuId, string> = {
   all_in: 'all-in'
 }
 
-function withTimeout(signal?: AbortSignal): AbortSignal {
-  const timeout = AbortSignal.timeout(CALL_TIMEOUT_MS)
-  return signal ? AbortSignal.any([signal, timeout]) : timeout
+class DeadlineError extends Error {
+  override name = 'TimeoutError'
 }
 
+/**
+ * Runs one model call with a hard deadline that covers everything inside it (the SDK's own retry,
+ * the refusal re-ask, response parsing). The signal goes to the SDK, and a timer races the promise,
+ * so a code path that ignores the signal still can't hold the seat. Caller aborts end it at once.
+ */
+async function bounded<T>(run: (signal: AbortSignal) => Promise<T>, ms: number, outer?: AbortSignal): Promise<T> {
+  const ctrl = new AbortController()
+  let timer: ReturnType<typeof setTimeout> | undefined
+  let onOuter: (() => void) | undefined
+  const stop = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => {
+      const err = new DeadlineError(`no answer in ${ms} ms`)
+      ctrl.abort(err)
+      reject(err)
+    }, ms)
+    onOuter = () => {
+      const err = outer?.reason instanceof Error ? outer.reason : new DOMException('Aborted', 'AbortError')
+      ctrl.abort(err)
+      reject(err)
+    }
+    if (outer?.aborted) onOuter()
+    else outer?.addEventListener('abort', onOuter, { once: true })
+  })
+  try {
+    return await Promise.race([run(ctrl.signal), stop])
+  } finally {
+    clearTimeout(timer)
+    if (onOuter) outer?.removeEventListener('abort', onOuter)
+  }
+}
+
+const isTimeout = (err: unknown) => err instanceof Error && (err.name === 'TimeoutError' || err.name === 'AbortError')
+
+/**
+ * Never throws; every path is bounded by `timeoutMs` of awake time.
+ *
+ * Timers run on the monotonic clock, which stops while a Mac sleeps. A call that straddles a
+ * lid-close times out only after wake, with a huge wall-clock latency (the B2 "901 s" Luna fold
+ * was a 900 s maintenance sleep, per `pmset -g log`). That isn't the model's fault, so a timeout
+ * whose wall time exceeds its awake time is asked once more, also bounded.
+ */
 export async function decide(input: DecideInput): Promise<Decision> {
   const option = findModel(input.modelId)
   const menu = buildMenu(input.view)
   const started = Date.now()
   if (!option) return fallbackDecision(menu, input.modelId, started, `Unknown model ${input.modelId}`)
-  try {
-    return option.kind === 'evaluation'
-      ? await decideWithEvaluation(option, input, menu)
-      : await decideWithLlm(option, input, menu)
-  } catch (err) {
-    const timedOut = err instanceof Error && (err.name === 'TimeoutError' || err.name === 'AbortError')
-    const message = timedOut ? 'timed out' : (err instanceof Error ? err.message : String(err))
-    console.error('[decide] model error', option.id, message.slice(0, 300))
-    return fallbackDecision(menu, option.id, started, timedOut ? 'Timed out' : 'Model error')
+  const ms = input.timeoutMs ?? CALL_TIMEOUT_MS
+  const attempt = () => bounded(signal => option.kind === 'evaluation'
+    ? decideWithEvaluation(option, input, menu, signal)
+    : decideWithLlm(option, input, menu, signal), ms, input.signal)
+  for (let tries = 0; ; tries++) {
+    const wall = Date.now()
+    const awake = performance.now()
+    try {
+      const d = await attempt()
+      return tries ? { ...d, retriedAfterSleep: true } : d
+    } catch (err) {
+      const slept = (Date.now() - wall) - (performance.now() - awake) > SLEEP_SKEW_MS
+      if (isTimeout(err) && slept && tries === 0 && !input.signal?.aborted) {
+        console.warn('[decide] timed out across a system sleep, asking again', option.id)
+        continue
+      }
+      const message = isTimeout(err) ? 'timed out' : (err instanceof Error ? err.message : String(err))
+      console.error('[decide] model error', option.id, message.slice(0, 300))
+      return fallbackDecision(menu, option.id, started, isTimeout(err) ? 'Timed out' : 'Model error')
+    }
   }
 }
 
@@ -94,7 +152,7 @@ function fallbackDecision(menu: MenuOption[], model: string, started: number, wh
   }
 }
 
-async function decideWithLlm(option: ModelOption, input: DecideInput, menu: MenuOption[]): Promise<Decision> {
+async function decideWithLlm(option: ModelOption, input: DecideInput, menu: MenuOption[], signal: AbortSignal): Promise<Decision> {
   const ids = menu.map(o => o.id) as [MenuId, ...MenuId[]]
   const schema = z.object({
     reasoning: z.string().describe('One or two plain sentences on why.'),
@@ -104,14 +162,14 @@ async function decideWithLlm(option: ModelOption, input: DecideInput, menu: Menu
   const reasoning = input.reasoning === 'unset' ? undefined : (input.reasoning ?? option.reasoning)
   const started = Date.now()
   const { output, usage } = await generateText({
-    model: option.id,
+    model: (input.model as LanguageModel | undefined) ?? option.id,
     instructions: INSTRUCTIONS,
     prompt: renderPrompt(input.view, menu),
     output: Output.object({ schema }),
     // Reasoning models think in output tokens; a low cap starves the JSON.
     // No temperature: the Claude 5 and GPT-6 families reject it.
     maxOutputTokens: 4000,
-    abortSignal: withTimeout(input.signal),
+    abortSignal: signal,
     maxRetries: 1,
     providerOptions: { gateway: { caching: 'auto' } },
     ...(reasoning ? { reasoning } : {})
@@ -139,34 +197,52 @@ async function decideWithLlm(option: ModelOption, input: DecideInput, menu: Menu
  * table information as the LLMs, as JSON, and return a probability per option;
  * their "reasoning" is the chosen option's text plus the ranked spread.
  */
-async function decideWithEvaluation(option: ModelOption, input: DecideInput, menu: MenuOption[]): Promise<Decision> {
+async function decideWithEvaluation(option: ModelOption, input: DecideInput, menu: MenuOption[], signal: AbortSignal): Promise<Decision> {
   const criteria = Object.fromEntries(menu.map(o => [o.id, o.describe])) as Record<MenuId, string>
   const state = tableState(input.view)
-  const signal = withTimeout(input.signal)
+  // One signal and one deadline (bounded() in decide) cover both the first ask and the reworded retry.
   const ask = (instructions: string) => decideWithModel({
-    model: option.id,
+    model: (input.model as Experimental_DecisionModel | undefined) ?? option.id,
     state,
     questions: { action: { type: 'choice', instructions, criteria } },
     abortSignal: signal,
     maxRetries: 1
   })
+  /**
+   * The SDK rejects an answer whose `choice` isn't its own top probability. That answer is still
+   * the model's: keep its choice (as the app always has) and flag it, rather than folding.
+   * The rejected response carries no usage, so those calls are logged at 0 tokens (≈ $0.00005 each).
+   */
+  type Answer = { choice: string, probabilities?: Record<string, number> }
+  const askKeepingOffTop = async (instructions: string): Promise<{ answer: Answer, usage: { input: number, output: number }, choiceNotTop?: true }> => {
+    try {
+      const r = await ask(instructions)
+      return { answer: r.answers.action, usage: { input: r.usage.inputTokens ?? 0, output: r.usage.outputTokens ?? 0 } }
+    } catch (err) {
+      const data = InvalidResponseDataError.isInstance(err) && /highest-probability/.test(err.message)
+        ? (err.data as { action?: { type?: string } & Answer } | undefined)?.action
+        : undefined
+      if (data?.type !== 'choice' || typeof data.choice !== 'string') throw err
+      return { answer: { choice: data.choice, probabilities: data.probabilities }, usage: { input: 0, output: 0 }, choiceNotTop: true }
+    }
+  }
   const started = Date.now()
-  let result: Awaited<ReturnType<typeof ask>>
+  let result: Awaited<ReturnType<typeof askKeepingOffTop>>
   let retried = false
   try {
-    result = await ask(EVAL_QUESTION)
+    result = await askKeepingOffTop(EVAL_QUESTION)
   } catch (err) {
     // Luna Decisions occasionally refuses a phrasing outright (deterministically, per state);
     // a plainer rewording of the same question gets an answer.
     if (!Experimental_DecisionRefusalError.isInstance(err)) throw err
     console.warn('[decide] refusal, retrying reworded', option.id)
     retried = true
-    result = await ask(EVAL_QUESTION_RETRY)
+    result = await askKeepingOffTop(EVAL_QUESTION_RETRY)
   }
-  const answer = result.answers.action
-  const usage = { input: result.usage.inputTokens ?? 0, output: result.usage.outputTokens ?? 0 }
+  const { answer, usage } = result
+  const offTop = result.choiceNotTop ? { choiceNotTop: true as const } : {}
   const chosen = menu.find(o => o.id === answer.choice)
-  if (!chosen) return { ...fallbackDecision(menu, option.id, started, 'Illegal choice', answer.choice), usage, ...(retried ? { retried } : {}) }
+  if (!chosen) return { ...fallbackDecision(menu, option.id, started, 'Illegal choice', answer.choice), usage, ...(retried ? { retried } : {}), ...offTop }
   const raw: Record<string, number> = answer.probabilities ?? {}
   const probabilities = Object.fromEntries(menu.map(o => [o.id, raw[o.id] ?? 0])) as Partial<Record<MenuId, number>>
   const ranked = menu
@@ -181,6 +257,7 @@ async function decideWithEvaluation(option: ModelOption, input: DecideInput, men
     probabilities,
     fallback: false,
     ...(retried ? { retried } : {}),
+    ...offTop,
     model: option.id,
     latencyMs: Date.now() - started,
     usage

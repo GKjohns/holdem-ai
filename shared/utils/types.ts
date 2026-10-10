@@ -139,6 +139,10 @@ export interface Decision {
   requested?: string
   /** A decision model refused the first phrasing and answered a reworded retry. */
   retried?: boolean
+  /** The first call timed out across a system sleep (wall time ≫ awake time), so it was asked again. */
+  retriedAfterSleep?: boolean
+  /** A decision model's `choice` wasn't its own top probability (the SDK rejects these; we keep the choice). */
+  choiceNotTop?: boolean
   model: string
   latencyMs: number
   usage: { input: number, output: number }

@@ -94,6 +94,16 @@ useSeoMeta({
               <span class="max-sm:hidden">Leave table</span>
             </UButton>
           </template>
+          <UButton
+            v-else
+            to="/results"
+            icon="i-lucide-trophy"
+            color="neutral"
+            variant="ghost"
+            size="sm"
+          >
+            Results
+          </UButton>
           <UColorModeButton />
         </div>
       </header>
