@@ -2,13 +2,18 @@ import type { ActionEvent, Card, Decision, HandResult, MenuId, PlayerAction, Sea
 import { activeSeatCount, applyAction, legalActions, newTable, seatView, startHand, withTableTalk } from '~~/shared/utils/table'
 import { buildMenu } from '~~/shared/utils/menu'
 import { seatStats, sessionCost } from '~~/shared/utils/stats'
+import { narratorCost, scoutingMarkdown, type Narration, type ScoutingReport } from '~~/shared/utils/narration'
 import { clearSnapshot, postLog, saveSnapshot, type TableSnapshot } from '~/utils/persist'
+import { canNarrate } from '~/utils/reveal'
 import { findModel } from '~~/shared/utils/models'
 import { DEFAULT_COST_CAP, type Lineup } from './useLineup'
 
 export const HUMAN_ID = 'you'
 export const HAND_CAP = 100
 const CLIENT_TIMEOUT_MS = 35_000
+/** Longer than the server's narrator timeouts (45 s per hand, 60 s for the report), so the server's error wins. */
+const NARRATE_CLIENT_TIMEOUT_MS = 50_000
+const SCOUT_CLIENT_TIMEOUT_MS = 65_000
 /** Play mode: decision models answer in ~300 ms, which feels instant without a floor. */
 const PLAY_THINK_MS = 700
 
@@ -48,7 +53,7 @@ export interface HandRecord {
 /** Lines a seat already said this session, newest last (deduped), so the LLM can vary its banter. */
 const PRIOR_TALK_MAX = 6
 
-export function useTable(lineup: Lineup, opts: { stacks?: number[], seed?: number, cap?: Ref<number>, restore?: TableSnapshot } = {}) {
+export function useTable(lineup: Lineup, opts: { stacks?: number[], seed?: number, cap?: Ref<number>, narratorOn?: Ref<boolean>, restore?: TableSnapshot } = {}) {
   const snap = opts.restore
   const hasHuman = lineup.mode === 'play'
   const ais = lineup.seats.map((modelId, i) => {
@@ -81,8 +86,19 @@ export function useTable(lineup: Lineup, opts: { stacks?: number[], seed?: numbe
   const pace = ref<Pace>(snap?.pace ?? '1x')
   /** Session spend cap in USD; AI turns stop once spend reaches it. */
   const cap = opts.cap ?? ref(DEFAULT_COST_CAP)
-  /** Gateway cost of this session's decisions (pricing.ts × usage). */
-  const spent = computed(() => sessionCost(decisions.value))
+  /** The Booth: one narrator call per finished hand, plus a scouting report when the session ends. */
+  const narratorOn = opts.narratorOn ?? ref(true)
+  const narrations = ref<Record<number, Narration>>(snap?.narrations ?? {})
+  /** Hand numbers waiting on the narrator, and the ones it missed (error or timeout). */
+  const narrating = ref<number[]>([])
+  const narrationFailed = ref<number[]>([])
+  const scouting = ref<ScoutingReport | null>(null)
+  const scoutingStatus = ref<'idle' | 'loading' | 'error'>('idle')
+  /** Aborted only on unload, unmount or reset: dealing the next hand must not cancel the Booth. */
+  let boothController = new AbortController()
+  const narratorSpent = computed(() => narratorCost(Object.values(narrations.value)) + narratorCost([scouting.value]))
+  /** Gateway cost of this session's decisions and narration (pricing.ts × usage). */
+  const spent = computed(() => sessionCost(decisions.value) + narratorSpent.value)
   /** True while the cap is holding AI turns back. */
   const capped = ref(false)
   /** Watch mode: the pace to go back to when the cap is lifted from the toast. */
@@ -160,7 +176,58 @@ export function useTable(lineup: Lineup, opts: { stacks?: number[], seed?: numbe
       log: h.log, actionLabels: h.actionLabels, decisions: h.decisions,
       result: { pots: h.pots, shown: h.shown, deltas: h.deltas }, stacksAfter: h.stacksAfter
     })
+    if (canNarrate({ street: s.street })) narrate(h)
   }
+
+  const nameOf = (id: string) => players.find(p => p.id === id)?.name ?? id
+
+  /** Ask the Booth about one finished hand. Async: never blocks the next deal; late is fine. */
+  function narrate(h: HandRecord) {
+    if (!import.meta.client || !narratorOn.value || spent.value >= cap.value) return
+    if (narrations.value[h.handNo] || narrating.value.includes(h.handNo)) return
+    const sid = sessionId
+    const signal = boothController.signal
+    narrating.value = [...narrating.value, h.handNo]
+    narrationFailed.value = narrationFailed.value.filter(x => x !== h.handNo)
+    $fetch<Narration>('/api/narrate', {
+      method: 'POST',
+      body: { seats: players, hand: h },
+      signal: AbortSignal.any([signal, AbortSignal.timeout(NARRATE_CLIENT_TIMEOUT_MS)])
+    }).then((n) => {
+      if (signal.aborted || sid !== sessionId) return
+      narrations.value = { ...narrations.value, [h.handNo]: n }
+      postLog({ type: 'narration', sessionId: sid, mode: lineup.mode, handNo: h.handNo, narration: n })
+    }).catch(() => {
+      if (!signal.aborted && sid === sessionId) narrationFailed.value = [...narrationFailed.value, h.handNo]
+    }).finally(() => {
+      narrating.value = narrating.value.filter(x => x !== h.handNo)
+    })
+  }
+
+  /** End-of-session scouting report. Runs by itself when the summary opens (narrator on, under the cap); `force` is the summary's button. */
+  async function requestScouting(force = false) {
+    if (!history.value.length || !players.some(p => p.modelId) || scoutingStatus.value === 'loading') return
+    if (!force && (!narratorOn.value || spent.value >= cap.value)) return
+    if (scouting.value?.hands === history.value.length) return
+    const sid = sessionId
+    const signal = boothController.signal
+    scoutingStatus.value = 'loading'
+    try {
+      const headlines = Object.fromEntries(Object.values(narrations.value).map(n => [n.handNo, n.headline]))
+      const report = await $fetch<ScoutingReport>('/api/scouting', {
+        method: 'POST',
+        body: { seats: players, hands: history.value, headlines },
+        signal: AbortSignal.any([signal, AbortSignal.timeout(SCOUT_CLIENT_TIMEOUT_MS)])
+      })
+      if (sid !== sessionId) return
+      scouting.value = report
+      scoutingStatus.value = 'idle'
+      postLog({ type: 'scouting_report', sessionId: sid, mode: lineup.mode, hands: report.hands, report, markdown: scoutingMarkdown(report, nameOf, `Scouting report · session ${sid.slice(0, 8)}`) })
+    } catch {
+      if (sid === sessionId) scoutingStatus.value = signal.aborted ? 'idle' : 'error'
+    }
+  }
+  const scoutingMd = computed(() => scouting.value ? scoutingMarkdown(scouting.value, nameOf, `Scouting report · ${players.filter(p => p.modelId).map(p => p.name).join(', ')}`) : '')
 
   function logSessionStart() {
     postLog({
@@ -173,7 +240,7 @@ export function useTable(lineup: Lineup, opts: { stacks?: number[], seed?: numbe
   function endSession(reason: string | null) {
     postLog({
       type: 'session_end', sessionId, mode: lineup.mode, hands: history.value.length, reason,
-      costUsd: spent.value, stacks: Object.fromEntries(state.value.seats.map(x => [x.id, x.stack])),
+      costUsd: spent.value, narratorCostUsd: narratorSpent.value, stacks: Object.fromEntries(state.value.seats.map(x => [x.id, x.stack])),
       stats: seatStats(players.map(p => p.id), history.value, decisions.value)
     })
     clearSnapshot()
@@ -183,11 +250,12 @@ export function useTable(lineup: Lineup, opts: { stacks?: number[], seed?: numbe
     saveSnapshot({
       v: 1, sessionId, lineup: { ...lineup, seats: lineup.seats.slice() }, startingStacks, startedAt: startedAt.value,
       state: state.value, history: history.value, decisions: decisions.value,
-      actionLabels: actionLabels.value, blindsNote: blindsNote.value, pace: pace.value, costUsd: spent.value, cap: cap.value
+      actionLabels: actionLabels.value, blindsNote: blindsNote.value, pace: pace.value, costUsd: spent.value, cap: cap.value,
+      narrations: narrations.value, narratorOn: narratorOn.value
     })
   }
   // After every applied action (state), decision, finished hand or pace change. Only once a hand is dealt.
-  watch([state, () => decisions.value.length, () => history.value.length, pace, cap], () => {
+  watch([state, () => decisions.value.length, () => history.value.length, pace, cap, () => Object.keys(narrations.value).length, narratorOn], () => {
     if (state.value.handNo > 0) persist()
   })
   if (!snap && import.meta.client) logSessionStart()
@@ -381,6 +449,13 @@ export function useTable(lineup: Lineup, opts: { stacks?: number[], seed?: numbe
     capped.value = false
     if (capToastId) toast.remove(capToastId)
     capToastId = null
+    boothController.abort()
+    boothController = new AbortController()
+    narrations.value = {}
+    narrating.value = []
+    narrationFailed.value = []
+    scouting.value = null
+    scoutingStatus.value = 'idle'
     sessionId = crypto.randomUUID()
     logSessionStart()
     deal()
@@ -395,14 +470,27 @@ export function useTable(lineup: Lineup, opts: { stacks?: number[], seed?: numbe
 
   // A reload kills the in-flight /api/decide; abort first so it isn't recorded as a fallback fold.
   // The snapshot keeps the AI on turn, and the restored table re-requests it.
-  if (import.meta.client) window.addEventListener('beforeunload', stop)
-  onBeforeUnmount(() => {
-    if (import.meta.client) window.removeEventListener('beforeunload', stop)
+  // Narration in flight is dropped too; the restored table re-asks for the last two hands.
+  function unload() {
     stop()
+    boothController.abort()
+  }
+  if (import.meta.client) window.addEventListener('beforeunload', unload)
+  onBeforeUnmount(() => {
+    if (import.meta.client) window.removeEventListener('beforeunload', unload)
+    unload()
     if (capToastId) toast.remove(capToastId)
   })
 
+  // Resumed: re-ask for recent hands the Booth hadn't finished. Toggled on: narrate the last hand.
+  if (snap && import.meta.client) history.value.slice(-2).forEach(narrate)
+  watch(narratorOn, (on) => {
+    const last = history.value.at(-1)
+    if (on && last) narrate(last)
+  })
+
   return {
+    narratorOn, narrations, narrating, narrationFailed, narratorSpent, scouting, scoutingStatus, scoutingMd, requestScouting,
     state, hasHuman, thinking, decisions, actionLabels, blindsNote, pace, cap, spent, capped, raiseCapAndResume,
     history, startingStacks, startedAt, lineup,
     toActSeat, isHumanTurn, human, humanLegal, humanMenu, canDeal, finished,

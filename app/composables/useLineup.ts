@@ -24,5 +24,7 @@ export function useTableHeader() {
   const leaveRequests = useState('table-leave', () => 0)
   /** Session spend cap in USD (default $2); kept across tables until refresh. */
   const costCap = useState('table-cost-cap', () => DEFAULT_COST_CAP)
-  return { meta, leaveRequests, costCap }
+  /** The Booth (one narrator call per finished hand + the scouting report); on by default. */
+  const narratorOn = useState('table-narrator-on', () => true)
+  return { meta, leaveRequests, costCap, narratorOn }
 }

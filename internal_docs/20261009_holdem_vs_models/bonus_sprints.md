@@ -1,7 +1,7 @@
 # Hold'em AI — Bonus Sprints: Spectator, Narrator, Tournaments, Strategy Lab
 
 **Created:** October 9, 2026
-**Status:** B1 complete (2026-10-10); B2–B5 not started · optional · runs only after Sprints 1–4 of [`implementation_plan.md`](./implementation_plan.md) are done
+**Status:** B1–B2 complete (2026-10-10); B3–B5 not started · optional · runs only after Sprints 1–4 of [`implementation_plan.md`](./implementation_plan.md) are done
 **Context:** Kyle: "let them just watch the models play against each other… track their performance… an AI narrator… tournaments, a bunch of times, see the trends… then have a really powerful model like Fable plan strategies, personalities, approaches and explore: work the explore-exploit, test a few at the same time, and learn empirically what wins. Don't rely on what you think will win."
 
 **Goal:** four optional sprints that build on each other. Each one is useful on its own, so we can stop after any of them:
@@ -69,7 +69,7 @@ Storyboard: frames **6–7** in [`storyboard.html`](./storyboard.html) (Spectato
 
 ---
 
-## Sprint B2: Narrator `[Not Started]`
+## Sprint B2: Narrator `[Complete]`
 **Goal:** a commentator who explains what just happened and, at the end, what each model is *like*.
 **Estimated effort:** 2–3 hours
 
@@ -79,9 +79,27 @@ Storyboard: frames **6–7** in [`storyboard.html`](./storyboard.html) (Spectato
 - B2.3 End-of-session **scouting report** (in the summary modal, plus a `Copy as Markdown` button): the narrator gets `stats.ts` output + 3–5 notable hands per seat and writes a profile for each seat: style label (e.g. "loose-passive caller"), tendencies backed by the numbers, a signature hand, how to beat it, and one line on its table-talk voice. Prompt rule: every claim must cite a stat or a hand number.
 - B2.4 Cost: narration is one call per hand. Show it as its own row ("Narrator") in the cost table. Add a toggle to turn it off.
 
-#### Verification
-- [ ] 10-hand Watch session: every hand gets a headline; the scouting report cites real stats (spot-check 3 claims against `stats.ts` output)
-- [ ] In Play mode, no narration appears until the hand completes
+#### Verification (Playwright, main loop)
+- [x] 10-hand Watch session (Jev, Luna Decisions, Luna, Haiku at Max): 10/10 hands got a headline. `db7f125b….jsonl` has 10 `hand` + 10 `narration` lines, then `session_end` and `scouting_report`, plus `db7f125b…_scouting.md`. — `b2_booth_watch.webp`, `b2_hands_tab.webp`, `b2_summary.webp`
+- [x] Spot-check of 3 scouting claims against `seatStats()` re-run on the JSONL. All 3 match: Haiku VPIP 80% (8/10) / PFR 50% (5/10) / 17 bets/raises and 0 calls; Jev AF 0.1 (1/9), WTSD 57% (4/7), W$SD 50% (2/4); Haiku won 8 of 10 pots. One narrative slip: #5 says Luna "check-called three streets" after it check-raised the flop. Every tendency line cites a number.
+- [x] Play mode: on hand 1 there was no Booth entry, no narrate request and 0 reasoning nodes until `complete`. Mid-hand 2 the Booth shows hand #1. The network order is hand-1 `log` → `narrate` → `log` → hand-2 `decide`s. — `b2_play_midhand.webp`
+- [x] Toggle off: hand 2 finished with no narrate call. Leave offered a "Write the scouting report" button instead of calling. — `b2_narrator_off.webp`
+- [x] Reload keeps narrations (10/10 back from the snapshot, no re-request). A pre-B2 (B1) snapshot still resumes, and its last 2 hands got narrated.
+- [x] Copy as Markdown copies the same markdown as the `.md` file (verified with a stubbed clipboard; Playwright's real clipboard read hangs on a permission prompt)
+- [x] `npm test` (49: +6 `tests/narrate.test.ts`, +1 reveal gate), `npm run typecheck`, `npm run lint` green
+
+#### Notes & deviations (2026-10-10)
+- **Files:** `shared/utils/narration.ts` (types, `NARRATOR_MODEL`, `statsLine`, `scoutingMarkdown`, `narratorCost`, `uncitedClaims`), `server/utils/narrate.ts` (`renderHand`, `notableHands`, `renderScoutingPrompt`, `narrateHand`, `scoutingReport`), `server/utils/narrateSchema.ts`, `server/api/narrate.post.ts`, `server/api/scouting.post.ts`, `app/components/BoothEntry.vue`. Edited: `useTable` (narrate on `recordIfComplete`, scouting, cost, snapshot), `TableTalk` (pinned Booth + switch), `HandHistory` (headline + Booth), `SessionSummary` (Narrator row, scouting report), `log.post.ts` (2 new line types + `.md`), `reveal.ts` (`canNarrate`), `persist.ts`, `useLineup` (`narratorOn` state). No `nuxt.config` change.
+- **Model calls:** `generateText + Output.object`, `reasoning: 'low'`, `maxRetries: 1`, `maxOutputTokens: 4000`, no temperature, gateway caching, a 45 s timeout per hand and 60 s for the report (client timeouts 50 s / 65 s). Errors come back as 502, and the Booth shows "missed this hand". The model can be changed with `modelId` in the body or the `NARRATOR_MODEL` env var; it must be an `llm` in `models.ts`.
+- **The narrator gets engine hand names.** The first live narration misread 4♠7♥ on J-7-4-6-5 as a straight. `renderHand` now adds each seat's `rankHand()` best five on the full board, and the re-run was correct. The narrator isn't seated, so the table-information rule holds.
+- **Stats** are recomputed server-side from the hands sent to `/api/scouting` (`seatStats`), so client numbers aren't trusted. The prompt hands them over as `statsLine` text ("VPIP 42% (5/12)"), and the report shows the same line under each seat. `statsLine` derives AF from `counts`, because JSON turns ∞ into null.
+- **Cost and cap:** narration counts in the header meter and against the cap. At or over the cap, no narration and no auto-report (the summary's button still works). Measured: about $0.007–0.012 per hand (about 2–3k input tokens, 300 output), about $0.03–0.04 per report. At a cheap table the narrator costs more than all the seats: $0.123 vs $0.017 over 10 hands.
+- **Persistence:** `narration` and `scouting_report` JSONL lines (schema in `AGENTS.md`); `<id>_scouting.md` (latest wins); the snapshot gains optional `narrations` / `narratorOn` (still `v: 1`, so older snapshots load). A reload re-asks for up to the last 2 hands that weren't narrated.
+- **Play-mode reveal:** narration is god view after the hand, so it can name a folded AI's cards, which the Hands tab hides. This is the same post-hand rule as the reasoning reveal.
+- **Seen, not B2:** the dev server restarted on its own once during verification. One GPT-6 Luna decision (`db7f125b` hand 3) took 901 s and fell back to a fold, which shows a stalled server process can outlive the 30 s abort. B3's runner calls `decide()` directly, so it isn't affected the same way, but it should keep a wall-clock watchdog.
+- **Spend:** about $0.24 on the key ($2.127 → $2.368): 13 hands narrated in the app, 2 curl probes, 2 scouting reports, plus the cheap seats' own decisions. The cap was $2.
+
+**For B3:** the scouting report takes any `{ seats, hands }`, so `/results` can reuse `scoutingReport()` per run. Feed it the JSONL `hand` lines (spread `result`). Expect about $0.04 per report.
 
 ---
 

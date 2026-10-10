@@ -6,7 +6,7 @@ import { HAND_CAP } from '~/composables/useTable'
 
 const route = useRoute()
 const lineup = useLineup()
-const { meta, leaveRequests, costCap } = useTableHeader()
+const { meta, leaveRequests, costCap, narratorOn } = useTableHeader()
 
 // Debug params (no setup screen needed):
 //   ?stacks=100,500,1000,1000,1000  starting stacks per seat (side-pot screenshots)
@@ -43,11 +43,13 @@ const snapshot = saved && (!requested || (requested.mode === saved.lineup.mode &
 if (snapshot) {
   lineup.value = snapshot.lineup
   if (snapshot.cap > 0) costCap.value = snapshot.cap
+  if (typeof snapshot.narratorOn === 'boolean') narratorOn.value = snapshot.narratorOn
 }
 const resolved = snapshot?.lineup ?? requested
 if (!resolved) await navigateTo('/')
 
-const table = useTable(resolved ?? { mode: 'play', seats: DEFAULT_LINEUP, stack: 1000, smallBlind: 5, bigBlind: 10 }, { stacks: debugStacks, cap: costCap, restore: snapshot ?? undefined })
+const table = useTable(resolved ?? { mode: 'play', seats: DEFAULT_LINEUP, stack: 1000, smallBlind: 5, bigBlind: 10 }, { stacks: debugStacks, cap: costCap, narratorOn, restore: snapshot ?? undefined })
+const { narrations, narrating, narrationFailed, narratorSpent, scouting, scoutingStatus, scoutingMd } = table
 const { state, hasHuman, thinking, decisions, actionLabels, blindsNote, human, humanLegal, humanMenu, canDeal, finished, toActSeat, pace, history, startingStacks, spent, capped } = table
 
 const complete = computed(() => state.value.street === 'complete')
@@ -89,6 +91,7 @@ function openSummary(reason: string | null) {
   }
   summaryOpen.value = true
   table.endSession(reason)
+  table.requestScouting()
 }
 watch(summaryOpen, (open) => {
   if (!open && pausedFor) {
@@ -104,6 +107,17 @@ watch(finished, (why) => {
 })
 
 const summaryTable = computed(() => summaryRows(state.value.seats, startingStacks, history.value, decisions.value))
+/** The cost table's "Narrator" row: every Booth call this session (hand write-ups + the scouting report). */
+const narratorRow = computed(() => {
+  const calls = [...Object.values(narrations.value), ...(scouting.value ? [scouting.value] : [])]
+  if (!calls.length) return null
+  return {
+    model: calls[0]!.model,
+    hands: Object.keys(narrations.value).length,
+    avgMs: Math.round(calls.reduce((a, c) => a + c.latencyMs, 0) / calls.length),
+    costUsd: narratorSpent.value
+  }
+})
 const startingStackLabel = computed(() => {
   const v = Object.values(startingStacks)
   return v.every(x => x === v[0]) ? v[0]!.toLocaleString() : 'mixed'
@@ -164,6 +178,7 @@ onBeforeUnmount(() => {
       </section>
       <aside class="min-w-0">
         <TableTalk
+          v-model:narrator-on="narratorOn"
           :state="state"
           :action-labels="actionLabels"
           :blinds-note="blindsNote"
@@ -175,6 +190,9 @@ onBeforeUnmount(() => {
           :history="history"
           :starting-stacks="startingStacks"
           :all-decisions="decisions"
+          :narrations="narrations"
+          :narrating="narrating"
+          :narration-failed="narrationFailed"
         />
       </aside>
     </div>
@@ -188,6 +206,12 @@ onBeforeUnmount(() => {
       :starting-stack="startingStackLabel"
       :reason="summaryReason"
       :watching="!hasHuman"
+      :narrator="narratorRow"
+      :scouting="scouting"
+      :scouting-status="scoutingStatus"
+      :scouting-md="scoutingMd"
+      :seats="state.seats"
+      @scout="table.requestScouting(true)"
       @again="playAgain"
       @new-table="newTable"
     />

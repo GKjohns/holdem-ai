@@ -1,9 +1,10 @@
 /**
  * POST /api/log — append one JSONL line to data/sessions/<sessionId>.jsonl.
- * The client posts a session_start, one `hand` line per completed hand, and a
- * session_end. Line schema: AGENTS.md § Session logs.
+ * The client posts a session_start, one `hand` line per completed hand, a `narration`
+ * line when the Booth's take on a hand lands, a session_end, and a `scouting_report`
+ * (also written as data/sessions/<sessionId>_scouting.md). Line schema: AGENTS.md § Session logs.
  */
-import { appendFile, mkdir } from 'node:fs/promises'
+import { appendFile, mkdir, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { z } from 'zod'
 
@@ -45,6 +46,19 @@ const lineSchema = z.discriminatedUnion('type', [
     reason: z.string().nullable(),
     costUsd: z.number().nonnegative(),
     stats: z.array(z.looseObject({ seatId: z.string() }))
+  }),
+  z.looseObject({
+    type: z.literal('narration'),
+    ...base,
+    handNo: z.number().int().positive(),
+    narration: z.looseObject({ headline: z.string(), playByPlay: z.string(), model: z.string() })
+  }),
+  z.looseObject({
+    type: z.literal('scouting_report'),
+    ...base,
+    hands: z.number().int().nonnegative(),
+    report: z.looseObject({ seats: z.array(z.looseObject({ seatId: z.string() })), model: z.string() }),
+    markdown: z.string().max(100_000)
   })
 ])
 
@@ -58,5 +72,7 @@ export default defineEventHandler(async (event) => {
   const line = parsed.data
   await mkdir(DIR, { recursive: true })
   await appendFile(join(DIR, `${line.sessionId}.jsonl`), `${JSON.stringify(line)}\n`)
+  // The latest report wins: a session left twice is re-scouted over more hands.
+  if (line.type === 'scouting_report') await writeFile(join(DIR, `${line.sessionId}_scouting.md`), line.markdown)
   return { ok: true }
 })

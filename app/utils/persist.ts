@@ -4,6 +4,7 @@
  * Every storage access is wrapped: private windows and blocked storage just mean no resume.
  */
 import type { TableState } from '~~/shared/utils/types'
+import type { Narration } from '~~/shared/utils/narration'
 import type { Lineup } from '~/composables/useLineup'
 import type { DecisionRecord, HandRecord, Pace } from '~/composables/useTable'
 
@@ -25,6 +26,9 @@ export interface TableSnapshot {
   costUsd: number
   /** Session spend cap, USD. */
   cap: number
+  /** The Booth's take per hand number. Optional: snapshots from before B2 don't have it. */
+  narrations?: Record<number, Narration>
+  narratorOn?: boolean
 }
 
 export function loadSnapshot(): TableSnapshot | null {

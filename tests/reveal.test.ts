@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { canRevealReasoning, canShowHoleCards } from '../app/utils/reveal.ts'
+import { canNarrate, canRevealReasoning, canShowHoleCards } from '../app/utils/reveal.ts'
 
 const MID_HAND = ['preflop', 'flop', 'turn', 'river', 'showdown']
 
@@ -17,4 +17,9 @@ test('AI hole cards are face up only when nobody is playing', () => {
   assert.equal(canShowHoleCards({ hasHuman: true, seatIsHuman: false }), false)
   assert.equal(canShowHoleCards({ hasHuman: true, seatIsHuman: true }), true)
   assert.equal(canShowHoleCards({ hasHuman: false, seatIsHuman: false }), true)
+})
+
+test('the Booth narrates a hand only once it is complete', () => {
+  for (const street of MID_HAND) assert.equal(canNarrate({ street }), false, street)
+  assert.equal(canNarrate({ street: 'complete' }), true)
 })

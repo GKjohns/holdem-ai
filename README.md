@@ -36,7 +36,8 @@ A model error, timeout (30 s) or illegal pick falls back to check-if-free-else-f
 - The side panel has four tabs: **Table talk** (live log, or the hand review), **Hands** (every finished hand: winner, board, chip swings, and the full log with reasoning), **Chips** (stack-over-hands chart and current stacks), and **Stats** (per seat: VPIP, PFR, aggression factor, went-to-showdown and won-at-showdown %, average decision time, cost). Stats are for you to read; no seated model ever sees them.
 - The header shows what the session has cost so far ("$0.042 this session", from `pricing.ts` × tokens). Click it to set a session cap (default $2). At the cap, Watch pauses and Play holds AI turns, with a toast to raise the cap and resume.
 - A reload resumes the table where it was. Every finished hand is also appended to `data/sessions/<sessionId>.jsonl` (gitignored; schema in `AGENTS.md`).
-- **Leave table**, or busting, opens a session summary: net chips, hands won, average decision time and gateway cost per seat.
+- **The Booth** (narrator, default Claude Sonnet 5.5): after each hand ends, a headline, a short play-by-play and the key moment are pinned at the top of Table talk and shown in the Hands tab. It gets the god view, but only of finished hands, so in Play mode nothing reaches it mid-hand. A switch in the Booth row turns it off. It costs about $0.01 a hand and counts toward the session cap.
+- **Leave table**, or busting, opens a session summary: net chips, hands won, average decision time and gateway cost per seat, a "Narrator" cost row, and a **scouting report** on each model (style, tendencies that each cite a stat or hand number, signature hand, how to beat it, table-talk voice) with Copy as Markdown. It's saved as `data/sessions/<id>_scouting.md`.
 - Debug URLs: `/play?stacks=100,500,1000,1000,1000` sets starting stacks, `?seats=jev,gpt-6-luna` picks opponents by id or id suffix, `?mode=watch` skips straight to an all-AI table.
 
 ## Code map
@@ -48,8 +49,9 @@ A model error, timeout (30 s) or illegal pick falls back to check-if-free-else-f
 - `app/utils/reveal.ts` — the one gate for what the UI may show mid-hand. `app/utils/session.ts` — summary and chart numbers. `app/utils/persist.ts` — the resume snapshot and session log posts.
 - `shared/utils/stats.ts` — per-seat VPIP, PFR, AF, WTSD, W$SD, latency and cost from hand history.
 - `server/api/log.post.ts` — appends session log lines to `data/sessions/`.
+- `server/utils/narrate.ts` — the Booth: hand narration and the scouting report (prompts, god-view hand rendering, notable-hand picker). `server/api/narrate.post.ts` and `server/api/scouting.post.ts` call it; `shared/utils/narration.ts` has the shared types, stat wording and markdown.
 - `bench/selfplay.ts` — all-AI self-play through the engine and `decide()` directly; `bench/latency.ts` — latency probe.
-- `tests/` — engine, menu, prompt, reveal, session and stats tests.
+- `tests/` — engine, menu, prompt, narrator, reveal, session and stats tests.
 
 ## Setup
 

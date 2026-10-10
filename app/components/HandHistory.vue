@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import type { Card, Decision, Seat } from '~~/shared/utils/types'
 import type { HandRecord } from '~/composables/useTable'
+import type { Narration } from '~~/shared/utils/narration'
 
 const props = defineProps<{
   hands: HandRecord[]
   seats: Pick<Seat, 'id' | 'name' | 'modelId'>[]
   hasHuman: boolean
+  narrations?: Record<number, Narration>
 }>()
 
 const SUIT: Record<string, string> = { s: '♠', h: '♥', d: '♦', c: '♣' }
@@ -68,6 +70,10 @@ const open = ref<string | undefined>(undefined)
           <span class="num text-muted shrink-0">#{{ item.hand.handNo }}</span>
           <span class="font-semibold text-highlighted">{{ headline(item.hand) }}</span>
         </span>
+        <span
+          v-if="narrations?.[item.hand.handNo]"
+          class="block mt-0.5 text-xs italic text-muted"
+        >{{ narrations[item.hand.handNo]!.headline }}</span>
         <span class="flex flex-wrap items-center gap-x-2 gap-y-1 mt-1">
           <span
             v-if="item.hand.board.length"
@@ -103,6 +109,13 @@ const open = ref<string | undefined>(undefined)
       </span>
     </template>
     <template #body="{ item }">
+      <BoothEntry
+        v-if="narrations?.[item.hand.handNo]"
+        :hand-no="item.hand.handNo"
+        :narration="narrations[item.hand.handNo]"
+        :seats="seats"
+        compact
+      />
       <div class="px-4 py-2 bg-muted/60 border-y border-muted flex flex-wrap gap-x-3 gap-y-1.5 text-xs text-muted">
         <span
           v-for="(cards, id) in held(item.hand)"

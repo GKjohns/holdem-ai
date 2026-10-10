@@ -7,6 +7,11 @@ export function canRevealReasoning(opts: { hasHuman: boolean, street: string }):
   return !opts.hasHuman || opts.street === 'complete'
 }
 
+/** The Booth gets the god view, so it narrates a hand only once it's complete, in every mode. */
+export function canNarrate(opts: { street: string }): boolean {
+  return opts.street === 'complete'
+}
+
 export function canShowHoleCards(opts: { hasHuman: boolean, seatIsHuman: boolean }): boolean {
   return !opts.hasHuman || opts.seatIsHuman
 }

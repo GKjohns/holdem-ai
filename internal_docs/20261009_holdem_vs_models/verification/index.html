@@ -72,7 +72,7 @@
   <p class="meta">Plan <code>20261009_holdem_vs_models</code> · Sprints 1–4 complete · report built 2026-10-10 from the plan, <code>samples/</code> and <code>screenshots/</code> (no new model calls)</p>
   <p><span class="pill ok">Sprints 1–4 complete</span><span class="pill ok">39 tests green</span><span class="pill ok">0 fallbacks in 20-hand self-play</span><span class="pill warn">Bonus B1–B4 not started</span></p>
   <nav class="toc">
-    <a href="#built">What was built</a><a href="#s1">Sprint 1</a><a href="#s2">Sprint 2</a><a href="#s3">Sprint 3</a><a href="#s4">Sprint 4</a><a href="#golden">Golden path</a><a href="#b1">Bonus B1</a><a href="#spend">Spend</a>
+    <a href="#built">What was built</a><a href="#s1">Sprint 1</a><a href="#s2">Sprint 2</a><a href="#s3">Sprint 3</a><a href="#s4">Sprint 4</a><a href="#golden">Golden path</a><a href="#b1">Bonus B1</a><a href="#b2">Bonus B2</a><a href="#spend">Spend</a>
   </nav>
 </header>
 
@@ -383,6 +383,52 @@
   </ul>
 </section>
 
+<!-- ───────────── Bonus B2 ───────────── -->
+<section id="b2">
+  <h2>Bonus B2: Narrator (the Booth)</h2>
+  <p><span class="pill ok">Complete</span> After every <b>completed</b> hand, one call to <code>anthropic/claude-sonnet-5.5</code> (reasoning <code>'low'</code>) via <code>server/utils/narrate.ts</code> returns a headline, a 2–4 sentence play-by-play and a key moment. It runs async and never blocks the next deal. When the session ends, the summary adds a scouting report built from <code>stats.ts</code> numbers that the server recomputes, with Copy as Markdown. The narrator has its own row in the cost table and an on/off switch. 49 tests (+6 narrator, +1 reveal gate); typecheck and lint are green.</p>
+
+  <figure>
+    <img src="screenshots/b2_booth_watch.webp" alt="Booth entry pinned in Table talk, Watch mode" style="max-width:100%">
+    <figcaption><b>The Booth is pinned to the top of Table talk.</b> This is a 10-hand Watch session (Jev, Luna Decisions, Luna, Haiku at Max), and every hand got a headline. On disk, <code>db7f125b….jsonl</code> holds 10 <code>hand</code> lines and 10 <code>narration</code> lines. The narration names the cards, quotes the models' own reasoning, and gives the key moment with the seat's color dot. The switch on the right turns the narrator off. Each call took about 5 s and cost about $0.008–0.012.</figcaption>
+  </figure>
+  <figure>
+    <img src="screenshots/b2_hands_tab.webp" alt="Hands tab with narration" style="max-width:100%">
+    <figcaption><b>Every hand in the Hands tab carries its headline</b> (in italics under the result). Expanding a hand shows the full Booth entry above the cards and the action log.</figcaption>
+  </figure>
+  <figure>
+    <img src="screenshots/b2_summary.webp" alt="Session summary with Narrator row and scouting report" style="max-width:100%">
+    <figcaption><b>The summary adds a "Narrator" cost row and the scouting report.</b> The row reads 10 hands + report, 5.0 s average, $0.123, which is more than all four seats combined at this cheap table. For each seat the report gives a style label, the <code>stats.ts</code> line it was handed, 2–4 claims that each cite a stat or a hand number, a signature hand, how to beat it, and its table-talk voice. Copy as Markdown (checked with a stubbed clipboard) copies the same text that is saved to <code>data/sessions/db7f125b…_scouting.md</code> and the <code>scouting_report</code> JSONL line.</figcaption>
+  </figure>
+  <figure>
+    <img src="screenshots/b2_play_midhand.webp" alt="Play mode mid-hand, Booth on the previous hand" style="max-width:100%">
+    <figcaption><b>In Play mode the Booth only ever shows finished hands.</b> On hand 2 at your turn, it shows hand #1 and reasoning stays sealed. The Playwright network log shows the order: hand-1 <code>log</code> → <code>narrate</code> → <code>log</code> (narration) → hand-2 <code>decide</code>s, with no narrate call during hand 2. On hand 1 the DOM had no Booth entry and 0 reasoning nodes until the hand was complete. The gate is <code>canNarrate()</code> in <code>app/utils/reveal.ts</code>, which is tested.</figcaption>
+  </figure>
+  <figure>
+    <img src="screenshots/b2_narrator_off.webp" alt="Narrator off" style="max-width:100%">
+    <figcaption><b>The switch works.</b> With the narrator off, hand 2 completed and no narration was requested (the snapshot still has only hand 1). On Leave the summary offers "Write the scouting report" instead of calling the model, and the Narrator row shows the one hand that was narrated ($0.006).</figcaption>
+  </figure>
+
+  <h3>Spot-check: 3 scouting claims vs <code>stats.ts</code></h3>
+  <p>I re-ran <code>seatStats()</code> on <code>db7f125b….jsonl</code> (the hand lines with <code>result</code> spread in):</p>
+  <ul class="issues">
+    <li>✅ "Claude Haiku 5.5 … VPIP 80% (8/10), PFR 50% (5/10) and 17 bets/raises against zero calls": recomputed VPIP 80% (8/10), PFR 50% (5/10), AF ∞ (17 bets/raises, 0 calls).</li>
+    <li>✅ Jev "AF 0.1 (1 bets/raises, 9 calls)" and "WTSD 57% (4/7) but wins only W$SD 50% (2/4)": recomputed exactly.</li>
+    <li>✅ "[Haiku] winning 8 of 10 pots": the pots show Haiku won hands 1, 2, 4, 6, 7, 8, 9 and 10 (8 was a split with Jev).</li>
+    <li>Narrative check on #5: the claims "trip nines", "Haiku lost 637 with aces" and "1332 pot" are all right. One sentence says Luna "check-called three streets" even though it check-raised the flop; the report repeats that sentence's error. Every tendency line in both reports cites a number; <code>uncitedClaims()</code> flags any that don't.</li>
+  </ul>
+
+  <h3>Deviations and known issues</h3>
+  <ul class="issues">
+    <li><strong>The narrator gets the engine's hand names.</strong> The first live narration called 4♠7♥ on J-7-4-6-5 "a 4-7 straight", which is wrong. <code>renderHand</code> now adds each seat's <code>rankHand()</code> best five on the full board, and the prompt says never to work out a hand yourself. A re-run of the same hand came back correct. The narrator isn't seated, so this doesn't touch the table-information rule; seated models still get no hand strength.</li>
+    <li>In Play mode the narration is god-view after the hand. It can name a folded AI's hole cards that the Hands tab hides. This is the same post-hand reveal as the reasoning (which often names cards), and it follows the plan ("god-view hand histories, only for completed hands").</li>
+    <li>Narration is <b>included in the session spend and gated by the cap</b>: no narration or auto-report once spend ≥ cap. The summary's button can still write the report. It is persisted in the snapshot (<code>narrations</code>, <code>narratorOn</code>, both optional so pre-B2 snapshots load). A reload re-asks for up to the last 2 hands that weren't narrated: a B1-era snapshot resumed and got hands 13–14 narrated.</li>
+    <li>New log lines: <code>narration</code> (<code>handNo</code>, <code>narration</code>) and <code>scouting_report</code> (<code>hands</code>, <code>report</code>, <code>markdown</code>; the server also writes <code>&lt;id&gt;_scouting.md</code>, and the latest one wins). Documented in <code>AGENTS.md</code>.</li>
+    <li>The scouting report covers AI seats only; the human is listed for context. The server recomputes stats from the hands it receives, not from client numbers. Notable hands per seat are its showdowns first, then its biggest swings (up to 4).</li>
+    <li><strong>Seen, not caused by B2:</strong> during verification the dev server restarted once by itself (vite "server connection lost") and the Playwright tab reloaded. It didn't happen again on a second scouting write, so it isn't the <code>.md</code> write. Around then one GPT-6 Luna decision in <code>db7f125b</code> hand 3 took 901 s and fell back to a fold, which inflates Luna's average to 30.3 s. The server's 30 s abort didn't fire while the process was stalled.</li>
+  </ul>
+</section>
+
 <!-- ───────────── Spend ───────────── -->
 <section id="spend">
   <h2>Spend to date</h2>
@@ -400,6 +446,7 @@
         <tr><td>Sprint 3: about 25 hands, cheap seats (mostly the Watch run)</td><td class="num">not recorded</td><td>plan gives hands, not dollars</td></tr>
         <tr><td>Sprint 4: about 24 hands (Watch table $0.020, Sol table $0.019, side-pot table and checks &lt; $0.01)</td><td class="num">≈ $0.05</td><td>plan</td></tr>
         <tr><td>Bonus B1: about 35 cheap-seat hands (Watch + Play, cap and reload tests)</td><td class="num">≈ $0.06</td><td>in-app meter / JSONL usage</td></tr>
+        <tr><td>Bonus B2: 13 narrated hands in the app + 2 curl probes + 2 scouting reports, cheap seats</td><td class="num">≈ $0.24</td><td>key quota $2.127 → $2.368 (includes the seats' own decisions)</td></tr>
         <tr><th>Total (Sprints 1–4)</th><td class="num"><strong>≈ $0.11</strong></td><td>key-level figure; Sprint 3 is about $0.03 by difference</td></tr>
       </tbody>
     </table>

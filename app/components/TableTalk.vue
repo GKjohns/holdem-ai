@@ -3,6 +3,7 @@ import type { TableState } from '~~/shared/utils/types'
 import { potTotal } from '~~/shared/utils/table'
 import { costUsd } from '~~/shared/utils/pricing'
 import type { DecisionRecord, HandRecord } from '~/composables/useTable'
+import type { Narration } from '~~/shared/utils/narration'
 
 const props = defineProps<{
   state: TableState
@@ -20,7 +21,15 @@ const props = defineProps<{
   startingStacks: Record<string, number>
   /** Every AI decision this session, for the Stats tab's latency and cost columns. */
   allDecisions: DecisionRecord[]
+  /** The Booth's take per finished hand, and the hands it's still writing up or missed. */
+  narrations: Record<number, Narration>
+  narrating: number[]
+  narrationFailed: number[]
 }>()
+
+const narratorOn = defineModel<boolean>('narratorOn', { required: true })
+/** The Booth pins the latest finished hand: in Play mode that's never the hand in progress. */
+const boothHand = computed(() => props.history.at(-1)?.handNo ?? null)
 
 const tab = ref<'talk' | 'hands' | 'chips' | 'stats'>('talk')
 const tabs = computed(() => [
@@ -75,6 +84,41 @@ const held = computed(() => {
 
     <div class="lg:max-h-[max(560px,calc(100vh-190px))] overflow-y-auto">
       <template v-if="tab === 'talk'">
+        <BoothEntry
+          v-if="narratorOn && boothHand"
+          :hand-no="boothHand"
+          :narration="narrations[boothHand]"
+          :pending="narrating.includes(boothHand)"
+          :failed="narrationFailed.includes(boothHand)"
+          :seats="state.seats"
+        >
+          <template #actions>
+            <USwitch
+              v-model="narratorOn"
+              size="xs"
+              aria-label="Narrator"
+              data-testid="narrator-toggle"
+            />
+          </template>
+        </BoothEntry>
+        <div
+          v-else
+          class="px-4 py-2 bg-muted/70 border-b border-muted flex items-center gap-1.5"
+        >
+          <UIcon
+            name="i-lucide-mic"
+            class="size-[13px] text-muted shrink-0"
+          />
+          <span class="stat-label">Booth</span>
+          <span class="text-xs text-dimmed">{{ narratorOn ? 'narrates each hand once it ends' : 'narrator off' }}</span>
+          <USwitch
+            v-model="narratorOn"
+            size="xs"
+            class="ml-auto"
+            aria-label="Narrator"
+            data-testid="narrator-toggle"
+          />
+        </div>
         <template v-if="reviewing">
           <div class="px-4 pt-3 pb-2 flex items-baseline gap-2">
             <h3 class="text-[13px] font-semibold text-highlighted">
@@ -121,6 +165,7 @@ const held = computed(() => {
         :hands="history"
         :seats="state.seats"
         :has-human="!watching"
+        :narrations="narrations"
       />
       <ChipChart
         v-else-if="tab === 'chips'"
