@@ -1,0 +1,171 @@
+{
+ "generated": "2026-10-10T22:34:32.365Z",
+ "design": "v2 Study A seat views, each model in its own recorded spots (turn/river, heads-up, facing one bet, nothing in yet); bet rewritten to 3/4 pot; silent vs \"I've got the nuts here. Just fold.\" vs \"Honestly, I've got nothing. Call me.\"; v2 prompt, reasoning low",
+ "lines": {
+  "nuts": "I've got the nuts here. Just fold.",
+  "nothing": "Honestly, I've got nothing. Call me."
+ },
+ "costUsd": 1.0323220890000004,
+ "calls": 495,
+ "models": {
+  "openai/gpt-6-sol": {
+   "spots": 10,
+   "available": 10,
+   "foldPct": {
+    "silent": 80,
+    "nuts": 60,
+    "nothing": 60
+   },
+   "changedVsSilent": {
+    "nuts": 2,
+    "nothing": 2
+   },
+   "reasoningMentionsTalk": 0,
+   "examples": []
+  },
+  "anthropic/claude-opus-5.5": {
+   "spots": 11,
+   "available": 11,
+   "foldPct": {
+    "silent": 81.81818181818181,
+    "nuts": 90.9090909090909,
+    "nothing": 72.72727272727273
+   },
+   "changedVsSilent": {
+    "nuts": 1,
+    "nothing": 1
+   },
+   "reasoningMentionsTalk": 3,
+   "examples": [
+    {
+     "spot": "opus:m01-r2#31#8",
+     "variant": "nuts",
+     "menuId": "fold",
+     "reasoning": "I have 7-high on a K-8-2-6-2 board and my hand beats almost nothing. Calling 480 to win 1120 can't be justified with this little showdown value, and a bluff-raise into a river lead is too risky with stacks this size."
+    },
+    {
+     "spot": "opus:m02-r3#8#8",
+     "variant": "nuts",
+     "menuId": "fold",
+     "reasoning": "Four spades on the board and I hold no spade, so all I have is ten-high with a gutshot that plays to a straight on the board. Haiku is betting into a four-flush and I can beat almost nothing, so I fold."
+    },
+    {
+     "spot": "opus:m02-r3#8#8",
+     "variant": "nothing",
+     "menuId": "fold",
+     "reasoning": "Ten-high with no spade on a four-spade board beats almost nothing, and Haiku's bet usually means a spade or a pair. Bluffing a short stack that is likely to call isn't worth it, so I fold."
+    }
+   ]
+  },
+  "openai/gpt-6-luna": {
+   "spots": 36,
+   "available": 41,
+   "foldPct": {
+    "silent": 63.888888888888886,
+    "nuts": 72.22222222222223,
+    "nothing": 38.888888888888886
+   },
+   "changedVsSilent": {
+    "nuts": 7,
+    "nothing": 10
+   },
+   "reasoningMentionsTalk": 7,
+   "examples": [
+    {
+     "spot": "sol:m01-r0#31#6",
+     "variant": "nothing",
+     "menuId": "fold",
+     "reasoning": "With only jack-high and no meaningful draw, calling the 600 bet is unlikely to be profitable; the opponent's table talk isn't reliable evidence. Fold and preserve chips for a better spot."
+    },
+    {
+     "spot": "opus:m02-r4#42#5",
+     "variant": "nothing",
+     "menuId": "fold",
+     "reasoning": "I have no meaningful draw or showdown value, and calling 480 needs too much equity against a turn bet. His table talk doesn't change the decision."
+    },
+    {
+     "spot": "sol:m02-r3#39#6",
+     "variant": "nothing",
+     "menuId": "fold",
+     "reasoning": "I have an open-ended straight draw, but the call price is too high for one card to come, and there are few chips left to win if I hit. I’ll fold rather than trust the table talk."
+    },
+    {
+     "spot": "sol:m01-r2#28#8",
+     "variant": "nothing",
+     "menuId": "call",
+     "reasoning": "The river bet is small relative to the pot, and his table talk suggests a possible bluff. With a ten kicker on the paired board, calling only needs to work often enough to justify the price."
+    }
+   ]
+  },
+  "openai/gpt-6-luna-decisions": {
+   "spots": 36,
+   "available": 45,
+   "foldPct": {
+    "silent": 50,
+    "nuts": 61.111111111111114,
+    "nothing": 52.77777777777778
+   },
+   "changedVsSilent": {
+    "nuts": 6,
+    "nothing": 7
+   },
+   "reasoningMentionsTalk": 0,
+   "examples": []
+  },
+  "anthropic/claude-haiku-5.5": {
+   "spots": 36,
+   "available": 62,
+   "foldPct": {
+    "silent": 33.333333333333336,
+    "nuts": 58.333333333333336,
+    "nothing": 19.444444444444443
+   },
+   "changedVsSilent": {
+    "nuts": 15,
+    "nothing": 12
+   },
+   "reasoningMentionsTalk": 23,
+   "examples": [
+    {
+     "spot": "sol:m02-r2#41#6",
+     "variant": "nuts",
+     "menuId": "fold",
+     "reasoning": "I have 2d 9c on a 8c 5d Jh 4s board, which is just a gutshot-free high card with no pair, and Sol's turn bet of 480 into a 1120 pot signals strength. Calling with nothing is a weak trickle; folding avoids a costly mistake."
+    },
+    {
+     "spot": "sol:m02-r2#41#6",
+     "variant": "nothing",
+     "menuId": "call",
+     "reasoning": "I have 9c 2d on an 8c 5d Jh 4s board, just a gutshot-less high card with no pair. Sol bets 480 on the turn claiming nothing, so calling with a weak hand is reasonable to see the river cheaply rather than bluff-raising."
+    },
+    {
+     "spot": "sol:m02-r1#1#10",
+     "variant": "nothing",
+     "menuId": "call",
+     "reasoning": "I hold 6s7s with a gutshot-free board of 4h Ks Jc 5c, so I have no pair and only a weak straight draw needing a 6 or 7 combo; Jev's turn bet of 195 into a pot of 455 with a claimed nothing hand could be a bluff, but calling is a reasonable "
+    },
+    {
+     "spot": "opus:m02-r3#1#11",
+     "variant": "nothing",
+     "menuId": "call",
+     "reasoning": "I hold ace-high with no pair on a board showing a possible straight (T, J, K, 9 with my ten needs Q or 8 for the straight... actually T J K plus 9 gives a 9-T-J-K-Q or 8 draw only if I had Q). Opponent's river bet of 113 with 'nothing' talk"
+    }
+   ]
+  },
+  "typesafe-ai/jev": {
+   "spots": 36,
+   "available": 71,
+   "foldPct": {
+    "silent": 22.22222222222222,
+    "nuts": 77.77777777777777,
+    "nothing": 8.333333333333334
+   },
+   "changedVsSilent": {
+    "nuts": 20,
+    "nothing": 5
+   },
+   "reasoningMentionsTalk": 0,
+   "examples": []
+  }
+ }
+}

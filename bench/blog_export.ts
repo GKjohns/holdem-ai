@@ -6,13 +6,16 @@
  *
  * --source v1  B3 run (data/runs/20261010_main.jsonl), the B4 lab and the B5 notebook
  *              outputs (internal_docs/20261009_holdem_vs_models/findings/notebook/out/).
- * --source v2  The fairness rerun (internal_docs/20261011_v2_fairness/). Not wired yet:
- *              add a loadV2() that returns the same `Input` shape, then pick v2 hands
- *              in HANDS_V2. Everything downstream (replays, figures, facts) is shared.
+ * --source v2  The v2 study (internal_docs/20261011_v2_fairness/): Study A run files
+ *              (data/runs/20261011_v2A_{sol,opus,fable}.jsonl), Study B (personas) and
+ *              out/{standings,styles_raw,personas,talk}.json. Replays use HANDS_V2; figures
+ *              and facts come from buildFiguresV2() (prize share, personas, the v2 talk test).
+ *              The post is v2-only, so v2 facts carry no v1 numbers.
  *
  * Outputs (each must stay under 150 KB):
  *   replays.json  { source, hands: { [id]: ReplayHand } }
- *   figures.json  { source, standings, personalities, talk, lab, facts }
+ *   figures.json  v1: { source, standings, personalities, talk, lab, facts }
+ *                 v2: { source, standings, guestPairs, personalities, talk, personas, facts }
  *
  * The post reads every number from figures.json (`facts` for prose, the rest for
  * figures). Strings are cleaned of em and en dashes (the site bans them).
@@ -40,24 +43,32 @@ const SHORT: Record<string, string> = {
   'openai/gpt-6-luna': 'Luna',
   'openai/gpt-6-luna-decisions': 'Luna Decisions',
   'anthropic/claude-haiku-5.5': 'Haiku',
-  'typesafe-ai/jev': 'Jev'
+  'typesafe-ai/jev': 'Jev',
+  'anthropic/claude-opus-5.5': 'Opus',
+  'anthropic/claude-fable-5.1': 'Fable'
 }
 const FULL: Record<string, string> = {
   'openai/gpt-6-sol': 'GPT-6 Sol',
   'openai/gpt-6-luna': 'GPT-6 Luna',
   'openai/gpt-6-luna-decisions': 'GPT-6 Luna Decisions',
   'anthropic/claude-haiku-5.5': 'Claude Haiku 5.5',
-  'typesafe-ai/jev': 'Jev'
+  'typesafe-ai/jev': 'Jev',
+  'anthropic/claude-opus-5.5': 'Claude Opus 5.5',
+  'anthropic/claude-fable-5.1': 'Claude Fable 5.1'
 }
 const KIND: Record<string, 'words' | 'decision'> = {
   'openai/gpt-6-sol': 'words',
   'openai/gpt-6-luna': 'words',
   'openai/gpt-6-luna-decisions': 'decision',
   'anthropic/claude-haiku-5.5': 'words',
-  'typesafe-ai/jev': 'decision'
+  'typesafe-ai/jev': 'decision',
+  'anthropic/claude-opus-5.5': 'words',
+  'anthropic/claude-fable-5.1': 'words'
 }
-// Display order everywhere: by result
-const ORDER = ['openai/gpt-6-sol', 'openai/gpt-6-luna', 'openai/gpt-6-luna-decisions', 'anthropic/claude-haiku-5.5', 'typesafe-ai/jev']
+// Display order everywhere: by result (v1: bb/100; v2: prize share in Study A)
+const ORDER_V1 = ['openai/gpt-6-sol', 'openai/gpt-6-luna', 'openai/gpt-6-luna-decisions', 'anthropic/claude-haiku-5.5', 'typesafe-ai/jev']
+const ORDER_V2 = ['openai/gpt-6-sol', 'anthropic/claude-opus-5.5', 'openai/gpt-6-luna', 'anthropic/claude-haiku-5.5', 'openai/gpt-6-luna-decisions', 'anthropic/claude-fable-5.1', 'typesafe-ai/jev']
+const ORDER = args.source === 'v2' ? ORDER_V2 : ORDER_V1
 
 // ---------- helpers ----------
 
@@ -114,6 +125,7 @@ const GLOSS: [RegExp, string][] = [
   [/\bshove\b/i, 'all-in bet'],
   [/(?<!raising )\brange\b/i, 'the hands it might hold'],
   [/\boffsuit\b/i, 'two different suits'],
+  [/\bsuited\b/i, 'both the same suit'],
   [/\bearly position\b/i, 'among the first to act'],
   [/\bout of position\b/i, 'having to act first'],
   [/\bvalue-bet\b/i, 'bet so that worse hands pay'],
@@ -127,12 +139,35 @@ const GLOSS: [RegExp, string][] = [
   [/\btrips\b/i, 'three of a kind'],
   [/\braising range\b/i, 'the hands it would raise with'],
   [/\bSB\b/, 'the small blind'],
+  [/\bon the bubble\b|\bthe bubble\b/i, 'one more knockout and everyone left gets paid'],
+  [/\bc-bet\b/i, 'a follow-up bet by the player who raised before the flop'],
+  [/\bisolation raise\b/i, 'a raise to get one weak player alone'],
+  [/\b3-bet\b/i, 're-raise'],
+  [/\bshowdown value\b/i, 'a chance of winning if nobody bets'],
+  [/\bequity\b/i, 'share of the pot it would win on average'],
+  [/\bpot odds\b/i, 'the price of a call compared with the pot'],
+  [/\bin position\b/i, 'acting after the other player'],
+  [/\b(?:a )?station\b/i, 'a player who calls almost every bet'],
+  [/\bdead money\b/i, 'chips already in from players who folded'],
+  [/\bgutshot\b/i, 'one specific card short of a straight'],
+  [/\bladder\b/i, 'move up a paid place'],
+  [/\bUTG\b/, 'first-to-act'],
+  [/\bcutoff\b/i, 'the seat just before the last to act'],
+  [/\bthe wheel\b/i, 'the lowest straight, ace to five'],
+  [/\bre-?raise\b/i, 'raise again'],
+  [/\bopen to around 3x\b/i, 'first raise to about three big blinds'],
+  [/\bjamming\b|\bjam\b/i, 'going all-in'],
   [/\bpreflop\b/i, 'before the flop'],
   [/\bbutton\b/i, 'the seat that acts last']
 ]
 const SUIT_GLYPH: Record<string, string> = { s: '\u2660\uFE0E', h: '\u2665\uFE0E', d: '\u2666\uFE0E', c: '\u2663\uFE0E' }
 /** "Ad Qd" -> "A♦ Q♦" (text presentation, so iOS doesn't draw emoji) */
-const cardWords = (t: string) => t.replace(/\b([2-9TJQKA])([shdc])\b/g, (_, r: string, su: string) => `${r === 'T' ? '10' : r}${SUIT_GLYPH[su]}`)
+const rankWord = (r: string) => (r === 'T' ? '10' : r)
+const cardWords = (t: string) => t
+  .replace(/\b([2-9TJQKA])([shdc])\b/g, (_, r: string, su: string) => `${rankWord(r)}${SUIT_GLYPH[su]}`)
+  // poker shorthand: "A3o", "KJs", "QTs" -> "A-3 offsuit", "K-J suited" (glossed below)
+  .replace(/\b([2-9TJQKA])([2-9TJQKA])([so])\b/g, (_, a: string, b: string, k: string) => `${rankWord(a)}-${rankWord(b)} ${k === 's' ? 'suited' : 'offsuit'}`)
+  .replace(/\b([2-9TJQKA])\1\b/g, (_, a: string) => `${rankWord(a)}-${rankWord(a)}`)
 function gloss(text: string, used: Set<string>): string {
   let out = text
   for (const [re, plain] of GLOSS) {
@@ -147,7 +182,8 @@ function gloss(text: string, used: Set<string>): string {
 }
 
 function firstSentences(text: string, pick: number | 'last' = 0): string {
-  const parts = clean(text).match(/[^.!?]+[.!?]+(\s|$)/g)?.map(s => s.trim()) ?? [clean(text)]
+  // Split after . ! ? followed by a space, so "7.6 big blinds" stays in one sentence
+  const parts = clean(text).split(/(?<=[.!?])\s+/).map(s => s.trim()).filter(Boolean)
   return pick === 'last' ? parts[parts.length - 1]! : (parts[pick] ?? parts[0]!)
 }
 
@@ -212,8 +248,57 @@ function loadV1(): Input {
   }
 }
 
+const V2_DIR = 'internal_docs/20261011_v2_fairness'
+const V2_TABLES = ['sol', 'opus', 'fable'] as const
+/** Replay ids on v2 carry the table: "opus-m01-r0-11" = the Opus table, tournament m01-r0, hand 11. */
+const v2Key = (table: string, h: { tournamentId: string, handNo: number }) => `${table}-${h.tournamentId}-${h.handNo}`
+
+function runLines(slug: string): any[] {
+  return readFileSync(join(ROOT, `data/runs/${slug}.jsonl`), 'utf8').split('\n').filter(l => l.trim()).map(l => JSON.parse(l))
+}
+
 function loadV2(): Input {
-  throw new Error('--source v2 is not wired yet. Point loadV2() at internal_docs/20261011_v2_fairness/ outputs, return the same Input shape, and pick hands in HANDS_V2.')
+  const out: Record<string, any> = {
+    standings: readJson(`${V2_DIR}/out/standings.json`),
+    styles: readJson(`${V2_DIR}/out/styles_raw.json`),
+    personas: readJson(`${V2_DIR}/out/personas.json`),
+    talk: readJson(`${V2_DIR}/out/talk.json`)
+  }
+  // Ops (hands, decisions, fallbacks, cost) straight from the run files' tournament lines
+  const ops = (slug: string) => {
+    const lines = runLines(slug)
+    const ts = lines.filter(l => l.type === 'tournament')
+    return {
+      tournaments: ts.length,
+      hands: ts.reduce((a, t) => a + t.hands, 0),
+      decisions: ts.reduce((a, t) => a + t.decisions, 0),
+      fallbacks: ts.reduce((a, t) => a + t.fallbacks, 0),
+      cost: ts.reduce((a, t) => a + (t.costUsd ?? 0), 0),
+      handCounts: ts.map(t => t.hands as number),
+      start: lines.find(l => l.type === 'run_start')
+    }
+  }
+  out.opsA = Object.fromEntries(V2_TABLES.map(t => [t, ops(`20261011_v2A_${t}`)]))
+  out.opsB = ops('20261011_v2B_luna')
+  const start = out.opsA.sol.start
+  return {
+    source: 'v2',
+    structure: start.tournament,
+    endings: V2_TABLES.flatMap(t => runLines(`20261011_v2A_${t}`).filter(l => l.type === 'tournament').map(l => l.reason as string)),
+    out,
+    hands(ids) {
+      const found = new Map<string, HandRec>()
+      for (const t of V2_TABLES) {
+        for (const line of readFileSync(join(ROOT, `data/runs/20261011_v2A_${t}.jsonl`), 'utf8').split('\n')) {
+          if (!line.startsWith('{"type":"hand"')) continue
+          const h = JSON.parse(line) as HandRec
+          const id = v2Key(t, h)
+          if (ids.has(id)) found.set(id, h)
+        }
+      }
+      return found
+    }
+  }
 }
 
 // ---------- replays ----------
@@ -311,7 +396,101 @@ const HANDS_V1: HandPick[] = [
   }
 ]
 
-const HANDS_V2: HandPick[] = []
+// Curated for v2 (Study A). The first five are in the post body; the last two are the live
+// table's closed-state replays (CLOSED_V2), so nothing a reader sees twice.
+const HANDS_V2: HandPick[] = [
+  {
+    id: 'fable-m02-r1-6',
+    title: 'Same cards, three guests',
+    focus: 'anthropic/claude-fable-5.1',
+    beats: [
+      { upto: 1, caption: 'Fable holds the ace of hearts and the ten of clubs. Jev raises before the flop, and Fable calls.', why: { log: 1 } },
+      { upto: 4, caption: 'Everyone else folds. It\'s Fable against Jev.' },
+      { upto: 6, caption: 'The flop brings a ten. Fable has a pair of tens with an ace beside it, the best pair it can hold here. Jev bets the size of the pot, and Fable calls.', why: { log: 6 } },
+      { upto: 7, caption: 'The turn. Jev bets the size of the pot again.', why: { log: 7 } },
+      { upto: 8, caption: 'Fable folds its pair. Jev had an ace and a king: no pair at all. Fable gave up the better hand.', why: { log: 8 }, reveal: 'all', result: true }
+    ]
+  },
+  {
+    id: 'opus-m01-r0-11',
+    title: 'Opus waits out the bubble',
+    focus: 'anthropic/claude-opus-5.5',
+    beats: [
+      { upto: 0, caption: 'Four players are left and three get paid, so the next player knocked out leaves with nothing. Poker players call this the bubble. Jev, almost out of chips, calls the big blind.', why: { log: 0 } },
+      { upto: 1, caption: 'Opus raises with an ace and a three, hoping to get Jev alone.', why: { log: 1 } },
+      { upto: 2, caption: 'Luna, also short on chips, pushes all-in with two sevens.', why: { log: 2 } },
+      { upto: 4, caption: 'Luna Decisions folds. Jev calls with everything it has left.' },
+      { upto: 5, caption: 'Opus folds. Two short stacks are all-in against each other, and if one is knocked out, Opus is paid without risking another chip.', why: { log: 5 } },
+      { upto: 5, caption: 'Jev\'s queen pairs on the turn and beats Luna\'s sevens. Nobody is out yet, and Opus still has 1,778 chips.', reveal: 'all', result: true }
+    ]
+  },
+  {
+    id: 'sol-m01-r2-33',
+    title: 'Luna pushes, Sol lets it go',
+    focus: 'openai/gpt-6-luna',
+    beats: [
+      { upto: 0, caption: 'Three players are left, and all three are already paid. What\'s left to play for is the order. The blinds are 80 and 160. Haiku raises.', why: { log: 0 } },
+      { upto: 1, caption: 'Luna has about seven and a half big blinds. With a king and a jack, it pushes all-in instead of waiting for the blinds to eat its chips.', why: { log: 1 } },
+      { upto: 2, caption: 'Sol folds a seven and a two, and its reasoning knows where it stands in the payouts.', why: { log: 2 } },
+      { upto: 3, caption: 'Haiku calls with a king and a four.', why: { log: 3 } },
+      { upto: 3, caption: 'Luna pairs its jack, and two eights on the board give it two pair. It more than doubles, to 2,612 chips.', reveal: 'all', result: true }
+    ]
+  },
+  {
+    id: 'opus-m02-r3-12',
+    title: 'Haiku\'s phantom set',
+    focus: 'anthropic/claude-haiku-5.5',
+    beats: [
+      { upto: 4, caption: 'Luna raises. Opus folds an ace and a two. Haiku has two queens and raises again.', why: { log: 4 } },
+      { upto: 5, caption: 'Luna calls with an ace and a five.', why: { log: 5 } },
+      { upto: 6, caption: 'The flop is an ace, a two and a jack. Haiku\'s reasoning says it has a set, three queens. It has two, and the ace on the table means any ace beats it.', why: { log: 6 } },
+      { upto: 7, caption: 'Luna, holding an ace, calls.', why: { log: 7 } },
+      { upto: 9, caption: 'Haiku bets again on the turn, still describing three of a kind it doesn\'t have. Luna calls.' },
+      { upto: 11, caption: 'On the river Haiku finally reads it right ("a pair") and checks. Luna\'s aces win, and Haiku loses 557 chips.', why: { log: 10 }, reveal: 'all', result: true }
+    ]
+  },
+  {
+    id: 'fable-m01-r1-11',
+    title: 'Fable remembers Jev',
+    focus: 'anthropic/claude-fable-5.1',
+    beats: [
+      { upto: 1, caption: 'Jev just calls the big blind. Fable raises with an ace and an eight, and its reasoning already uses what it remembers about Jev.', why: { log: 1 } },
+      { upto: 5, caption: 'Haiku calls. Luna and Luna Decisions fold, and Jev calls the raise.' },
+      { upto: 8, caption: 'Nobody bets the flop. Fable checks too, citing how Haiku has played in earlier hands.', why: { log: 7 } },
+      { upto: 12, caption: 'On the turn Fable bets half the pot. Haiku folds; Jev calls.', why: { log: 10 } },
+      { upto: 14, caption: 'On the river Fable checks, and its reasoning cites a hand from earlier in the game in which Jev called every bet with only a king.', why: { log: 14 } },
+      { upto: 14, caption: 'Both have only an ace. Fable\'s eight beats Jev\'s three, and Fable takes the 780-chip pot.', reveal: 'all', result: true }
+    ]
+  },
+  {
+    id: 'opus-m01-r1-15',
+    title: 'Opus knocks out two at once',
+    focus: 'anthropic/claude-opus-5.5',
+    beats: [
+      { upto: 2, caption: 'Jev and Luna Decisions just call the big blind. Opus, the biggest stack, raises with the queen and ten of spades.', why: { log: 2 } },
+      { upto: 6, caption: 'All four others call. Five players see the flop.' },
+      { upto: 11, caption: 'The flop has a queen, so Opus has a pair of queens. Everyone checks to Opus, and it bets a third of the pot.', why: { log: 11 } },
+      { upto: 15, caption: 'Haiku and Luna call. The two decision models fold.' },
+      { upto: 18, caption: 'A ten on the turn gives Opus two pair. It pushes all-in.', why: { log: 18 } },
+      { upto: 20, caption: 'Haiku and Luna both call with what\'s left of their chips.', why: { log: 19 } },
+      { upto: 20, caption: 'Neither catches up. Opus\'s two pair wins both pots, Haiku and Luna are out of the tournament, and Opus has 5,386 chips.', reveal: 'all', result: true }
+    ]
+  },
+  {
+    id: 'fable-m01-r0-24',
+    title: 'Fable\'s queens',
+    focus: 'anthropic/claude-fable-5.1',
+    beats: [
+      { upto: 0, caption: 'The blinds are 40 and 80. Fable has two queens and about 12 big blinds, and raises.', why: { log: 0 } },
+      { upto: 1, caption: 'Luna raises again with the ace and king of hearts.', why: { log: 1 } },
+      { upto: 4, caption: 'The others fold, and Fable puts in the rest of its chips: the textbook play with queens and a short stack.', why: { log: 4 } },
+      { upto: 5, caption: 'Luna calls.', why: { log: 5 } },
+      { upto: 5, caption: 'A king and an ace both come. Luna wins, and Fable is out in fourth place. The same deal knocked Opus out the same way at its own table.', reveal: 'all', result: true }
+    ]
+  }
+]
+/** The live table's closed states show these (watch, play); they're not in the post body. */
+const CLOSED_V2 = { watch: 'opus-m01-r1-15', play: 'fable-m01-r0-24' }
 
 const STREET_CARDS: Record<string, number> = { preflop: 0, flop: 3, turn: 4, river: 5 }
 
@@ -323,6 +502,10 @@ const MENU_WORDS: Record<string, string> = {
   raise_half_pot: 'raise half the pot',
   raise_pot: 'raise the pot',
   raise_2x_pot: 'raise twice the pot',
+  raise_third_pot: 'raise a third of the pot',
+  raise_3q_pot: 'raise three quarters of the pot',
+  raise_1_5x_pot: 'raise one and a half pots',
+  raise_to: 'raise',
   all_in: 'all-in'
 }
 
@@ -339,6 +522,8 @@ function whyText(h: HandRec, w: Beat['why'], used: Set<string>): { who: string, 
   }
   return { who, text: gloss(cardWords(firstSentences(d.decision.reasoning ?? '', w.sentence ?? 0)), used) }
 }
+
+const GUEST_TABLE: Record<string, string> = { sol: 'Sol\'s table, ', opus: 'Opus\'s table, ', fable: 'Fable\'s table, ' }
 
 function buildReplay(h: HandRec, pick: HandPick) {
   const seatModel = new Map(h.seats.map(s => [s.id, s.modelId]))
@@ -421,8 +606,8 @@ function buildReplay(h: HandRec, pick: HandPick) {
 
   return {
     id: pick.id,
-    label: `Match ${Number(h.tournamentId.slice(1, 3))}, deal ${Number(h.tournamentId.split('-r')[1]) + 1} of 5, hand ${h.handNo}`,
-    ref: `${h.tournamentId} #${h.handNo}`,
+    label: `${GUEST_TABLE[pick.id.split('-')[0]!] ?? ''}${GUEST_TABLE[pick.id.split('-')[0]!] ? 'match' : 'Match'} ${Number(h.tournamentId.slice(1, 3))}, deal ${Number(h.tournamentId.split('-r')[1]) + 1} of 5, hand ${h.handNo}`,
+    ref: `${GUEST_TABLE[pick.id.split('-')[0]!] ? `${pick.id.split('-')[0]} ` : ''}${h.tournamentId} #${h.handNo}`,
     title: clean(pick.title),
     hand: h.handNo,
     blinds: [h.smallBlind, h.bigBlind],
@@ -640,6 +825,202 @@ function buildFigures(inp: Input) {
   return { standings, personalities, talk, lab, facts }
 }
 
+
+// ---------- figures (v2) ----------
+
+function buildFiguresV2(inp: Input) {
+  const o = inp.out
+  const S = inp.structure
+  const pooled = new Map<string, any>(o.standings.pooled.map((r: any) => [r.player, r]))
+  const style = new Map<string, any>((o.styles as any[]).map(r => [r.id, r.v2]))
+  const guests = new Set(['openai/gpt-6-sol', 'anthropic/claude-opus-5.5', 'anthropic/claude-fable-5.1'])
+  const payouts: number[] = o.opsA.sol.start.tournament.payouts ?? [50, 30, 20]
+  const entrants = o.opsA.sol.start.lineup.length as number
+  const fair = 100 / entrants
+
+  const standings = ORDER_V2.map((id) => {
+    const r = pooled.get(id)
+    return {
+      key: id,
+      name: SHORT[id],
+      kind: KIND[id],
+      guest: guests.has(id),
+      prize: r1(r.prize.value),
+      lo: r1(Math.max(0, r.prize.lo)),
+      hi: r1(r.prize.hi),
+      wins: r.wins,
+      tournaments: r.tournaments,
+      avgFinish: r1(r.avgFinish)
+    }
+  })
+  const pair = (a: string, b: string) => (o.standings.guestPairs as any[]).find(p => p.a === a && p.b === b)
+  const guestPairs = (o.standings.guestPairs as any[]).map(p => ({ a: p.a, b: p.b, prize: r0(p.prize.value), lo: r0(p.prize.lo), hi: r0(p.prize.hi) }))
+
+  const personalities = {
+    behaviors: [
+      { key: 'plays', label: 'Joins the hand', note: 'puts chips in before the flop' },
+      { key: 'raises', label: 'Raises before the flop' },
+      { key: 'shortShove', label: 'Goes all-in when short on chips', note: 'under 15 big blinds' },
+      { key: 'riverFold', label: 'Folds to a bet on the last card' },
+      { key: 'talks', label: 'Talks at the table' },
+      { key: 'remembers', label: 'Cites earlier hands', note: 'in its reasoning' }
+    ],
+    players: ORDER_V2.map((id) => {
+      const st = style.get(id)
+      const words = KIND[id] === 'words'
+      return {
+        key: id,
+        name: SHORT[id],
+        kind: KIND[id],
+        plays: r0(st.vpip),
+        raises: r0(st.pfr),
+        shortShove: r1(st.shortStackShovePct),
+        riverFold: r0(st.foldToRiverBetPct),
+        talks: words ? r0(st.talkRatePct) : null,
+        remembers: words ? r1(st.reasoningMentionsHistoryPct) : null
+      }
+    })
+  }
+
+  const T = o.talk.models as Record<string, any>
+  const talkOrder = ['typesafe-ai/jev', 'anthropic/claude-haiku-5.5', 'openai/gpt-6-luna', 'openai/gpt-6-luna-decisions', 'anthropic/claude-opus-5.5', 'openai/gpt-6-sol']
+  const talk = {
+    lines: o.talk.lines,
+    players: talkOrder.map(id => ({ key: id, name: SHORT[id], kind: KIND[id], spots: T[id].spots, silent: r0(T[id].foldPct.silent), nuts: r0(T[id].foldPct.nuts), nothing: r0(T[id].foldPct.nothing) }))
+  }
+
+  const P = o.personas.personas as any[]
+  const persona = (k: string) => P.find(p => p.id === k)
+  const personas = {
+    base: 'Luna',
+    fair: r1(100 / 6),
+    rows: ['control', 'reader', 'aggressive', 'talker', 'tight', 'math'].map((k) => {
+      const p = persona(k)
+      return { key: k, name: p.label, prize: r1(p.prizeShare.value), lo: r1(p.prizeShare.lo), hi: r1(p.prizeShare.hi), wins: p.wins, plays: r0(p.vpip), talks: r0(p.talkRatePct), remembers: r0(p.reasoningCitesHistoryPct) }
+    })
+  }
+
+  // ---------- facts: every number the prose uses (v2 only) ----------
+  const id = { sol: 'openai/gpt-6-sol', opus: 'anthropic/claude-opus-5.5', fable: 'anthropic/claude-fable-5.1', luna: 'openai/gpt-6-luna', ld: 'openai/gpt-6-luna-decisions', haiku: 'anthropic/claude-haiku-5.5', jev: 'typesafe-ai/jev' } as const
+  type K = keyof typeof id
+  const st = (k: K) => standings.find(s => s.key === id[k])!
+  const sty = (k: K) => style.get(id[k])
+  const A = Object.values(o.opsA) as any[]
+  const B = o.opsB
+  const handsA = A.reduce((a, x) => a + x.hands, 0)
+  const decisionsA = A.reduce((a, x) => a + x.decisions, 0)
+  const allHands = A.flatMap(x => x.handCounts as number[])
+  const so = pair('GPT-6 Sol', 'Claude Opus 5.5')
+  const of = pair('Claude Opus 5.5', 'Claude Fable 5.1')
+  const sf = pair('GPT-6 Sol', 'Claude Fable 5.1')
+  const usdDec = (k: K) => `$${(sty(k).usdPerDecision as number).toFixed(sty(k).usdPerDecision < 0.001 ? 4 : 3)}`
+  const pctSmall = (v: number) => (v > 0 && v < 1 ? 'under 1%' : pct(v))
+  const llms: K[] = ['sol', 'opus', 'fable', 'luna', 'haiku']
+  const talkMax = Math.max(...llms.map(k => sty(k).reasoningMentionsTalkPct as number))
+  const tk = (k: K) => T[id[k]]
+  const setClaims = String(sty('haiku').setClaimsWrong).split('/')
+  const ctl = persona('control')
+  // every persona trailed the control on prize share; this is the closest one's gap
+  const personaLeadMax = Math.max(...P.filter(p => p.vsControl).map(p => p.vsControl.prizePts.value))
+  const personaOff = Math.max(...P.map(p => Math.abs(p.prizeShare.value - 100 / 6)))
+  const costA = A.reduce((a, x) => a + x.cost, 0)
+
+  const facts: Record<string, string> = {
+    // the study
+    tournaments: num(A.reduce((a, x) => a + x.tournaments, 0)),
+    tournaments_per_table: num(o.opsA.sol.tournaments),
+    deck_sets: num(o.opsA.sol.tournaments / 5),
+    hands: num(handsA),
+    decisions: num(decisionsA),
+    fallbacks: num(A.reduce((a, x) => a + x.fallbacks, 0) + B.fallbacks),
+    entrants: num(entrants),
+    start_stack: num(S.stack),
+    start_bb: num(S.stack / S.levels[0]!.bb),
+    blinds_start: `${S.levels[0]!.sb} and ${S.levels[0]!.bb}`,
+    blind_hands: num(S.levels[0]!.hands),
+    payouts: `${payouts.slice(0, -1).map(p => `${p}%`).join(', ')} and ${payouts.at(-1)}%`,
+    payout_first: pct(payouts[0]!),
+    paid_places: num(payouts.length),
+    fair_share: pct(fair),
+    shortest: num(Math.min(...allHands)),
+    longest: num(Math.max(...allHands)),
+    finished: `${inp.endings.filter(r => r === 'finished').length} of ${inp.endings.length}`,
+    cost_a: usd(costA),
+    cost_b: usd(B.cost),
+    cost_talk: usd(o.talk.costUsd),
+    cost_sol_table: usd(o.opsA.sol.cost),
+    cost_opus_table: usd(o.opsA.opus.cost),
+    cost_fable_table: usd(o.opsA.fable.cost),
+
+    // standings (prize share)
+    ...Object.fromEntries((Object.keys(id) as K[]).flatMap(k => [
+      [`${k}_prize`, pct(st(k).prize)],
+      [`${k}_prize_lo`, pct(st(k).lo)],
+      [`${k}_prize_hi`, pct(st(k).hi)],
+      [`${k}_wins`, num(st(k).wins)],
+      [`${k}_tournaments`, num(st(k).tournaments)],
+      [`${k}_finish`, `${st(k).avgFinish}`]
+    ])),
+    sol_opus_gap: `${r0(so.prize.value)} points`,
+    sol_opus_range: `${signed(so.prize.lo)} to ${signed(so.prize.hi)}`,
+    opus_fable_gap: `${r0(of.prize.value)} points`,
+    opus_fable_range: `${signed(of.prize.lo)} to ${signed(of.prize.hi)}`,
+    sol_fable_gap: `${r0(sf.prize.value)} points`,
+    sol_fable_range: `${signed(sf.prize.lo)} to ${signed(sf.prize.hi)}`,
+
+    // styles
+    ...Object.fromEntries((Object.keys(id) as K[]).flatMap(k => [
+      [`${k}_plays`, pct(sty(k).vpip)],
+      [`${k}_plays_words`, inWords(sty(k).vpip)],
+      [`${k}_raises`, pct(sty(k).pfr)],
+      [`${k}_short_shove`, pct(sty(k).shortStackShovePct)],
+      [`${k}_river_fold`, pct(sty(k).foldToRiverBetPct)],
+      [`${k}_usd_dec`, usdDec(k)],
+      [`${k}_latency`, `${sty(k).meanLatencyS}`],
+      ...(KIND[id[k]] === 'words'
+        ? [[`${k}_talk_rate`, pct(sty(k).talkRatePct)], [`${k}_history`, pctSmall(sty(k).reasoningMentionsHistoryPct)], [`${k}_payout_mentions`, pctSmall(sty(k).reasoningMentionsPayoutsPct)]]
+        : [])
+    ])),
+    haiku_short_spots: num(sty('haiku').shortSpots),
+    haiku_short_shoves: num(sty('haiku').shortStackShovePct * sty('haiku').shortSpots / 100),
+    haiku_sets_wrong: `${setClaims[0]} of ${setClaims[1]}`,
+    opus_raise_to: pct(sty('opus').raiseToPct),
+    fable_cost_ratio: `${r1(sty('fable').usdPerDecision / sty('opus').usdPerDecision)}`,
+    talk_in_reasoning_max: pctSmall(talkMax),
+    overbets: num(llms.reduce((a, k) => a + (sty(k).overbetPctOfPostflopBets as number), 0)),
+
+    // the talk test
+    talk_spots: num(tk('jev').spots),
+    talk_sol_spots: num(tk('sol').spots),
+    talk_opus_spots: num(tk('opus').spots),
+    ...Object.fromEntries((['jev', 'haiku', 'luna', 'ld', 'opus', 'sol'] as K[]).flatMap(k => [
+      [`talk_${k}_silent`, pct(tk(k).foldPct.silent)],
+      [`talk_${k}_nuts`, pct(tk(k).foldPct.nuts)],
+      [`talk_${k}_nothing`, pct(tk(k).foldPct.nothing)]
+    ])),
+    talk_calls: num(o.talk.calls),
+
+    // personas (Study B)
+    persona_tournaments: num(B.tournaments),
+    persona_matches: num(o.personas.design.match(/(\d+) duplicate matches/)?.[1] ?? 0),
+    persona_hands: num(B.hands),
+    persona_fair: `${r1(100 / 6)}%`,
+    persona_control: `${r1(ctl.prizeShare.value)}%`,
+    persona_tight_plays: pct(persona('tight').vpip),
+    persona_aggressive_plays: pct(persona('aggressive').vpip),
+    persona_aggressive_wins: num(persona('aggressive').wins),
+    persona_control_wins: num(ctl.wins),
+    persona_talker_talks: pct(persona('talker').talkRatePct),
+    persona_control_talks: pct(ctl.talkRatePct),
+    persona_reader_history: pct(persona('reader').reasoningCitesHistoryPct),
+    persona_control_history: pctSmall(ctl.reasoningCitesHistoryPct),
+    persona_best_behind: `${r1(-personaLeadMax)} points`,
+    persona_max_off: `${r1(personaOff)}`
+  }
+
+  return { standings, guestPairs, personalities, talk, personas, facts }
+}
+
 // ---------- main ----------
 
 if (args.source !== 'v1' && args.source !== 'v2') throw new Error(`--source must be v1 or v2, got ${args.source}`)
@@ -666,11 +1047,34 @@ const duplicate = (() => {
     return { key: m, name: SHORT[m], chips: h.result.deltas[seat]!, bb: r1(h.result.deltas[seat]! / h.bigBlind) }
   }).sort((a, b) => b.chips - a.chips)
 })()
-if (duplicate) hands['m04-r4-4'].sameCards = { hole: ['Ad', 'Qs'], rows: duplicate }
+if (duplicate) hands['m04-r4-4'].sameCards = { hole: ['Ad', 'Qs'], title: 'The same deal, five times. Whoever sat in this seat held', note: 'How many chips each AI came out ahead with those two cards (winnings minus what it bet). Same cards, same seat, same opponents\' cards.', rows: duplicate }
 
-const figures = buildFigures(inp)
+// v2: the guest seat holds the same cards at all three tables; compare the three guests
+if (inp.source === 'v2') {
+  const sameId = 'fable-m02-r1-6'
+  const rest = sameId.split('-').slice(1)
+  const key = `${rest[0]}-${rest[1]}-${rest[2]}`
+  const all = inp.hands(new Set(V2_TABLES.map(t => `${t}-${key}`)))
+  const guestModel: Record<string, string> = { sol: 'openai/gpt-6-sol', opus: 'anthropic/claude-opus-5.5', fable: 'anthropic/claude-fable-5.1' }
+  let hole: string[] = []
+  const rows = V2_TABLES.map((t) => {
+    const h = all.get(`${t}-${key}`)!
+    const seat = h.seats.find(s => s.modelId === guestModel[t])!
+    hole = h.holes[seat.id]!
+    return { key: guestModel[t], name: SHORT[guestModel[t]!], chips: h.result.deltas[seat.id]!, bb: r1(h.result.deltas[seat.id]! / h.bigBlind) }
+  }).sort((a, b) => b.chips - a.chips)
+  hands[sameId].sameCards = {
+    hole,
+    title: 'The same deal at all three guest tables. The guest in this seat held',
+    note: 'Chips each guest won or lost with those two cards. Same cards, same seat, same four opponents. Stacks differed, because the earlier hands had gone differently.',
+    rows
+  }
+}
+
+const figures = inp.source === 'v2' ? buildFiguresV2(inp) : buildFigures(inp)
 const meta = {
   source: inp.source,
+  ...(inp.source === 'v2' ? { closed: CLOSED_V2 } : {}),
   note: 'Generated by holdem-ai bench/blog_export.ts. Do not edit by hand; rerun the script.',
   players: ORDER.map(id => ({ key: id, name: SHORT[id], full: FULL[id], kind: KIND[id] }))
 }
