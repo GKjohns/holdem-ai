@@ -427,7 +427,7 @@ async function copyCommand() {
                     Model
                   </th>
                   <th
-                    v-for="h in ['VPIP', 'PFR', 'AF', 'WTSD', 'W$SD', 'Fallback', 'Median ms', 'p95', '$/100 hands']"
+                    v-for="h in ['VPIP', 'PFR', 'AF', 'WTSD', 'W$SD', 'Fallback', 'Avg ms', 'p95', '$/100 hands']"
                     :key="h"
                     class="font-normal px-2 py-2 text-right whitespace-nowrap"
                   >

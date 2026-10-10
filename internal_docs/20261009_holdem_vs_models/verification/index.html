@@ -72,7 +72,7 @@
   <p class="meta">Plan <code>20261009_holdem_vs_models</code> · Sprints 1–4 complete · report built 2026-10-10 from the plan, <code>samples/</code> and <code>screenshots/</code> (no new model calls)</p>
   <p><span class="pill ok">Sprints 1–4 complete</span><span class="pill ok">39 tests green</span><span class="pill ok">0 fallbacks in 20-hand self-play</span><span class="pill warn">Bonus B1–B4 not started</span></p>
   <nav class="toc">
-    <a href="#built">What was built</a><a href="#s1">Sprint 1</a><a href="#s2">Sprint 2</a><a href="#s3">Sprint 3</a><a href="#s4">Sprint 4</a><a href="#golden">Golden path</a><a href="#b1">Bonus B1</a><a href="#b2">Bonus B2</a><a href="#spend">Spend</a>
+    <a href="#built">What was built</a><a href="#s1">Sprint 1</a><a href="#s2">Sprint 2</a><a href="#s3">Sprint 3</a><a href="#s4">Sprint 4</a><a href="#golden">Golden path</a><a href="#b1">Bonus B1</a><a href="#b2">Bonus B2</a><a href="#b3">Bonus B3</a><a href="#spend">Spend</a>
   </nav>
 </header>
 
@@ -429,6 +429,75 @@
   </ul>
 </section>
 
+<!-- ───────────── Bonus B3 ───────────── -->
+<section id="b3">
+  <h2>Bonus B3: Tournaments, batch runner, trends</h2>
+  <p><span class="pill ok">Complete</span> <code>bench/tournament.ts</code> plays <b>duplicate-seeded sit-and-gos</b> headless (engine + <code>decide()</code> directly, narrator off). A match is one deck seed replayed once per seat rotation, so every model plays every seat's cards. Turbo preset: 1,500 chips, blinds double every 10 hands, 50-hand cap. Output is plaintext JSONL in <code>data/runs/</code>: every hand with the god view, every <code>SeatView</code> a model saw and its full <code>Decision</code>, plus a finish order per tournament (schema in <code>AGENTS.md</code> § Batch runs). <code>/results</code> reads the files. 62 tests (+6 decide, +7 tournament/stats); typecheck and lint are green.</p>
+  <div class="stats">
+    <div class="stat"><b>40</b><span>tournaments (8 matches × 5 rotations)</span></div>
+    <div class="stat"><b>1,913</b><span>hands, chips conserved on every one</span></div>
+    <div class="stat"><b>0</b><span>fallbacks in 15,913 decisions</span></div>
+    <div class="stat"><b>$14.48</b><span>B3 total on the key (cap $15)</span></div>
+  </div>
+
+  <h3>Step 0: the 901 s decision</h3>
+  <p>No code path was missing the abort signal: both SDK paths pass it (<code>decide()</code> → <code>retry</code> → <code>doDecide</code>; <code>generateText</code> → fetch). <code>pmset -g log</code> shows a clamshell sleep at 00:57:42 EDT, a 900 s maintenance sleep, and a DarkWake at 01:13:33. The fold landed at 05:13:36Z, 3 s after wake. Timers run on the monotonic clock, which stops while the Mac sleeps, so the 30 s timer had barely run. Fixes anyway: <code>bounded()</code> races one hard deadline over the whole attempt (SDK retry and refusal re-ask included), so a path that ignores the signal still returns. A timeout whose wall time exceeds its awake time by &gt; 5 s is asked once more. The runner adds a 45 s wall-clock watchdog per decision and 5 min per hand, and batches run under <code>caffeinate -ims</code>. <code>tests/decide.test.ts</code> covers it with mock models that never settle and ignore the signal: LLM hang, error then hang through the SDK retry, refusal then hang on the reworded retry, and caller abort, all bounded at the deadline.</p>
+
+  <h3>Pilot gate (before scaling)</h3>
+  <figure>
+    <img src="screenshots/b3_pilot_results.webp" alt="Pilot run results page" style="max-width:100%">
+    <figcaption><b>Pilot <code>20261010_pilot</code>:</b> 6 seats (with Gemini 3.1 Pro), 1 match, 15-hand cap, $1.34. <code>bench/gate.ts</code>: 0 engine errors, chips conserved on all 90 hands, fallbacks ≤ 1.4% per model, no degenerate model (folds 13–49%, all raise), $0.0149/hand against a $0.0112 estimate (1.33×), and every field B5 needs present. This page rendering from the file was the fifth check. The pilot found a new failure: ai 7.0.137 rejects a decision model's answer when its <code>choice</code> isn't its own top probability (Jev, 2×, logged as folds). <code>decide()</code> now keeps the choice and flags <code>choiceNotTop</code>; that happened 6× in the main run.</figcaption>
+  </figure>
+
+  <h3>Main run</h3>
+  <figure>
+    <img src="screenshots/b3_results_main.webp" alt="Main run results page" style="max-width:100%">
+    <figcaption><b><code>/results/20261010_main</code>:</b> Sol, Haiku 5.5, Luna, Luna Decisions, Jev, so both decider kinds and three vendors. The page shows the leaderboard with CI bars and the pairs that separate, bb/100 over cumulative hands, finish positions, the head-to-head chip-flow matrix (diverging tokens validated for light and dark), style and reliability from <code>stats.ts</code>, the scouting report, and the CLI to rerun. Gemini was dropped after the pilot: at 6 seats a match cost about $4.5, so ~3 matches would have fit; 5 seats gave 8. (The latency column was relabelled "Avg ms" after this shot; it was always the mean.)</figcaption>
+  </figure>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Model</th><th class="num">bb/100</th><th class="num">95% CI (match bootstrap)</th><th class="num">Avg finish</th><th class="num">1st</th><th class="num">$/100 hands</th></tr></thead>
+      <tbody>
+        <tr><td>GPT-6 Sol</td><td class="num"><b>+81</b></td><td class="num">+44 to +111</td><td class="num">2.20</td><td class="num">23/40</td><td class="num">$0.67</td></tr>
+        <tr><td>GPT-6 Luna</td><td class="num">+2</td><td class="num">−25 to +26</td><td class="num">2.67</td><td class="num">5/40</td><td class="num">$0.03</td></tr>
+        <tr><td>GPT-6 Luna Decisions</td><td class="num">−4</td><td class="num">−27 to +13</td><td class="num">2.73</td><td class="num">3/40</td><td class="num">$0.01</td></tr>
+        <tr><td>Claude Haiku 5.5</td><td class="num">−46</td><td class="num">−96 to −4</td><td class="num">3.77</td><td class="num">7/40</td><td class="num">$0.08</td></tr>
+        <tr><td>Jev</td><td class="num">−62</td><td class="num">−104 to −30</td><td class="num">3.63</td><td class="num">2/40</td><td class="num">$0.01</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>7 of 10 pair differences exclude 0: Sol beats every other seat (+79 to +143 bb/100), Luna and Luna Decisions both beat Jev, and Luna Decisions beats Haiku (+41, CI +1 to +92). Luna vs Luna Decisions, Luna vs Haiku and Haiku vs Jev are unresolved. Half the tournaments (20/40) hit the 50-hand cap and were placed by stack.</p>
+  <figure>
+    <img src="screenshots/b3_ci_3_matches.webp" alt="Leaderboard over the first 3 matches" style="max-width:100%">
+    <img src="screenshots/b3_ci_8_matches.webp" alt="Leaderboard over all 8 matches" style="max-width:100%">
+    <figcaption><b>First 3 matches (top) vs all 8 (bottom).</b> Honest result: the CIs did <b>not</b> narrow (Sol ±11 → ±34). With 3 clusters a percentile bootstrap has only 10 distinct resamples and understates the spread. The early intervals were too narrow, not the later ones too wide. Separating pairs: 8/10 at 3 matches, 7/10 at 5 and at 8. Read CIs from fewer than ~5 matches as optimistic.</figcaption>
+  </figure>
+  <figure>
+    <img src="screenshots/b3_runs_list.webp" alt="Runs list" style="max-width:100%">
+    <figcaption><b>Runs list</b> (<code>UTable</code>). Spending stays a terminal action: "Run this lineup again" copies the command, and with the same slug a rerun is free while a higher <code>--matches</code> extends the run.</figcaption>
+  </figure>
+  <figure>
+    <img src="screenshots/b3_results_dark.webp" alt="Results in dark mode" style="max-width:100%">
+    <figcaption>Dark mode. At 390 px the page has no horizontal scroll (scrollWidth 390); the wide tables scroll inside their cards.</figcaption>
+  </figure>
+
+  <h3>Resumable and idempotent</h3>
+  <ul class="issues">
+    <li>✅ SIGKILLed the main run twice mid-flight (272 and 282 partial hand lines). Each rerun compacted those lines away and replayed 2,628–2,704 cached decisions at $0 before going live. A rerun of the finished run took 0.8 s, $0, 0 calls.</li>
+    <li>✅ A <code>--fake</code> run killed with <code>-9</code> and resumed matched an uninterrupted run exactly: every hand's deltas, every action and every finish order.</li>
+    <li>⚠️ The first kill exposed a bug: <code>--budget</code> counted only the current invocation. It now caps the run's total, seeded from the decision cache. A shell watcher on the key's metered spend was the hard backstop.</li>
+  </ul>
+
+  <h3>Deviations and known issues</h3>
+  <ul class="issues">
+    <li>Hand cap 50 on the turbo preset, to bound cost; finish order at the cap is a chip-count finish. bb/100 doesn't depend on it.</li>
+    <li>The dry-run estimator now uses measured decisions per seated hand and measured $/decision. Pure random-play simulation had predicted $0.0025/hand for the main lineup, against $0.0064 measured.</li>
+    <li>Avg finish and Plackett–Luce agree on the top and bottom and swap Luna and Luna Decisions (within noise). The page leads with avg finish and shows PL as a column.</li>
+    <li>About $0.78 of key spend isn't in <code>pricing.ts</code> totals: calls in flight during the two kills, plus metering differences.</li>
+  </ul>
+  <p class="meta"><strong>Data for B4/B5:</strong> <code>data/runs/20261010_main.jsonl</code> (31 MB; 1,913 hands, 40 tournaments), <code>data/runs/20261010_pilot.jsonl</code> (Gemini's only batch data), <code>data/runs/20261010_main_scouting.md</code>. Read with <code>parseRun()</code> (<code>shared/utils/runs.ts</code>); <code>runDetail()</code> (<code>server/utils/results.ts</code>) reproduces every number on the page.</p>
+</section>
+
 <!-- ───────────── Spend ───────────── -->
 <section id="spend">
   <h2>Spend to date</h2>
@@ -447,6 +516,7 @@
         <tr><td>Sprint 4: about 24 hands (Watch table $0.020, Sol table $0.019, side-pot table and checks &lt; $0.01)</td><td class="num">≈ $0.05</td><td>plan</td></tr>
         <tr><td>Bonus B1: about 35 cheap-seat hands (Watch + Play, cap and reload tests)</td><td class="num">≈ $0.06</td><td>in-app meter / JSONL usage</td></tr>
         <tr><td>Bonus B2: 13 narrated hands in the app + 2 curl probes + 2 scouting reports, cheap seats</td><td class="num">≈ $0.24</td><td>key quota $2.127 → $2.368 (includes the seats' own decisions)</td></tr>
+        <tr><td>Bonus B3: pilot $1.34 + main run $12.29 + scouting report $0.065 (pricing.ts), rest in-flight calls lost to two kills and metering</td><td class="num">$14.48</td><td>key quota $2.37 → $16.85</td></tr>
         <tr><th>Total (Sprints 1–4)</th><td class="num"><strong>≈ $0.11</strong></td><td>key-level figure; Sprint 3 is about $0.03 by difference</td></tr>
       </tbody>
     </table>

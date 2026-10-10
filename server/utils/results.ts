@@ -135,7 +135,7 @@ export function runDetail(slug: string, run: ParsedRun, updated: string, opts: {
   const s = run.start
   const flags = s
     ? [`--lineup ${s.lineup.join(',')}`, `--matches ${Math.max(1, Math.ceil((run.ends.at(-1)?.tournamentsPlanned ?? lineup.length) / Math.max(lineup.length, 1)))}`,
-        s.format === 'cash' ? '--format cash' : '', `--hands ${s.tournament.maxHands}`, `--seed ${s.baseSeed}`, s.fake ? '--fake' : '', `--slug ${slug}`, '--budget 1', '--concurrency 6']
+        s.format === 'cash' ? '--format cash' : '', `--hands ${s.tournament.maxHands}`, `--seed ${s.baseSeed}`, s.fake ? '--fake' : '', `--slug ${slug}`, `--budget ${Math.ceil((run.ends.at(-1)?.totalSpentUsd ?? 0) + 1)}`, '--concurrency 6']
     : []
   return {
     item: listItem(slug, run, updated),

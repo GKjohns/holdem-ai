@@ -1,7 +1,7 @@
 # Hold'em AI — Bonus Sprints: Spectator, Narrator, Tournaments, Strategy Lab
 
 **Created:** October 9, 2026
-**Status:** B1–B2 complete (2026-10-10); B3–B5 not started · optional · runs only after Sprints 1–4 of [`implementation_plan.md`](./implementation_plan.md) are done
+**Status:** B1–B3 complete (2026-10-10); B4–B5 not started · optional · runs only after Sprints 1–4 of [`implementation_plan.md`](./implementation_plan.md) are done
 **Context:** Kyle: "let them just watch the models play against each other… track their performance… an AI narrator… tournaments, a bunch of times, see the trends… then have a really powerful model like Fable plan strategies, personalities, approaches and explore: work the explore-exploit, test a few at the same time, and learn empirically what wins. Don't rely on what you think will win."
 
 **Goal:** four optional sprints that build on each other. Each one is useful on its own, so we can stop after any of them:
@@ -103,7 +103,7 @@ Storyboard: frames **6–7** in [`storyboard.html`](./storyboard.html) (Spectato
 
 ---
 
-## Sprint B3: Tournaments + batch runner + trends `[Not Started]`
+## Sprint B3: Tournaments + batch runner + trends `[Complete]`
 **Goal:** run many tournaments headless and see who *actually* wins, with error bars.
 **Estimated effort:** 4–5 hours
 
@@ -115,10 +115,37 @@ Storyboard: frames **6–7** in [`storyboard.html`](./storyboard.html) (Spectato
 - B3.5 `/results` page: runs list (`UTable`) → run detail: leaderboard with CI bars, finish-position distribution, bb/100 over cumulative hands (does it converge?), and the B2 scouting reports for that run. "Run this lineup again" copies the CLI command (spending stays a terminal action, not a button).
 
 #### Verification
-- [ ] **Pilot:** 1 duplicate match (≤ $1) passes the data-quality gate before the 10-match run
-- [ ] 10-match duplicate run of 4 cheap models finishes under budget; JSONL is resumable (kill mid-run, rerun, same totals)
-- [ ] CIs narrow as matches grow (screenshot at 5 vs 20 matches)
-- [ ] Chip conservation holds per hand across the whole run
+- [x] **Step 0 (must-fix):** the B2 "901 s" Luna fold was not a code path missing the signal. `pmset -g log` shows a clamshell sleep at 00:57:42 EDT, a 900 s maintenance sleep, and a DarkWake at 01:13:33. The decision landed at 05:13:36Z, 3 s after wake. Node's (and Chrome's) timers are monotonic and stop while the Mac sleeps. Both SDK paths do pass the signal (`decide()` → `retry` → `doDecide`, `generateText` → fetch). Hardened anyway: `bounded()` races one hard deadline over the whole attempt (SDK retry + refusal re-ask), a timeout whose wall time beats awake time by > 5 s is asked once more, and the runner adds a 45 s wall-clock watchdog per decision and 5 min per hand, and runs under `caffeinate -ims`. `tests/decide.test.ts` (6 tests): an LLM that never settles and ignores the signal, error-then-hang through the SDK retry, refusal-then-hang on the reworded retry, caller abort, and the healthy path.
+- [x] **Pilot** `20261010_pilot` (6 seats incl. Gemini 3.1 Pro, 1 match, 15-hand cap): $1.34, 90 hands. `bench/gate.ts` passed all 5 checks: 0 engine errors, chips conserved on every hand, fallbacks ≤ 1.4% per model (Jev 2/138, both the off-argmax case fixed below; Gemini 1 timeout), no degenerate model (folds 13–49%, all raise), $0.0149/hand vs a $0.0112 estimate (1.33×), every B5 field present. `/results/20261010_pilot` renders from the file — `b3_pilot_results.webp`
+- [x] **Main run** `20261010_main`: Sol, Haiku 5.5, Luna, Luna Decisions, Jev; 8 matches × 5 rotations = 40 sit-and-gos, 1,913 hands, 15,913 decisions, $12.29 (pricing.ts). Gate passed on the whole run: 0 engine errors, chips conserved on all 1,913 hands, **0 fallbacks** in 15,913 decisions, $0.0064/hand vs the $0.0077 estimate — `b3_results_main.webp`, `b3_runs_list.webp`, `b3_results_dark.webp`
+- [x] **Resumable and idempotent:** SIGKILLed twice mid-run (272 and 282 partial hand lines). Each rerun compacted them away and replayed 2,628–2,704 cached decisions at $0 before going live. A rerun of the finished run took 0.8 s, $0, 0 calls. A `--fake` run killed with `-9` and resumed was byte-identical in hands, deltas, actions and finish orders to an uninterrupted one. Raising `--matches` 7 → 8 on the same slug extended the run.
+- [x] **CIs vs matches** — `b3_ci_3_matches.webp` vs `b3_ci_8_matches.webp`. Honest result: they did **not** narrow from 3 to 8 matches (Sol ±11 → ±34). With 3 clusters a percentile bootstrap has 10 distinct resamples and understates the spread; the 3-match intervals were too narrow, not the 8-match ones too wide. Separating pairs went 8/10 (3 matches) → 7/10 (5) → 7/10 (8). Treat CIs from < 5 matches as optimistic.
+- [x] Chip conservation per hand across the whole run (checked by the runner after every hand and again by `bench/gate.ts`); 390 px has no horizontal scroll; no console warnings
+- [x] `npm test` (62: +6 decide, +7 tournament/duplicate/run stats), `npm run typecheck`, `npm run lint` green
+
+#### Results (8 matches, 95% match-bootstrap CIs)
+
+| Model | bb/100 | 95% CI | Avg finish (1 = best) | 1st | $/100 hands |
+|---|---|---|---|---|---|
+| GPT-6 Sol | **+81** | +44 to +111 | 2.20 (1.68–2.70) | 23/40 | $0.67 |
+| GPT-6 Luna | +2 | −25 to +26 | 2.67 (2.20–3.10) | 5/40 | $0.03 |
+| GPT-6 Luna Decisions | −4 | −27 to +13 | 2.73 (2.50–2.95) | 3/40 | $0.01 |
+| Claude Haiku 5.5 | −46 | −96 to −4 | 3.77 (3.40–4.13) | 7/40 | $0.08 |
+| Jev | −62 | −104 to −30 | 3.63 (3.40–3.83) | 2/40 | $0.01 |
+
+Pairs whose difference CI excludes 0 (7 of 10): Sol beats every other seat (+79 to +143); Luna beats Jev (+64, +24 to +109); Luna Decisions beats Jev (+57) and Haiku (+41, +1 to +92). Not separated: Luna vs Luna Decisions, Luna vs Haiku, Haiku vs Jev. Avg finish and Plackett–Luce agree on the top (Sol), the bottom two (Haiku, Jev) and swap Luna/Luna Decisions (within noise), so the page leads with avg finish and shows PL as a column. Styles (stats.ts): Sol loose-aggressive (VPIP 55%, PFR 36%, AF 2.9); Haiku loosest (VPIP 67%) and loses at showdown (W$SD 36%); Luna Decisions tightest (VPIP 31%, PFR 6%); Jev a calling station (AF 0.4, WTSD 68%). Scouting report: `data/runs/20261010_main_scouting.md` ($0.065; stats over all 1,913 hands, hand numbers from sample `m02-r0`).
+
+#### Notes & deviations (2026-10-10)
+- **Lineup:** Gemini 3.1 Pro was in the pilot but dropped from the main run for budget. With 6 seats a match measured ≈ $4.5 (Gemini + Sol ≈ 2/3 of the spend), so $13 bought ~3 matches, too few for CIs; 5 seats gave 8. Gemini's 90 pilot hands stay in `20261010_pilot.jsonl` (5.2 s average decision, 1 timeout in 145 decisions, $0.67 of the $1.34).
+- **Hand cap 50** (plan preset is 1,500 chips, blinds doubling every 10 hands, uncapped): 20 of 40 tournaments reached it and the survivors were placed by stack. bb/100 is unaffected; finish order at the cap is a chip-count finish. `SNG_TURBO.maxHands` defaults to 120.
+- **New: SDK rejects off-argmax decision answers.** ai 7.0.137 throws `InvalidResponseDataError` ("did not select a highest-probability option") when a decision model's `choice` isn't its own top probability. That was a fallback fold in the pilot (Jev 2×). `decide()` now recovers the answer from `err.data`, keeps the model's choice (as the app always has), and flags it `choiceNotTop: true` (6 in the main run, all Jev). Those calls log 0 tokens (≈ $0.00005 each). This is B5's "does the choice diverge from its own top probability" hunch, now countable.
+- **Budget bug found by the kill test:** `--budget` first counted only the current invocation, so a resume would have restarted at $0. It now caps the run's total, seeded from the decision cache (every cache line is one paid call); `run_end` has `spentUsd` (this invocation) and `totalSpentUsd`. A shell watcher on the key's metered spend (`vercel ai-gateway budgets list`) was the hard backstop at $17.20.
+- **Estimator:** the random-play simulation undercounts decisions (random seats bust fast): it said $0.0025/hand for the main lineup. It now uses measured decisions per seated hand and tournament length from real run files, plus measured $/decision from every log on disk; that predicted $0.0077 vs the $0.0064 measured.
+- **Convergence chart** starts a model's line once it has 50 hands; the first tournament alone put Haiku at −8,000 bb/100 and flattened everyone else.
+- **Files:** `shared/utils/tournament.ts` (levels, `withLevel`, `bustsThisHand`, `survivorsPlaced`), `shared/utils/duplicate.ts`, `shared/utils/runs.ts` (line types, `parseRun`), `shared/utils/stats.ts` (+ `matchAggregates`, `leaderboard` with pair-difference CIs, `finishDistribution`, `chipFlow`, `bb100Series`, `plackettLuce`), `server/utils/results.ts`, `server/api/results.get.ts`, `app/pages/results/{index,[run]}.vue`, `CiBar.vue`, `ConvergenceChart.vue`, `bench/tournament.ts`, `bench/gate.ts`; `decide.ts` and `narrate.ts` (`statsHands`) edited; `--div-pos/--div-neg` tokens (validated light and dark) for the chip-flow matrix. Schema: `AGENTS.md` § Batch runs.
+- **Spend:** key $2.37 → $16.85 = **$14.48** (cap $15): pilot $1.34, main $12.29, scouting $0.065 by pricing.ts; the remaining ≈ $0.78 is calls in flight during the two kills plus metering vs pricing.ts.
+
+**For B4/B5:** the data is `data/runs/20261010_main.jsonl` (31 MB; 40 `tournament` lines, 1,913 `hand` lines with god view + every SeatView and Decision) and `data/runs/20261010_pilot.jsonl`. Read with `parseRun()`; `runDetail()` in `server/utils/results.ts` gives every /results number. B4's base-model pick: Luna ($0.03/100 hands, 0 fallbacks in 3,225+ decisions, 2.0 s) is cheaper than Haiku ($0.08) and broke even here.
 
 ---
 
