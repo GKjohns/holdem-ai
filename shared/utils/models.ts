@@ -48,3 +48,9 @@ export const DEFAULT_LINEUP: string[] = [
 export function findModel(value: unknown): ModelOption | undefined {
   return typeof value === 'string' ? MODELS.find(m => m.id === value) : undefined
 }
+
+/**
+ * B4 Strategy Lab's researcher: writes strategy cards and memos from completed hands, never sits.
+ * Deliberately not in MODELS, so findModel() can't seat it and the setup screen never lists it.
+ */
+export const PLANNER_MODEL = { id: 'anthropic/claude-fable-5.1', label: 'Claude Fable 5.1', vendor: 'Anthropic', role: 'planner' as const }

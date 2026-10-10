@@ -19,9 +19,28 @@ export interface RunStartLine extends Base {
   /** Random deciders, no gateway calls: for testing the pipeline. */
   fake: boolean
   narrator: false
+  /**
+   * B4 lab tables: who each lineup entry is when it isn't just a model (a base model + strategy
+   * card, or a second plain copy of a model). `lineup` then holds player ids. Absent on B3 runs,
+   * where lineup entries are model ids.
+   */
+  players?: RunPlayer[]
+  /** B4: which lab run, generation and table this run file is. */
+  lab?: { run: string, gen: number | 'heldout', table: string }
 }
 
-export interface RunSeat { id: string, name: string, modelId: string }
+/**
+ * A seat's player. `name` is what the other seats see at the table (lab: a neutral alias, so a
+ * card's name never reaches an opponent); `cardId`/`card` is the strategy card appended to the
+ * base model's instructions, if any.
+ */
+export interface RunPlayer { id: string, modelId: string, name: string, cardId?: string, card?: string }
+
+/** `playerId` (B4) is set when it differs from `modelId`; `cardId` when the seat plays a card. */
+export interface RunSeat { id: string, name: string, modelId: string, playerId?: string, cardId?: string }
+
+/** The player a seat belongs to: the lab player id, else the model id (B3). */
+export const playerOf = (s: { modelId: string | null, playerId?: string }): string => s.playerId ?? s.modelId ?? ''
 
 export interface RunDecisionRecord {
   handNo: number
@@ -74,8 +93,8 @@ export interface TournamentLine extends Base {
   seats: RunSeat[]
   hands: number
   reason: 'finished' | 'hand_cap'
-  /** Best first. */
-  finish: (Finish & { modelId: string, name: string })[]
+  /** Best first. `playerId` as on RunSeat (B4). */
+  finish: (Finish & { modelId: string, name: string, playerId?: string })[]
   costUsd: number
   decisions: number
   fallbacks: number

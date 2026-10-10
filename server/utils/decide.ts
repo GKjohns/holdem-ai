@@ -25,6 +25,11 @@ export interface DecideInput {
   model?: LanguageModel | Experimental_DecisionModel
   /** Defaults to CALL_TIMEOUT_MS; tests shorten it. */
   timeoutMs?: number
+  /**
+   * B4 Strategy Lab: a strategy card (style guidance written before any hand is dealt) appended
+   * to an LLM's instructions. Never odds or stats about the hand; language models only.
+   */
+  strategyCard?: string
 }
 
 /** A player waiting a minute is worse than a fallback check/fold. */
@@ -48,6 +53,16 @@ Answer fields:
 - reasoning: one or two plain sentences on why you chose this option.
 - tableTalk: one short in-character line you say out loud at the table (under 80 characters), or an empty string to stay quiet. Banter is fine; never reveal or hint at your exact cards. Vary it: never repeat a line you've already said this session.
 - choice: the option id you take.`
+
+/** A seat = base model + strategy card: the card rides in the instructions, after the rules. */
+export function instructionsFor(strategyCard?: string): string {
+  const card = strategyCard?.trim()
+  if (!card) return INSTRUCTIONS
+  return `${INSTRUCTIONS}
+
+Your strategy card (your coach's plan for how you play at this table; follow it, using only what you can see from your seat):
+${card}`
+}
 
 const EVAL_QUESTION = 'You are the player described under `me` in this no-limit Texas Hold\'em hand. Which option is the best play, given your hole cards, the board, the chips, and how the other players have acted?'
 const EVAL_QUESTION_RETRY = 'Which option is the best poker play here?'
@@ -113,6 +128,7 @@ export async function decide(input: DecideInput): Promise<Decision> {
   const menu = buildMenu(input.view)
   const started = Date.now()
   if (!option) return fallbackDecision(menu, input.modelId, started, `Unknown model ${input.modelId}`)
+  if (input.strategyCard && option.kind !== 'llm') return fallbackDecision(menu, option.id, started, 'Strategy cards are for language models only')
   const ms = input.timeoutMs ?? CALL_TIMEOUT_MS
   const attempt = () => bounded(signal => option.kind === 'evaluation'
     ? decideWithEvaluation(option, input, menu, signal)
@@ -163,7 +179,7 @@ async function decideWithLlm(option: ModelOption, input: DecideInput, menu: Menu
   const started = Date.now()
   const { output, usage } = await generateText({
     model: (input.model as LanguageModel | undefined) ?? option.id,
-    instructions: INSTRUCTIONS,
+    instructions: instructionsFor(input.strategyCard),
     prompt: renderPrompt(input.view, menu),
     output: Output.object({ schema }),
     // Reasoning models think in output tokens; a low cap starves the JSON.

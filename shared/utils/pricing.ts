@@ -12,7 +12,9 @@ export const PRICING: Record<string, { input: number, output: number }> = {
   'anthropic/claude-haiku-5.5': { input: 0.1, output: 0.5 },
   'google/gemini-3.1-pro-preview': { input: 2, output: 12 },
   'openai/gpt-6-luna-decisions': { input: 0.1, output: 0 },
-  'typesafe-ai/jev': { input: 0.042, output: 0 }
+  'typesafe-ai/jev': { input: 0.042, output: 0 },
+  // B4 planner only (never seated): confirmed in the gateway's /v1/models on 2026-10-09.
+  'anthropic/claude-fable-5.1': { input: 10, output: 50 }
 }
 
 export function costUsd(modelId: string, usage: { input: number, output: number }): number {

@@ -99,19 +99,24 @@ export interface RunHandLite {
   tournamentId: string
   handNo: number
   bigBlind: number
-  seats: { id: string, modelId: string | null }[]
+  /** `playerId` (B4 lab tables) groups stats by player instead of model. */
+  seats: { id: string, modelId: string | null, playerId?: string }[]
   deltas: Record<string, number>
 }
 export interface RunTournamentLite {
   matchId: string
   tournamentId: string
-  finish: { seatId: string, modelId: string, place: number }[]
+  finish: { seatId: string, modelId: string, playerId?: string, place: number }[]
 }
 
 interface ModelAgg { bb: number, hands: number, placeSum: number, tournaments: number }
 export type MatchAgg = Record<string, ModelAgg>
 
-const modelOf = (h: RunHandLite, seatId: string) => h.seats.find(s => s.id === seatId)?.modelId ?? seatId
+/** The player in a seat: the lab player id when set, else the model id (B3 runs: one seat per model). */
+const modelOf = (h: RunHandLite, seatId: string) => {
+  const s = h.seats.find(x => x.id === seatId)
+  return s?.playerId ?? s?.modelId ?? seatId
+}
 
 /** Per match, per model: bb won (chip delta / that hand's big blind), hands dealt, finish places. */
 export function matchAggregates(hands: RunHandLite[], tournaments: RunTournamentLite[]): Map<string, MatchAgg> {
@@ -129,7 +134,7 @@ export function matchAggregates(hands: RunHandLite[], tournaments: RunTournament
   }
   for (const t of tournaments) {
     for (const f of t.finish) {
-      const a = agg(t.matchId, f.modelId)
+      const a = agg(t.matchId, f.playerId ?? f.modelId)
       a.placeSum += f.place
       a.tournaments++
     }
@@ -218,7 +223,12 @@ export function leaderboard(aggs: Map<string, MatchAgg>, models: string[], opts:
 /** How often each model finished 1st, 2nd, …: counts[place - 1]. */
 export function finishDistribution(tournaments: RunTournamentLite[], models: string[], players: number): Record<string, number[]> {
   const out = Object.fromEntries(models.map(m => [m, Array.from({ length: players }, () => 0)]))
-  for (const t of tournaments) for (const f of t.finish) if (out[f.modelId]) out[f.modelId]![f.place - 1]!++
+  for (const t of tournaments) {
+    for (const f of t.finish) {
+      const id = f.playerId ?? f.modelId
+      if (out[id]) out[id]![f.place - 1]!++
+    }
+  }
   return out
 }
 
