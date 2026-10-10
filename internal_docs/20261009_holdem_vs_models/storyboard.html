@@ -1,0 +1,823 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hold'em AI Storyboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* Tokens: copied from 2048-ai/app/assets/css/main.css (tiles dropped) + felt/card tokens the plan adds. */
+:root {
+  --ui-radius: .5rem;
+  --ui-bg: #f7f3ec; --ui-bg-muted: #f1ece3; --ui-bg-elevated: #ece6db; --ui-bg-accented: #e2dbcf;
+  --ui-border: #e4ddd0; --ui-border-muted: #ebe5da; --ui-border-accented: #d6cebf;
+  --ui-text-dimmed: #a39a8c; --ui-text-muted: #7a7066; --ui-text-toned: #5c5348; --ui-text: #3d3630; --ui-text-highlighted: #1f1a16;
+  --series-anthropic: #2a78d6; --series-openai: #eb6834; --series-google: #1baf7a; --series-eval: #3d3630;
+  --primary: #f97316; --primary-strong: #ea580c; --primary-soft: #fdebdc; --on-primary: #fff;
+  --success: #15803d; --error: #c2410c;
+  --felt-bg: #a4ae9f; --felt-border: #8f9a8b; --felt-ink: #2b3329; --felt-ink-muted: #4c5649;
+  --card-bg: #fffdf9; --card-red: #c0392b; --card-black: #1f1a16;
+  --back-a: #d6cebf; --back-b: #e2dbcf;
+  --overlay: rgba(31,26,22,.38);
+}
+.dark {
+  --ui-bg: #14120f; --ui-bg-muted: #1a1714; --ui-bg-elevated: #211d19; --ui-bg-accented: #2c2722;
+  --ui-border: #2a2521; --ui-border-muted: #221e1a; --ui-border-accented: #38322c;
+  --ui-text-dimmed: #6b6259; --ui-text-muted: #948a7e; --ui-text-toned: #b5aa9c; --ui-text: #d6ccbe; --ui-text-highlighted: #f3ede4;
+  --series-anthropic: #3987e5; --series-openai: #d95926; --series-google: #199e70; --series-eval: #d6ccbe;
+  --primary: #fb923c; --primary-strong: #fdba74; --primary-soft: #3a2415; --on-primary: #1f1a16;
+  --success: #4ade80; --error: #fb923c;
+  --felt-bg: #2c3530; --felt-border: #3a453e; --felt-ink: #dfe3db; --felt-ink-muted: #9aa597;
+  --card-bg: #ebe5da; --card-red: #b23a2c; --card-black: #1f1a16;
+  --back-a: #463f36; --back-b: #38322c;
+  --overlay: rgba(0,0,0,.55);
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--ui-bg); color: var(--ui-text); font: 14px/1.45 'Geist', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+.num { font-family: 'Fraunces', serif; font-variant-numeric: lining-nums tabular-nums; }
+.mono { font-family: 'Geist Mono', ui-monospace, monospace; }
+.stat-label { font-size: 11px; line-height: 1; text-transform: uppercase; letter-spacing: .08em; color: var(--ui-text-muted); }
+.muted { color: var(--ui-text-muted); } .dimmed { color: var(--ui-text-dimmed); }
+button { font: inherit; color: inherit; }
+
+/* ---------- Storyboard chrome (not part of the app) ---------- */
+.sb { border-bottom: 1px dashed var(--ui-border-accented); background: var(--ui-bg-muted); padding: 10px 16px; }
+.sb-row { max-width: 1240px; margin: 0 auto; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.sb-title { font: 500 12px 'Geist Mono', monospace; color: var(--ui-text-muted); margin-right: 6px; }
+.sb-tabs { display: flex; gap: 2px; overflow-x: auto; flex: 1; scrollbar-width: none; }
+.sb-tab { border: 0; background: none; padding: 5px 10px; border-radius: 6px; font-size: 12.5px; color: var(--ui-text-muted); cursor: pointer; white-space: nowrap; }
+.sb-tab.on { background: var(--ui-bg); color: var(--ui-text-highlighted); box-shadow: 0 0 0 1px var(--ui-border); }
+.sb-cap { max-width: 1240px; margin: 6px auto 0; font-size: 12.5px; color: var(--ui-text-toned); }
+
+/* ---------- Nuxt UI primitive mimics ---------- */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 32px; padding: 0 12px; border-radius: 6px; border: 0; font-size: 14px; font-weight: 500; cursor: pointer; white-space: nowrap; transition: background .15s, opacity .15s; }
+.btn svg { width: 16px; height: 16px; }
+.btn.sm { height: 28px; padding: 0 10px; font-size: 13px; } .btn.xs { height: 26px; padding: 0 8px; font-size: 12px; }
+.btn.lg { height: 38px; padding: 0 16px; }
+.btn.square { padding: 0; width: 32px; } .btn.sm.square { width: 28px; }
+.btn.primary { background: var(--primary); color: var(--on-primary); } .btn.primary:hover { background: var(--primary-strong); }
+.btn.neutral { background: var(--ui-text-highlighted); color: var(--ui-bg); }
+.btn.outline { background: var(--ui-bg); box-shadow: inset 0 0 0 1px var(--ui-border-accented); color: var(--ui-text); }
+.btn.outline:hover, .btn.ghost:hover { background: var(--ui-bg-elevated); }
+.btn.ghost { background: none; color: var(--ui-text-muted); }
+.btn.soft { background: var(--ui-bg-elevated); color: var(--ui-text); }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+.btn-group { display: inline-flex; } .btn-group .btn { border-radius: 0; } .btn-group .btn + .btn { margin-left: -1px; }
+.btn-group .btn:first-child { border-radius: 6px 0 0 6px; } .btn-group .btn:last-child { border-radius: 0 6px 6px 0; }
+.btn-group .btn.on { background: var(--ui-bg-elevated); color: var(--ui-text-highlighted); }
+.badge { display: inline-flex; align-items: center; gap: 4px; height: 20px; padding: 0 6px; border-radius: 5px; font-size: 11.5px; font-weight: 500; white-space: nowrap; }
+.badge.vendor { color: var(--c); background: color-mix(in srgb, var(--c) 13%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c) 28%, transparent); }
+.badge.outline { box-shadow: inset 0 0 0 1px var(--ui-border-accented); color: var(--ui-text-muted); }
+.badge.subtle { background: var(--ui-bg-elevated); color: var(--ui-text-toned); }
+.badge.solid-primary { background: var(--primary); color: var(--on-primary); }
+.card-ui { background: var(--ui-bg); border: 1px solid var(--ui-border); border-radius: calc(var(--ui-radius) * 1.5); }
+.card-ui > header { padding: 14px 16px; border-bottom: 1px solid var(--ui-border); display: flex; align-items: center; gap: 8px; }
+.card-ui > header h3 { margin: 0; font-size: 15px; font-weight: 600; color: var(--ui-text-highlighted); flex: 1; }
+.card-ui > .body { padding: 16px; } .card-ui > footer { padding: 12px 16px; border-top: 1px solid var(--ui-border); }
+.select { position: relative; }
+.select-trigger { width: 100%; height: 34px; display: flex; align-items: center; gap: 8px; padding: 0 10px; border-radius: 6px; border: 0; background: var(--ui-bg); box-shadow: inset 0 0 0 1px var(--ui-border-accented); cursor: pointer; text-align: left; }
+.select-trigger .lbl { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.select-trigger svg { width: 16px; height: 16px; color: var(--ui-text-dimmed); }
+.select-menu { position: absolute; z-index: 30; top: calc(100% + 4px); left: 0; right: 0; min-width: 240px; background: var(--ui-bg); border: 1px solid var(--ui-border); border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,.12); padding: 4px; max-height: 320px; overflow-y: auto; }
+.select-group { padding: 8px 8px 4px; font-size: 11.5px; font-weight: 600; color: var(--ui-text-muted); }
+.select-item { display: flex; align-items: center; gap: 8px; width: 100%; padding: 6px 8px; border: 0; background: none; border-radius: 5px; text-align: left; cursor: pointer; font-size: 13.5px; }
+.select-item:hover { background: var(--ui-bg-elevated); } .select-item .chk { margin-left: auto; color: var(--primary); }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--c); flex: none; }
+.slider { -webkit-appearance: none; appearance: none; width: 100%; height: 6px; border-radius: 99px; background: linear-gradient(to right, var(--primary) var(--p, 0%), var(--ui-bg-accented) var(--p, 0%)); outline: none; }
+.slider::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%; background: var(--ui-bg); border: 2px solid var(--primary); cursor: pointer; }
+.slider::-moz-range-thumb { width: 14px; height: 14px; border-radius: 50%; background: var(--ui-bg); border: 2px solid var(--primary); cursor: pointer; }
+.input-num { width: 92px; height: 32px; border-radius: 6px; border: 0; box-shadow: inset 0 0 0 1px var(--ui-border-accented); background: var(--ui-bg); padding: 0 10px; font: 500 15px 'Fraunces', serif; color: var(--ui-text-highlighted); text-align: right; }
+.toasts { position: fixed; right: 16px; bottom: 16px; z-index: 60; display: flex; flex-direction: column; gap: 8px; width: min(340px, calc(100vw - 32px)); }
+.toast { background: var(--ui-bg); border: 1px solid var(--ui-border); border-radius: 8px; padding: 12px 14px; box-shadow: 0 8px 24px rgba(0,0,0,.12); display: flex; gap: 10px; animation: rise .2s ease-out; }
+.toast b { display: block; color: var(--ui-text-highlighted); font-weight: 600; font-size: 13.5px; } .toast span { font-size: 12.5px; color: var(--ui-text-muted); }
+.toast i { width: 3px; border-radius: 2px; background: var(--primary); flex: none; }
+@keyframes rise { from { transform: translateY(8px); opacity: 0; } }
+
+/* ---------- App shell ---------- */
+.app-header { border-bottom: 1px solid var(--ui-border); }
+.app-header .in { max-width: 1240px; margin: 0 auto; padding: 0 16px; height: 56px; display: flex; align-items: center; gap: 10px; }
+.logo { white-space: nowrap; display: flex; align-items: center; gap: 8px; font-weight: 600; color: var(--ui-text-highlighted); font-size: 15px; margin-right: auto; }
+.logo .mark { width: 22px; height: 22px; border-radius: 6px; background: var(--felt-bg); box-shadow: inset 0 0 0 1.5px var(--felt-border); display: grid; place-items: center; font: 600 12px 'Fraunces', serif; color: var(--felt-ink); }
+.hdr-meta { display: flex; gap: 6px; align-items: center; }
+main { max-width: 1240px; margin: 0 auto; padding: 20px 16px 48px; }
+.grid { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 20px; align-items: start; }
+@media (max-width: 1023px) { .grid { grid-template-columns: minmax(0, 1fr); } .hide-sm { display: none !important; } }
+
+/* ---------- Table (custom: outside Nuxt UI's vocabulary) ---------- */
+.table-wrap { position: relative; aspect-ratio: 16 / 10; min-height: 440px; }
+.felt { position: absolute; inset: 13% 11% 15%; border-radius: 999px; background: radial-gradient(ellipse at 50% 45%, color-mix(in srgb, var(--felt-bg) 92%, white) 0%, var(--felt-bg) 70%); box-shadow: inset 0 0 0 6px var(--felt-border), inset 0 0 0 7px color-mix(in srgb, var(--felt-border) 60%, black 8%); }
+.center { position: absolute; left: 50%; top: 47%; transform: translate(-50%, -50%); text-align: center; color: var(--felt-ink); }
+.center .stat-label { color: var(--felt-ink-muted); }
+.pot { font: 500 30px/1.1 'Fraunces', serif; margin: 4px 0 10px; }
+.board { display: flex; gap: 6px; justify-content: center; }
+.center-note { margin-top: 10px; font-size: 13px; font-weight: 500; }
+.seat { position: absolute; transform: translate(-50%, -50%); width: 150px; padding: 9px 10px; background: var(--ui-bg); border: 1px solid var(--ui-border); border-radius: 10px; box-shadow: 0 1px 2px rgba(0,0,0,.05); transition: opacity .2s; z-index: 2; }
+.seat .nm { font-weight: 600; font-size: 13px; color: var(--ui-text-highlighted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.seat .tags { display: flex; gap: 4px; margin: 5px 0 6px; flex-wrap: wrap; }
+.seat .row { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+.seat .stack { font: 500 18px/1 'Fraunces', serif; color: var(--ui-text-highlighted); }
+.seat .st { font-size: 12px; color: var(--ui-text-muted); margin-top: 5px; min-height: 17px; display: flex; align-items: center; gap: 6px; }
+.seat .mini { display: flex; gap: 2px; }
+.seat.folded > * { opacity: .42; }
+.seat.acting { box-shadow: 0 0 0 2px var(--primary); border-color: transparent; }
+.seat.winner { box-shadow: 0 0 0 2px var(--success), 0 0 0 6px color-mix(in srgb, var(--success) 16%, transparent); border-color: transparent; }
+.delta { position: absolute; top: -12px; left: 10px; font: 600 13px 'Fraunces', serif; color: #fff; background: var(--success); padding: 1px 8px; border-radius: 99px; }
+.dark .delta { color: #0d1f13; }
+.pulse { width: 7px; height: 7px; border-radius: 50%; background: var(--primary); animation: think 1.2s ease-in-out infinite; flex: none; }
+@keyframes think { 0%, 100% { opacity: .3; transform: scale(.85); } 50% { opacity: 1; transform: scale(1.15); } }
+.bet, .dbtn { position: absolute; transform: translate(-50%, -50%); z-index: 1; }
+.bet { display: inline-flex; align-items: center; gap: 5px; background: var(--ui-bg); color: var(--ui-text-highlighted); border-radius: 99px; padding: 2px 9px 2px 3px; font: 500 13px 'Fraunces', serif; box-shadow: 0 1px 2px rgba(0,0,0,.12); }
+.chip { width: 14px; height: 14px; border-radius: 50%; background: var(--primary); box-shadow: inset 0 0 0 2.5px color-mix(in srgb, var(--primary) 70%, white), inset 0 0 0 4px var(--primary); }
+.dbtn { width: 22px; height: 22px; border-radius: 50%; background: var(--card-bg); color: var(--card-black); font: 600 11px 'Geist', sans-serif; display: grid; place-items: center; box-shadow: 0 1px 2px rgba(0,0,0,.2), inset 0 0 0 1px var(--ui-border-accented); }
+/* seat geometry (center points); human = pos-0 bottom-center */
+.pos-0 { left: 50%; top: 89%; } .pos-1 { left: 9%; top: 50%; } .pos-2 { left: 28%; top: 10%; } .pos-3 { left: 72%; top: 10%; } .pos-4 { left: 91%; top: 50%; }
+.bet-0 { left: 50%; top: 71%; } .bet-1 { left: 25%; top: 50%; } .bet-2 { left: 34%; top: 28%; } .bet-3 { left: 66%; top: 28%; } .bet-4 { left: 75%; top: 50%; }
+.dbtn-4 { left: 82%; top: 32%; }
+.six .pos-1 { left: 9%; top: 62%; } .six .pos-2 { left: 17%; top: 12%; } .six .pos-3 { left: 50%; top: 9%; } .six .pos-4 { left: 83%; top: 12%; } .six .pos-5 { left: 91%; top: 62%; }
+.six .bet-0 { top: 70%; } .six .bet-1 { left: 26%; top: 60%; } .six .bet-2 { left: 30%; top: 30%; } .six .bet-3 { left: 50%; top: 27%; } .six .bet-4 { left: 70%; top: 30%; } .six .bet-5 { left: 74%; top: 60%; }
+.dbtn-5 { left: 84%; top: 44%; }
+.six .center { top: 50%; }
+/* playing cards */
+.card { position: relative; width: 44px; height: 62px; border-radius: 6px; background: var(--card-bg); color: var(--card-black); box-shadow: 0 1px 2px rgba(0,0,0,.18), inset 0 0 0 1px rgba(0,0,0,.06); display: flex; flex-direction: column; align-items: flex-start; padding: 4px 6px; line-height: 1; flex: none; transition: opacity .2s, transform .2s; }
+.card .r { font: 600 17px 'Geist', sans-serif; letter-spacing: -.02em; } .card .s { font-size: 15px; margin-top: 2px; }
+.card .big { position: absolute; right: 5px; bottom: 3px; font-size: 20px; opacity: .9; }
+.card.red { color: var(--card-red); }
+.card.slot { background: none; box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--felt-ink) 22%, transparent); }
+.card.back { background: repeating-linear-gradient(45deg, var(--back-a) 0 4px, var(--back-b) 4px 8px); box-shadow: inset 0 0 0 3px var(--card-bg), 0 1px 2px rgba(0,0,0,.18); }
+.card.sm { width: 22px; height: 30px; padding: 2px 3px; border-radius: 4px; } .card.sm .r { font-size: 11px; } .card.sm .s { font-size: 10px; margin-top: 0; } .card.sm .big { display: none; }
+.card.lg { width: 58px; height: 82px; border-radius: 8px; padding: 6px 7px; } .card.lg .r { font-size: 22px; } .card.lg .s { font-size: 19px; } .card.lg .big { font-size: 28px; }
+.card.hi { box-shadow: 0 0 0 2px var(--success), 0 4px 10px rgba(0,0,0,.15); transform: translateY(-3px); }
+.card.lo { opacity: .45; }
+@media (max-width: 640px) {
+  .table-wrap { aspect-ratio: 4 / 5; min-height: 0; } .center { top: 42%; }
+  .felt { inset: 16% 13% 18%; border-radius: 140px; }
+  .seat { width: 108px; padding: 7px 8px; } .seat .stack { font-size: 16px; } .seat .tags .kind { display: none; } .seat .nm { font-size: 12px; }
+  .pos-1 { left: 16%; top: 67%; } .pos-4 { left: 84%; top: 67%; } .pos-2 { left: 27%; top: 9%; } .pos-3 { left: 73%; top: 9%; } .pos-0 { top: 90%; }
+  .bet-1 { left: 40%; top: 66%; } .bet-4 { left: 60%; top: 66%; } .bet-2 { top: 25%; } .bet-3 { top: 25%; } .bet-0 { top: 73%; }
+  .dbtn-4 { left: 88%; top: 52%; }
+  .six .pos-1 { left: 16%; top: 66%; } .six .pos-5 { left: 84%; top: 66%; } .six .pos-2 { left: 17%; top: 10%; } .six .pos-3 { left: 50%; top: 10%; } .six .pos-4 { left: 83%; top: 10%; }
+  .six .center { top: 43%; } .dbtn-5 { left: 90%; top: 51%; }
+  .six .bet-1 { left: 38%; top: 64%; } .six .bet-5 { left: 62%; top: 64%; }
+  .card { width: 36px; height: 52px; } .card .big { display: none; } .pot { font-size: 24px; }
+}
+
+/* ---------- Action bar ---------- */
+.actionbar { margin-top: 16px; padding: 14px 16px; display: flex; gap: 20px; align-items: center; flex-wrap: wrap; position: relative; }
+.hand { display: flex; gap: 6px; align-items: center; }
+.hand-meta { margin-left: 6px; }
+.controls { flex: 1; display: flex; flex-direction: column; gap: 10px; min-width: 280px; }
+.controls .r1, .controls .r2 { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.controls .r2 .slider { flex: 1; min-width: 120px; }
+.controls.off { opacity: .5; pointer-events: none; }
+.waiting { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--ui-text-toned); font-weight: 500; }
+
+/* ---------- Side panel ---------- */
+.log { list-style: none; margin: 0; padding: 0; }
+.log li { padding: 10px 16px; border-bottom: 1px solid var(--ui-border-muted); }
+.log li:last-child { border-bottom: 0; }
+.log .who { display: flex; align-items: center; gap: 6px; font-size: 13px; }
+.log .who b { font-weight: 600; color: var(--ui-text-highlighted); } .log .who .act { color: var(--ui-text-toned); }
+.log .talk { margin: 4px 0 0 14px; font-size: 13px; color: var(--ui-text); font-style: italic; }
+.lock { display: inline-flex; align-items: center; gap: 4px; margin: 4px 0 0 14px; font-size: 11.5px; color: var(--ui-text-dimmed); }
+.lock svg { width: 12px; height: 12px; }
+.sealed { margin: 5px 0 0 14px; height: 6px; width: 140px; border-radius: 99px; background: repeating-linear-gradient(90deg, var(--ui-bg-accented) 0 6px, var(--ui-bg-elevated) 6px 12px); }
+.log li.divider { background: var(--ui-bg-muted); padding: 7px 16px; display: flex; align-items: center; gap: 8px; }
+.log li.me { background: var(--primary-soft); }
+.panel-foot { font-size: 12px; color: var(--ui-text-muted); display: flex; gap: 6px; align-items: center; }
+.panel-foot svg { width: 13px; height: 13px; flex: none; }
+/* accordion */
+.acc-item { border-bottom: 1px solid var(--ui-border); }
+.acc-item:last-child { border-bottom: 0; }
+.acc-trigger { width: 100%; display: flex; align-items: center; gap: 8px; padding: 12px 16px; background: none; border: 0; cursor: pointer; text-align: left; }
+.acc-trigger .nm { font-weight: 600; color: var(--ui-text-highlighted); font-size: 13.5px; }
+.acc-trigger .sum { margin-left: auto; font-size: 12px; color: var(--ui-text-muted); white-space: nowrap; }
+.acc-trigger svg { width: 16px; height: 16px; color: var(--ui-text-dimmed); transition: transform .2s; flex: none; }
+.acc-item.open .acc-trigger svg { transform: rotate(180deg); }
+.acc-body { display: none; padding: 0 16px 14px; }
+.acc-item.open .acc-body { display: block; }
+.held { display: flex; gap: 6px; align-items: center; font-size: 12px; color: var(--ui-text-muted); margin-bottom: 8px; }
+.dec { padding: 8px 0; border-top: 1px dashed var(--ui-border); }
+.dec .h { display: flex; gap: 8px; align-items: baseline; font-size: 12.5px; }
+.dec .h b { color: var(--ui-text-highlighted); font-weight: 600; } .dec .h .ms { margin-left: auto; color: var(--ui-text-dimmed); font-size: 11.5px; }
+.dec p { margin: 4px 0 0; font-size: 13px; color: var(--ui-text); }
+.probs { margin-top: 6px; }
+.pbar { display: flex; height: 6px; border-radius: 99px; overflow: hidden; background: var(--ui-bg-accented); }
+.pbar span { height: 100%; }
+.pleg { display: flex; gap: 10px; margin-top: 4px; font-size: 11.5px; color: var(--ui-text-muted); }
+.pleg .on { color: var(--ui-text-highlighted); font-weight: 600; }
+.p-fold { background: var(--ui-text-dimmed); } .p-call { background: var(--ui-text-toned); } .p-raise { background: var(--primary); }
+
+/* ---------- Setup + modal ---------- */
+.setup { max-width: 600px; margin: 24px auto; }
+.setup .intro { margin: 0 0 4px; font-size: 13.5px; color: var(--ui-text-muted); }
+.seat-row { display: grid; grid-template-columns: 56px minmax(0, 1fr) 32px; gap: 8px; align-items: center; margin-top: 8px; }
+.seat-row .stat-label { white-space: nowrap; }
+.you-row { display: flex; align-items: center; gap: 8px; height: 34px; padding: 0 10px; border-radius: 6px; background: var(--ui-bg-muted); color: var(--ui-text-muted); font-size: 13.5px; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 20px; }
+.field label { display: block; font-size: 13px; font-weight: 500; color: var(--ui-text-highlighted); margin-bottom: 6px; }
+.setup footer { display: flex; align-items: center; gap: 10px; }
+.overlay { position: fixed; inset: 0; background: var(--overlay); z-index: 40; display: grid; place-items: center; padding: 16px; }
+.modal { width: min(760px, 100%); max-height: calc(100vh - 32px); overflow: auto; background: var(--ui-bg); border-radius: 12px; border: 1px solid var(--ui-border); box-shadow: 0 20px 60px rgba(0,0,0,.25); }
+.modal header p { margin: 2px 0 0; font-size: 13px; color: var(--ui-text-muted); }
+.kpis { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; padding: 16px 16px 4px; }
+.kpis .k { background: var(--ui-bg-muted); border-radius: 8px; padding: 10px 12px; } .kpis .v { font: 500 22px 'Fraunces', serif; color: var(--ui-text-highlighted); margin-top: 6px; }
+.tbl-wrap { overflow-x: auto; padding: 8px 0 0; }
+table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+th { text-align: left; font-weight: 600; color: var(--ui-text-highlighted); padding: 10px 16px; border-bottom: 1px solid var(--ui-border-accented); white-space: nowrap; font-size: 13px; }
+td { padding: 10px 16px; border-bottom: 1px solid var(--ui-border-muted); white-space: nowrap; }
+th.r, td.r { text-align: right; }
+td .num { font-size: 15px; }
+tr.me td { background: var(--primary-soft); }
+.tbl-wrap.lab th, .tbl-wrap.lab td { padding: 10px 10px; }
+.pos { color: var(--success); } .neg { color: var(--error); }
+.modal footer { display: flex; justify-content: flex-end; gap: 8px; flex-wrap: wrap; }
+@media (max-width: 640px) { .kpis { grid-template-columns: 1fr 1fr; } .kpis .k:last-child { display: none; } .form-row { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<div class="sb">
+  <div class="sb-row">
+    <span class="sb-title">storyboard · hold'em ai</span>
+    <div class="sb-tabs" id="tabs"></div>
+    <button class="btn xs outline" id="prev" aria-label="Previous frame">&larr; Prev</button>
+    <button class="btn xs outline" id="next" aria-label="Next frame">Next &rarr;</button>
+  </div>
+  <div class="sb-cap" id="caption"></div>
+</div>
+
+<div id="app"></div>
+<div class="toasts" id="toasts"></div>
+
+<script>
+/* ================= Icons (lucide paths, as UIcon would render) ================= */
+const I = {
+  sun: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>',
+  moon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z"/></svg>',
+  lock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>',
+  x: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>',
+  plus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
+  down: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg>',
+  check: '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M20 6 9 17l-5-5"/></svg>',
+  out: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>',
+};
+
+/* ================= Data ================= */
+const VENDOR = { openai: 'OpenAI', anthropic: 'Anthropic', google: 'Google', eval: 'TypeSafe' };
+const MODELS = [
+  { id: 'openai/gpt-6-sol', label: 'GPT-6 Sol', vendor: 'openai', kind: 'LLM' },
+  { id: 'openai/gpt-6-astra', label: 'GPT-6 Astra', vendor: 'openai', kind: 'LLM' },
+  { id: 'openai/gpt-6-luna', label: 'GPT-6 Luna', vendor: 'openai', kind: 'LLM' },
+  { id: 'anthropic/claude-opus-5.5', label: 'Claude Opus 5.5', vendor: 'anthropic', kind: 'LLM' },
+  { id: 'anthropic/claude-sonnet-5.5', label: 'Claude Sonnet 5.5', vendor: 'anthropic', kind: 'LLM' },
+  { id: 'anthropic/claude-haiku-5.5', label: 'Claude Haiku 5.5', vendor: 'anthropic', kind: 'LLM' },
+  { id: 'google/gemini-3.1-pro', label: 'Gemini 3.1 Pro', vendor: 'google', kind: 'LLM' },
+  { id: 'openai/gpt-6-luna-decisions', label: 'GPT-6 Luna Decisions', vendor: 'openai', kind: 'Decision' },
+  { id: 'typesafe-ai/jev', label: 'Jev', vendor: 'eval', kind: 'Decision' },
+];
+const M = id => MODELS.find(m => m.id === id);
+const P = { // seats at the table, index = seat position (0 = you, bottom-center), dealer = Jev
+  you: { label: 'You', pos: 0 },
+  sol: { ...M('openai/gpt-6-sol'), pos: 1 },
+  opus: { ...M('anthropic/claude-opus-5.5'), pos: 2 },
+  luna: { ...M('openai/gpt-6-luna-decisions'), pos: 3 },
+  jev: { ...M('typesafe-ai/jev'), pos: 4 },
+  gem: { ...M('google/gemini-3.1-pro'), pos: 0 }, // spectator frame (6-max) takes the bottom seat
+  haiku: { ...M('anthropic/claude-haiku-5.5'), pos: 3 },
+};
+
+// Hand #14 log, oldest first. Blinds: You SB 5, Sol BB 10, Jev on the button.
+const PRE = [
+  { div: 'Preflop', note: 'You post 5 · GPT-6 Sol posts 10' },
+  { p: 'opus', a: 'calls 10', talk: "Cheap look. I'll take it." },
+  { p: 'luna', a: 'raises to 20' },
+  { p: 'jev', a: 'calls 20' },
+  { p: 'you', a: 'call 20' },
+  { p: 'sol', a: 'folds', talk: 'Not with this one. Good luck, all.' },
+  { p: 'opus', a: 'calls 20' },
+  { div: 'Flop', cards: ['As', '7c', '2h'] },
+  { p: 'you', a: 'check' },
+];
+const FLOP_TURN = [
+  { p: 'opus', a: 'bets 30', talk: "Let's find out who actually has the ace." },
+  { p: 'luna', a: 'calls 30' },
+  { p: 'jev', a: 'calls 30' },
+  { p: 'you', a: 'call 30' },
+  { div: 'Turn', cards: ['9d'] },
+  { p: 'you', a: 'check' },
+  { p: 'opus', a: 'bets 60', talk: 'That nine changes things. For somebody.' },
+  { p: 'luna', a: 'calls 60' },
+  { p: 'jev', a: 'folds' },
+];
+
+const REVIEW = [
+  { p: 'opus', hole: ['9s', '8s'], result: 'Showdown · −170', decisions: [
+    { st: 'Preflop', a: 'calls 10', ms: 3840, why: 'Suited connector under the gun at 5/10. Raising invites a squeeze from the decision models; a limp keeps it cheap and multiway.' },
+    { st: 'Preflop', a: 'calls 20', ms: 2910, why: 'Ten more to close the action with 80 in the middle. Easy call.' },
+    { st: 'Flop', a: 'bets 30', ms: 5120, why: 'A-7-2 rainbow and I have nothing, but nobody 3-bet so strong aces are rare. A third-pot stab takes it often enough.' },
+    { st: 'Turn', a: 'bets 60', ms: 4470, why: 'Picked up second pair. Two callers who never raised look like weak sevens or floats; betting for value and protection.' },
+    { st: 'River', a: 'bets 60', ms: 6020, why: "Board paired, so I'm nines and sevens. Thin value: the small blind check-called twice and reads as a pocket pair." },
+  ]},
+  { p: 'luna', hole: ['Kh', '9c'], result: 'Folded river · −110', decisions: [
+    { st: 'Preflop', a: 'raises to 20', ms: 212, probs: { raise: 62, call: 31, fold: 7 } },
+    { st: 'Flop', a: 'calls 30', ms: 188, probs: { call: 81, raise: 18, fold: 1 } },
+    { st: 'Turn', a: 'calls 60', ms: 203, probs: { call: 58, fold: 40, raise: 2 } },
+    { st: 'River', a: 'folds', ms: 231, probs: { fold: 71, call: 29, raise: 0 } },
+  ]},
+  { p: 'jev', hole: ['Qd', 'Jd'], result: 'Folded turn · −50', decisions: [
+    { st: 'Preflop', a: 'calls 20', ms: 4, probs: { call: 74, fold: 14, raise: 12 } },
+    { st: 'Flop', a: 'calls 30', ms: 3, probs: { call: 66, fold: 30, raise: 4 } },
+    { st: 'Turn', a: 'folds', ms: 5, probs: { fold: 83, call: 17, raise: 0 } },
+  ]},
+  { p: 'sol', hole: ['Qc', '4d'], result: 'Folded preflop · −10', decisions: [
+    { st: 'Preflop', a: 'folds', ms: 7350, why: 'Q-4 offsuit in the big blind facing a raise and two callers. Out of position all hand; not worth ten more.' },
+  ]},
+];
+
+const LEADERBOARD = [
+  { p: 'you', net: 520, won: 6, t: '6.8 s', cost: null },
+  { p: 'opus', net: 310, won: 5, t: '4.4 s', cost: 0.412 },
+  { p: 'sol', net: -150, won: 4, t: '7.9 s', cost: 0.638 },
+  { p: 'luna', net: -210, won: 4, t: '204 ms', cost: 0.019 },
+  { p: 'jev', net: -470, won: 3, t: '4 ms', cost: 0.000 },
+];
+
+const FRAMES = [
+  { name: 'Setup', cap: 'Frame 1 · Setup (index.vue). Pick 1–5 opponents from a grouped USelectMenu, set stack and blinds, deal in. Default lineup is Sol, Opus 5.5, Luna Decisions, Jev. Add/remove seats and the selects work.' },
+  { name: 'AI thinking', cap: 'Frame 2 · Hand #14, flop A♠ 7♣ 2♥. You checked; Claude Opus 5.5 is thinking. Sol folded preflop, Jev called. Action bar is locked; reasoning and probabilities stay sealed until the hand ends.' },
+  { name: 'Your turn', cap: 'Frame 3 · Turn 9♦. Opus bet 60, Luna Decisions called, Jev folded. 60 to call; you hold A♥ J♣. Presets, slider and amount stay in sync; Fold / Call / Raise fire a toast and update the log.' },
+  { name: 'Showdown', cap: 'Frame 4 · River 7♥, Opus bets 60, Luna folds, you call. Showdown: aces and sevens beat nines and sevens. Winning five highlighted; side panel flips to Hand review (accordions work).' },
+  { name: 'Session summary', cap: 'Frame 5 · After "Leave table" (or busting): UModal over the table with a UTable leaderboard. Net chips sum to zero across 22 hands; cost is gateway spend for the session.' },
+  { name: 'Spectator + Booth', cap: 'Frame 6 · Bonus B1+B2 (bonus_sprints.md). Watch mode: 6 models, no human seat. Every hole card face up (folded hands dimmed); reasoning and probabilities live; Booth narration pinned. Pace control + cost meter in the header. Pace buttons and the three panel tabs work.' },
+  { name: 'Results + Lab', cap: 'Frame 7 · Bonus B3+B4. Results: 120 duplicate-seeded sit-and-gos, bb/100 with bootstrap 95% CIs, finish distribution. Strategy Lab: Fable writes strategy cards for one base model, pre-registers predictions, and a 60/40 exploit/explore loop tests them. Both tabs work.' },
+];
+
+/* ================= Helpers ================= */
+const fmt = n => n.toLocaleString('en-US');
+const SUIT = { s: '♠', h: '♥', d: '♦', c: '♣' };
+function card(c, cls = '') {
+  if (!c) return `<div class="card slot ${cls}"></div>`;
+  if (c === 'back') return `<div class="card back ${cls}"></div>`;
+  const r = c[0] === 'T' ? '10' : c[0], s = c[1];
+  return `<div class="card ${'hd'.includes(s) ? 'red' : ''} ${cls}"><span class="r">${r}</span><span class="s">${SUIT[s]}</span><span class="big">${SUIT[s]}</span></div>`;
+}
+const vbadge = pl => pl.vendor ? `<span class="badge vendor" style="--c:var(--series-${pl.vendor})">${VENDOR[pl.vendor]}</span>` : '';
+const kbadge = pl => pl.kind ? `<span class="badge outline kind">${pl.kind}</span>` : '';
+
+/* ================= State ================= */
+let frame = 0;
+let setup = { seats: ['openai/gpt-6-sol', 'anthropic/claude-opus-5.5', 'openai/gpt-6-luna-decisions', 'typesafe-ai/jev'], stack: '1,000', blinds: '5/10' };
+let live = fresh();
+function fresh() { return { r: 120, done: null, extra: [] }; }
+let openAcc = new Set(['opus']);
+let openSelect = null;
+
+/* ================= Table frames ================= */
+const TABLE = {
+  1: { street: 'Flop', pot: 90, board: ['As', '7c', '2h'], seats: {
+        you: { stack: 1100, last: 'checks' }, sol: { stack: 850, folded: 1, last: 'folds' },
+        opus: { stack: 1290, thinking: 1 }, luna: { stack: 920, last: 'raises to 20' }, jev: { stack: 760, last: 'calls 20' } },
+       waiting: 'Claude Opus 5.5', log: [...PRE, { p: 'opus', thinking: 1 }] },
+  2: { street: 'Turn', pot: 210, board: ['As', '7c', '2h', '9d'], toCall: 60, seats: {
+        you: { stack: 1070, last: 'checks', acting: 1 }, sol: { stack: 850, folded: 1, last: 'folds' },
+        opus: { stack: 1200, bet: 60, last: 'bets 60' }, luna: { stack: 830, bet: 60, last: 'calls 60' }, jev: { stack: 730, folded: 1, last: 'folds' } },
+       log: [...PRE, ...FLOP_TURN] },
+  3: { street: 'Showdown', pot: 510, board: ['As', '7c', '2h', '9d', '7h'], win: ['As', '7c', '7h', 'Ah', 'Jc'], seats: {
+        you: { stack: 1520, winner: 1, delta: '+340', last: 'Two pair, aces and sevens' }, sol: { stack: 850, folded: 1, last: 'folds' },
+        opus: { stack: 1140, show: ['9s', '8s'], last: 'Two pair, nines and sevens' }, luna: { stack: 830, folded: 1, last: 'folds' }, jev: { stack: 730, folded: 1, last: 'folds' } } },
+};
+TABLE[4] = TABLE[3];
+TABLE[5] = { street: 'Flop', pot: 100, board: ['Kh', '8d', '3c'], six: 1, dealer: 5, players: ['gem', 'sol', 'opus', 'haiku', 'luna', 'jev'], seats: {
+  gem: { stack: 1555, bet: 55, last: 'bets 55', show: ['Kd', 'Qs'] }, sol: { stack: 895, folded: 1, last: 'folds', show: ['6c', '2d'] },
+  opus: { stack: 1100, thinking: 1, show: ['Ts', '9s'] }, haiku: { stack: 1090, folded: 1, last: 'folds', show: ['Jc', '5d'] },
+  luna: { stack: 880, last: 'calls 30', show: ['8h', '8c'] }, jev: { stack: 325, folded: 1, last: 'folds', show: ['7h', '4h'] } } };
+
+function seatHTML(key, s, f, t) {
+  const pl = P[key], you = key === 'you';
+  const pos = t.players ? t.players.indexOf(key) : pl.pos;
+  let cls = 'seat pos-' + pos + (s.folded ? ' folded' : '') + (s.winner ? ' winner' : '') + (s.acting && !live.done ? ' acting' : '');
+  let status;
+  if (s.thinking) status = '<span class="pulse"></span><span>thinking…</span>';
+  else if (s.allin) status = '<span class="badge solid-primary">All-in</span>';
+  else status = `<span>${s.last || ''}</span>`;
+  if (you && s.acting && !live.done) status = '<span style="color:var(--primary);font-weight:500">your turn</span>';
+  let mini = '';
+  if (s.show) mini = `<div class="mini">${s.show.map(c => card(c, 'sm')).join('')}</div>`;
+  else if (!you && !s.folded) mini = `<div class="mini">${s.show ? s.show.map(c => card(c, 'sm')).join('') : card('back', 'sm') + card('back', 'sm')}</div>`;
+  return `<div class="${cls}">${s.delta ? `<span class="delta">${s.delta}</span>` : ''}
+    <div class="nm">${pl.label}</div>
+    <div class="tags">${you ? '<span class="badge subtle">Seat 1</span>' : vbadge(pl) + kbadge(pl)}</div>
+    <div class="row"><span class="stack">${fmt(s.stack)}</span>${mini}</div>
+    <div class="st">${status}</div></div>`;
+}
+
+function tableHTML(f) {
+  const t = TABLE[f];
+  const seats = JSON.parse(JSON.stringify(t.seats));
+  let pot = t.pot;
+  if (f === 2 && live.done) { // apply the human's live action
+    const y = seats.you, d = live.done;
+    if (d.kind === 'fold') { y.folded = 1; y.last = 'folds'; }
+    if (d.kind === 'call') { y.stack -= 60; y.bet = 60; y.last = 'calls 60'; }
+    if (d.kind === 'raise') { y.stack -= d.amt; y.bet = d.amt; y.last = `raises to ${fmt(d.amt)}`; if (y.stack === 0) y.allin = 1; }
+  }
+  let html = `<div class="table-wrap ${t.six ? 'six' : ''}"><div class="felt"></div>`;
+  for (const k of t.players || ['you', 'sol', 'opus', 'luna', 'jev']) {
+    const s = seats[k];
+    html += seatHTML(k, s, f, t);
+    if (s.bet) html += `<div class="bet bet-${t.players ? t.players.indexOf(k) : P[k].pos}"><span class="chip"></span>${fmt(s.bet)}</div>`;
+  }
+  html += `<div class="dbtn dbtn-${t.dealer ?? 4}">D</div>`;
+  const slots = [0, 1, 2, 3, 4].map(i => card(t.board[i], t.win ? (t.win.includes(t.board[i]) ? 'hi' : 'lo') : '')).join('');
+  const note = t.win ? `<div class="center-note">You win ${fmt(pot)} · Two pair, aces and sevens</div>` : '';
+  html += `<div class="center"><div class="stat-label">${t.win ? 'Pot awarded' : 'Pot'}</div><div class="pot">${fmt(pot)}</div><div class="board">${slots}</div>${note}</div></div>`;
+  return html;
+}
+
+function actionBarHTML(f) {
+  const t = TABLE[f];
+  const hole = ['Ah', 'Jc'].map(c => card(c, 'lg' + (t.win ? ' hi' : ''))).join('');
+  const meta = `<div class="hand-meta"><div class="stat-label">Your hand</div><div class="num" style="font-size:20px;color:var(--ui-text-highlighted);margin-top:4px">${fmt(f === 2 && live.done && live.done.kind !== 'fold' ? 1070 - (live.done.amt || 60) : t.seats.you.stack)}</div></div>`;
+  if (f >= 3) {
+    return `<div class="card-ui actionbar"><div class="hand">${hole}${meta}</div>
+      <div style="flex:1;min-width:220px"><div style="font-weight:600;color:var(--ui-text-highlighted)">You won 510 with two pair, aces and sevens</div>
+      <div class="muted" style="font-size:13px">Opus showed 9♠ 8♠. Review every decision in the side panel.</div></div>
+      <button class="btn primary lg" data-act="next-hand">Next hand</button></div>`;
+  }
+  const yourTurn = f === 2 && !live.done;
+  const max = 1070, r = live.r, pct = ((r - 120) / (max - 120)) * 100;
+  const preset = { Min: 120, '½ pot': 255, Pot: 450, 'All-in': max };
+  let waiting = '';
+  if (f === 1) waiting = `<div class="waiting"><span class="pulse"></span>Waiting on Claude Opus 5.5…</div>`;
+  if (f === 2 && live.done) waiting = `<div class="waiting"><span class="pulse"></span>${live.done.wait}<button class="btn xs ghost" data-act="reset" style="margin-left:auto">Reset frame</button></div>`;
+  const callLabel = f === 1 ? 'Check' : 'Call 60';
+  return `<div class="card-ui actionbar"><div class="hand">${hole}${meta}</div>
+    <div style="flex:1;min-width:280px;display:flex;flex-direction:column;gap:10px">${waiting}
+    <div class="controls ${yourTurn ? '' : 'off'}">
+      <div class="r1">
+        <button class="btn outline" data-act="fold" ${yourTurn ? '' : 'disabled'}>Fold</button>
+        <button class="btn neutral" data-act="call" ${yourTurn ? '' : 'disabled'}>${callLabel}</button>
+        <div class="btn-group" style="margin-left:auto">${Object.entries(preset).map(([k, v]) => `<button class="btn xs outline ${v === r ? 'on' : ''}" data-preset="${v}" ${yourTurn ? '' : 'disabled'}>${k}</button>`).join('')}</div>
+      </div>
+      <div class="r2">
+        <input type="range" class="slider" id="slider" min="120" max="${max}" step="5" value="${r}" style="--p:${pct}%" ${yourTurn ? '' : 'disabled'}>
+        <input class="input-num" id="amt" inputmode="numeric" value="${fmt(r)}" ${yourTurn ? '' : 'disabled'}>
+        <button class="btn primary" data-act="raise" id="raiseBtn" ${yourTurn ? '' : 'disabled'}>${r === max ? 'All-in 1,070' : 'Raise to ' + fmt(r)}</button>
+      </div>
+    </div></div></div>`;
+}
+
+function logItemHTML(e) {
+  if (e.div) return `<li class="divider"><span class="stat-label">${e.div}</span>${e.cards ? e.cards.map(c => card(c, 'sm')).join('') : `<span class="dimmed" style="font-size:12px">${e.note}</span>`}</li>`;
+  const pl = P[e.p], dot = pl.vendor ? `<span class="dot" style="--c:var(--series-${pl.vendor})"></span>` : '<span class="dot" style="--c:var(--primary)"></span>';
+  if (e.thinking) return `<li><div class="who">${dot}<b>${pl.label}</b><span class="act muted">is thinking…</span><span class="pulse" style="margin-left:auto"></span></div></li>`;
+  if (e.prompt) return `<li class="me"><div class="who">${dot}<b>Your move</b><span class="act">60 to call · pot 330</span></div></li>`;
+  let extra = '';
+  if (e.talk) extra += `<div class="talk">“${e.talk}”</div>`;
+  if (pl.kind === 'LLM') extra += `<div class="lock">${I.lock}reasoning revealed after the hand</div>`;
+  if (pl.kind === 'Decision') extra += `<div class="sealed"></div><div class="lock">${I.lock}probabilities revealed after the hand</div>`;
+  return `<li><div class="who">${dot}<b>${pl.label}</b><span class="act">${e.a}</span></div>${extra}</li>`;
+}
+
+function talkPanelHTML(f) {
+  const t = TABLE[f];
+  let log = [...t.log];
+  if (f === 2) log = live.done ? [...log, ...live.extra] : [...log, { p: 'you', prompt: 1 }];
+  return `<div class="card-ui"><header><h3>Table talk</h3><span class="badge subtle">Hand #14 · ${t.street}</span></header>
+    <ul class="log">${log.slice().reverse().map(logItemHTML).join('')}</ul>
+    <footer class="panel-foot">${I.lock}Model reasoning and decision probabilities are sealed until the hand ends, so nothing leaks mid-hand.</footer></div>`;
+}
+
+function probsHTML(pr, chosen) {
+  const order = ['fold', 'call', 'raise'];
+  const verb = chosen.split(' ')[0].replace(/s$/, '');
+  const pick = verb === 'bet' ? 'raise' : verb;
+  return `<div class="probs"><div class="pbar">${order.map(k => `<span class="p-${k}" style="width:${pr[k]}%"></span>`).join('')}</div>
+    <div class="pleg">${Object.entries(pr).sort((a, b) => b[1] - a[1]).map(([k, v]) => `<span class="${k === pick ? 'on' : ''}">${k} ${v}%</span>`).join('')}</div></div>`;
+}
+
+function reviewPanelHTML() {
+  const items = REVIEW.map(r => {
+    const pl = P[r.p], total = r.decisions.reduce((a, d) => a + d.ms, 0);
+    const tm = total >= 1000 ? (total / 1000).toFixed(1) + ' s' : total + ' ms';
+    const decs = r.decisions.map(d => `<div class="dec"><div class="h"><span class="stat-label" style="width:52px">${d.st}</span><b>${d.a}</b><span class="ms mono">${fmt(d.ms)} ms</span></div>
+      ${d.why ? `<p>${d.why}</p>` : probsHTML(d.probs, d.a)}</div>`).join('');
+    return `<div class="acc-item ${openAcc.has(r.p) ? 'open' : ''}"><button class="acc-trigger" data-acc="${r.p}">
+      <span class="dot" style="--c:var(--series-${pl.vendor})"></span><span class="nm">${pl.label}</span><span class="badge outline">${pl.kind}</span>
+      <span class="sum">${r.decisions.length} ${r.decisions.length > 1 ? 'decisions' : 'decision'} · ${tm}</span>${I.down}</button>
+      <div class="acc-body"><div class="held">Held ${r.hole.map(c => card(c, 'sm')).join('')}<span style="margin-left:auto">${r.result}</span></div>${decs}</div></div>`;
+  }).join('');
+  return `<div class="card-ui"><header><h3>Hand review</h3><span class="badge subtle">Hand #14</span></header>${items}
+    <footer class="panel-foot">${fmt(REVIEW.reduce((a, r) => a + r.decisions.length, 0))} AI decisions · $0.031 this hand</footer></div>`;
+}
+
+/* ================= Setup frame ================= */
+function selectHTML(id, value, groups, render) {
+  const isOpen = openSelect === id;
+  const menu = isOpen ? `<div class="select-menu">${groups.map(g => `${g.label ? `<div class="select-group">${g.label}</div>` : ''}${g.items.map(it =>
+    `<button class="select-item" data-sel="${id}" data-val="${it.value}">${render(it)}${it.value === value ? `<span class="chk">${I.check}</span>` : ''}</button>`).join('')}`).join('')}</div>` : '';
+  const cur = groups.flatMap(g => g.items).find(i => i.value === value);
+  return `<div class="select"><button class="select-trigger" data-open="${id}"><span class="lbl" style="display:flex;gap:8px;align-items:center">${render(cur, true)}</span>${I.down}</button>${menu}</div>`;
+}
+const modelItem = (m, trig) => `<span class="dot" style="--c:var(--series-${m.vendor})"></span><span style="flex:1">${m.label}</span>${trig ? `<span class="badge outline">${m.kind}</span>` : `<span class="dimmed" style="font-size:12px">${VENDOR[m.vendor]}</span>`}`;
+const plainItem = it => `<span>${it.value}</span>`;
+
+function setupHTML() {
+  const groups = [
+    { label: 'Language models', items: MODELS.filter(m => m.kind === 'LLM').map(m => ({ ...m, value: m.id })) },
+    { label: 'Decision models', items: MODELS.filter(m => m.kind === 'Decision').map(m => ({ ...m, value: m.id })) },
+  ];
+  const rows = setup.seats.map((id, i) => `<div class="seat-row"><span class="stat-label">Seat ${i + 2}</span>
+    ${selectHTML('seat' + i, id, groups, modelItem)}
+    <button class="btn sm square ghost" data-remove="${i}" aria-label="Remove seat" ${setup.seats.length <= 1 ? 'disabled' : ''}>${I.x}</button></div>`).join('');
+  const n = setup.seats.length, bb = +setup.blinds.split('/')[1], depth = +setup.stack.replace(',', '') / bb;
+  return `<div class="card-ui setup"><header><h3>Pick your table</h3><span class="badge subtle">${n + 1} / 6 seats</span></header>
+    <div class="body">
+      <p class="intro">No-limit hold'em, you against 1–5 models. Language models explain themselves; decision models return probabilities. Everything is revealed after each hand.</p>
+      <div class="seat-row"><span class="stat-label">Seat 1</span><div class="you-row"><span class="dot" style="--c:var(--primary)"></span>You</div><span></span></div>
+      ${rows}
+      <div style="margin:10px 0 0 64px;display:flex;align-items:center;gap:10px"><button class="btn sm outline" data-act="add" ${n >= 5 ? 'disabled' : ''}>${I.plus}Add seat</button>
+      ${n >= 5 ? '<span class="dimmed" style="font-size:12px">Table is full</span>' : ''}</div>
+      <div class="form-row">
+        <div class="field"><label>Starting stack</label>${selectHTML('stack', setup.stack, [{ items: ['500', '1,000', '2,000'].map(v => ({ value: v })) }], plainItem)}</div>
+        <div class="field"><label>Blinds</label>${selectHTML('blinds', setup.blinds, [{ items: ['5/10', '10/20'].map(v => ({ value: v })) }], plainItem)}</div>
+      </div>
+    </div>
+    <footer><span class="muted" style="font-size:13px;margin-right:auto">${n + 1} players · ${depth} big blinds deep</span><button class="btn primary lg" data-act="deal">Deal me in</button></footer></div>`;
+}
+
+/* ================= Summary modal ================= */
+function summaryHTML() {
+  const rows = LEADERBOARD.map(r => {
+    const pl = P[r.p], dot = pl.vendor ? `<span class="dot" style="--c:var(--series-${pl.vendor})"></span>` : '<span class="dot" style="--c:var(--primary)"></span>';
+    return `<tr class="${r.p === 'you' ? 'me' : ''}"><td><span style="display:inline-flex;gap:8px;align-items:center">${dot}<b style="font-weight:600;color:var(--ui-text-highlighted)">${pl.label}</b>${pl.kind ? `<span class="badge outline">${pl.kind}</span>` : ''}</span></td>
+      <td class="r"><span class="num ${r.net >= 0 ? 'pos' : 'neg'}">${r.net >= 0 ? '+' : '−'}${fmt(Math.abs(r.net))}</span></td>
+      <td class="r">${r.won}</td><td class="r mono">${r.t}</td>
+      <td class="r mono">${r.cost === null ? '<span class="dimmed">—</span>' : '$' + r.cost.toFixed(3)}</td></tr>`;
+  }).join('');
+  return `<div class="overlay"><div class="modal card-ui" role="dialog" aria-modal="true">
+    <header style="align-items:flex-start"><div style="flex:1"><h3 style="margin:0;font-size:16px;font-weight:600;color:var(--ui-text-highlighted)">Session summary</h3><p>22 hands · 38 min · blinds 5/10 · 1,000 starting stacks</p></div>
+      <button class="btn sm square ghost" data-frame="3" aria-label="Close">${I.x}</button></header>
+    <div class="kpis"><div class="k"><div class="stat-label">You finished</div><div class="v pos">+520</div></div>
+      <div class="k"><div class="stat-label">Best model</div><div class="v" style="font-size:17px;padding-top:4px">Claude Opus 5.5</div></div>
+      <div class="k"><div class="stat-label">Session cost</div><div class="v">$1.069</div></div></div>
+    <div class="tbl-wrap"><table><thead><tr><th>Player</th><th class="r">Net chips</th><th class="r">Hands won</th><th class="r">Avg decision</th><th class="r">Cost</th></tr></thead><tbody>${rows}</tbody></table></div>
+    <footer><button class="btn outline" data-frame="0">New table</button><button class="btn primary" data-act="again">Play again with same table</button></footer></div></div>`;
+}
+
+/* ================= Bonus frames (bonus_sprints.md B1–B4) ================= */
+let pace = '1×', specTab = 'talk', resTab = 'results';
+const SPEC_TALK = [
+  { div: 'Preflop', note: 'Gemini 3.1 Pro posts 5 · GPT-6 Sol posts 10' },
+  { p: 'opus', a: 'raises to 30', ms: 3420, why: 'T♠9♠ under the gun at a passive table. Small open, plays well multiway.' },
+  { p: 'haiku', a: 'folds', ms: 1180, why: 'J-5 offsuit second to act. Fold.' },
+  { p: 'luna', a: 'calls 30', ms: 196, probs: { call: 64, raise: 29, fold: 7 } },
+  { p: 'jev', a: 'folds', ms: 4, probs: { fold: 88, call: 9, raise: 3 } },
+  { p: 'gem', a: 'calls 30', ms: 2870, why: 'K♦Q♠ in the small blind. Too strong to fold, awkward to 3-bet out of position.' },
+  { p: 'sol', a: 'folds', ms: 6110, why: '6-2 offsuit. Nothing to defend with.', talk: 'All yours.' },
+  { div: 'Flop', cards: ['Kh', '8d', '3c'] },
+  { p: 'gem', a: 'bets 55', ms: 3040, why: 'Top pair, queen kicker on a dry board. Value bet; most of their range is worse.', talk: 'Kings are usually good to me.' },
+  { p: 'opus', thinking: 1 },
+];
+// hands, VPIP, PFR, AF, WTSD, avg ms, cost — all from stats.ts
+const SPEC_STATS = [
+  ['gem', 31, 22, 2.4, 29, '2.9 s', 0.071], ['opus', 26, 20, 2.9, 27, '3.6 s', 0.104], ['sol', 19, 14, 1.8, 22, '6.3 s', 0.142],
+  ['haiku', 35, 12, 1.1, 33, '1.2 s', 0.018], ['luna', 44, 9, 0.7, 41, '201 ms', 0.004], ['jev', 38, 17, 1.6, 36, '4 ms', 0],
+];
+const SPEC_END = { gem: 1640, sol: 905, opus: 1130, haiku: 1090, luna: 910, jev: 325 };
+
+function spectatorBarHTML() {
+  return `<div class="card-ui actionbar"><div style="flex:1;min-width:200px"><div class="stat-label">Watching</div>
+    <div style="margin-top:6px;font-weight:600;color:var(--ui-text-highlighted)">Hand <span class="num">41</span> of 100 · 6 models, no human seat</div>
+    <div class="muted" style="font-size:12.5px">Every hole card is visible to you; each model still sees only its own.</div></div>
+    <span class="muted" style="font-size:12.5px">Session cap $2.00</span>
+    <button class="btn sm outline" data-frame="6">Stop &amp; see results</button></div>`;
+}
+
+function chipRaceSVG() {
+  const W = 320, H = 170, n = 40, ks = Object.keys(SPEC_END);
+  const x = i => 30 + (i / n) * (W - 38), y = v => 10 + (1 - v / 2000) * (H - 30);
+  const lines = ks.map((k, j) => {
+    const pts = [...Array(n + 1)].map((_, i) => 1000 + (SPEC_END[k] - 1000) * i / n + 130 * Math.sin(i * (0.4 + j * 0.11) + j * 1.7) * (i * (n - i)) / (n * n / 4));
+    const dash = k === 'luna' || k === 'haiku' ? 'stroke-dasharray="4 3"' : '';
+    return `<polyline fill="none" stroke="var(--series-${P[k].vendor})" stroke-width="1.7" ${dash} points="${pts.map((v, i) => x(i).toFixed(1) + ',' + y(v).toFixed(1)).join(' ')}"/>`;
+  }).join('');
+  const grid = [0, 1000, 2000].map(v => `<line x1="30" x2="${W - 8}" y1="${y(v)}" y2="${y(v)}" stroke="var(--ui-border)"/><text x="0" y="${y(v) + 4}" font-size="10" fill="var(--ui-text-dimmed)">${fmt(v)}</text>`).join('');
+  const legend = ks.map(k => `<span style="display:inline-flex;gap:5px;align-items:center"><span class="dot" style="--c:var(--series-${P[k].vendor})"></span>${P[k].label} <b class="num" style="font-weight:500">${fmt(SPEC_END[k])}</b></span>`).join('');
+  return `<div class="body"><svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Chip stacks over 40 hands">${grid}${lines}<text x="${W - 8}" y="${H - 4}" font-size="10" text-anchor="end" fill="var(--ui-text-dimmed)">hand 40</text></svg>
+    <div style="display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12px;margin-top:8px">${legend}</div>
+    <p class="dimmed" style="font-size:11.5px;margin:8px 0 0">Hue = vendor. The second seat from a vendor (Luna Decisions, Haiku) is dashed.</p></div>`;
+}
+
+function spectatorPanelHTML() {
+  const tabs = [['talk', 'Table talk'], ['race', 'Chip race'], ['stats', 'Stats']];
+  let body;
+  if (specTab === 'talk') {
+    const items = SPEC_TALK.slice().reverse().map(e => {
+      if (e.div || e.thinking) return logItemHTML(e);
+      const pl = P[e.p];
+      return `<li><div class="who"><span class="dot" style="--c:var(--series-${pl.vendor})"></span><b>${pl.label}</b><span class="act">${e.a}</span><span class="mono dimmed" style="margin-left:auto;font-size:11px">${fmt(e.ms)} ms</span></div>
+        ${e.talk ? `<div class="talk">“${e.talk}”</div>` : ''}${e.why ? `<p style="margin:4px 0 0 14px;font-size:12.5px;color:var(--ui-text-toned)">${e.why}</p>` : ''}${e.probs ? `<div style="margin-left:14px">${probsHTML(e.probs, e.a)}</div>` : ''}</li>`;
+    }).join('');
+    body = `<div style="padding:12px 16px;background:var(--ui-bg-muted);border-bottom:1px solid var(--ui-border)"><div style="display:flex;gap:6px;align-items:center"><span class="stat-label">Booth · hand #40</span><span class="badge vendor" style="--c:var(--series-anthropic);margin-left:auto">Sonnet 5.5</span></div>
+      <div style="font-weight:600;color:var(--ui-text-highlighted);margin:6px 0 4px">Gemini picks off Jev's river shove</div>
+      <p style="margin:0;font-size:13px">Jev pushed 380 on a four-flush river, its split 52/48 between shove and check, and Gemini 3.1 Pro called with the nut flush in 3.1 s. That's Jev's third all-in in ten hands; the decision models loosen up as their stacks shrink.</p></div>
+      <ul class="log">${items}</ul>`;
+  } else if (specTab === 'race') body = chipRaceSVG();
+  else body = `<div class="tbl-wrap" style="padding:0"><table style="font-size:12.5px"><thead><tr><th style="padding:8px 10px">Seat</th>${['VPIP', 'PFR', 'AF', 'WTSD', 'Avg', 'Cost'].map(h => `<th class="r" style="padding:8px 6px">${h}</th>`).join('')}</tr></thead><tbody>${SPEC_STATS.map(([k, v, p, af, w, ms, c]) => `<tr><td style="padding:8px 10px"><span style="display:inline-flex;gap:6px;align-items:center"><span class="dot" style="--c:var(--series-${P[k].vendor})"></span>${P[k].label.replace('GPT-6 ', '').replace('Claude ', '').replace(' Decisions', ' Dec.').replace(' 3.1 Pro', '')}</span></td>${[v + '%', p + '%', af, w + '%', ms].map(x => `<td class="r" style="padding:8px 6px">${x}</td>`).join('')}<td class="r mono" style="padding:8px 6px">$${c.toFixed(3)}</td></tr>`).join('')}</tbody></table></div>
+    <footer class="panel-foot" style="padding:10px 16px">40 hands. Computed in stats.ts from the action log; no model computes its own numbers.</footer>`;
+  return `<div class="card-ui"><header style="padding:10px 12px"><div class="btn-group">${tabs.map(([k, l]) => `<button class="btn xs outline ${k === specTab ? 'on' : ''}" data-tab="${k}">${l}</button>`).join('')}</div><span class="badge subtle" style="margin-left:auto">Live</span></header>${body}</div>`;
+}
+
+function ciBar(lo, hi, mid, w = 140, min = -15, max = 20) {
+  const X = v => ((v - min) / (max - min)) * 100;
+  const c = lo > 0 ? 'var(--success)' : hi < 0 ? 'var(--error)' : 'var(--ui-text-muted)';
+  return `<span style="display:inline-flex;align-items:center;gap:8px"><svg viewBox="0 0 100 14" width="${w}" height="14" preserveAspectRatio="none"><line x1="${X(0)}" x2="${X(0)}" y1="0" y2="14" stroke="var(--ui-border-accented)" vector-effect="non-scaling-stroke"/><line x1="${X(lo)}" x2="${X(hi)}" y1="7" y2="7" stroke="${c}" stroke-width="2.5" vector-effect="non-scaling-stroke"/><circle cx="${X(mid)}" cy="7" r="2.6" fill="${c}"/></svg><span class="num" style="font-size:14px;min-width:42px;text-align:right" title="95% CI ${lo} to ${hi}">${mid > 0 ? '+' : ''}${mid.toFixed(1)}</span><span class="dimmed mono" style="font-size:11px">±${((hi - lo) / 2).toFixed(1)}</span></span>`;
+}
+
+// id, avg finish, finish distribution 1st..6th (%), bb/100, lo, hi, cost
+const RUN = [
+  ['anthropic/claude-opus-5.5', 2.6, [27, 23, 18, 14, 11, 7], 8.1, 3.0, 13.4, 6.84], ['google/gemini-3.1-pro', 2.9, [22, 20, 19, 16, 13, 10], 5.2, -0.4, 10.6, 4.10],
+  ['openai/gpt-6-sol', 3.3, [17, 18, 17, 18, 16, 14], 1.0, -4.8, 6.9, 7.92], ['typesafe-ai/jev', 3.8, [15, 13, 14, 15, 19, 24], -2.9, -8.1, 2.2, 0],
+  ['openai/gpt-6-luna-decisions', 4.1, [11, 13, 15, 17, 20, 24], -5.6, -10.9, -0.2, 0.31], ['anthropic/claude-haiku-5.5', 4.3, [8, 13, 17, 20, 21, 21], -5.8, -11.7, 0.1, 0.88],
+];
+const modelCell = (m, extra = '') => `<span style="display:inline-flex;gap:8px;align-items:center"><span class="dot" style="--c:var(--series-${m.vendor})"></span><b style="font-weight:600;color:var(--ui-text-highlighted)">${m.label}</b>${extra}</span>`;
+function resultsTabHTML() {
+  const rows = RUN.map(([id, fin, dist, mid, lo, hi, cost]) => `<tr><td>${modelCell(M(id), `<span class="badge outline">${M(id).kind}</span>`)}</td><td class="r num">${fin.toFixed(1)}</td><td class="r">${dist[0]}%</td><td>${ciBar(lo, hi, mid)}</td><td class="r mono">$${cost.toFixed(2)}</td></tr>`).join('');
+  const shade = i => `color-mix(in srgb, var(--primary) ${100 - i * 17}%, var(--ui-bg-accented))`;
+  const dist = RUN.map(([id, , d]) => `<div style="display:grid;grid-template-columns:150px 1fr;gap:10px;align-items:center;margin-top:8px;font-size:12.5px"><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${M(id).label}</span>
+    <div class="pbar" style="height:12px;border-radius:4px">${d.map((v, i) => `<span title="${['1st', '2nd', '3rd', '4th', '5th', '6th'][i]}: ${v}%" style="width:${v}%;background:${shade(i)}"></span>`).join('')}</div></div>`).join('');
+  return `<div class="kpis" style="padding:0 0 16px"><div class="k"><div class="stat-label">Duplicate matches</div><div class="v">20 × 6 seats</div></div><div class="k"><div class="stat-label">Hands</div><div class="v">4,812</div></div><div class="k"><div class="stat-label">Spend</div><div class="v">$20.05</div></div></div>
+    <div class="card-ui"><header><h3>Leaderboard</h3><span class="badge subtle">bb/100 · 95% CI, bootstrap over matches</span></header>
+      <div class="tbl-wrap" style="padding:0"><table><thead><tr><th>Model</th><th class="r">Avg finish</th><th class="r">Win %</th><th>bb/100</th><th class="r">Cost</th></tr></thead><tbody>${rows}</tbody></table></div>
+      <footer class="panel-foot">Only Opus 5.5 clears zero, and Luna Decisions is the only one clearly below. The middle overlaps; 20 more matches would separate it.</footer></div>
+    <div class="card-ui" style="margin-top:16px"><header><h3>Finish position</h3><span class="badge subtle">120 sit-and-gos</span></header><div class="body" style="padding-top:8px">${dist}
+      <div class="pleg" style="margin-top:12px">${['1st', '2nd', '3rd', '4th', '5th', '6th'].map((l, i) => `<span style="display:inline-flex;gap:4px;align-items:center"><span style="width:10px;height:10px;border-radius:2px;background:${shade(i)}"></span>${l}</span>`).join('')}</div></div></div>`;
+}
+
+const LAB = [
+  { n: 'River Bully', g: 1, arm: 'exploit', from: 'Pressure Player', hyp: 'Decision models fold over 60% to 1.5× pot river bets.', pred: 4, mid: 11.2, lo: 5.1, hi: 17.0, v: 'confirmed' },
+  { n: 'Table-Talk Bluffer', g: 1, arm: 'explore', hyp: 'LLM opponents fold more after confident table talk.', pred: 2, mid: 6.4, lo: 0.6, hi: 12.1, v: 'confirmed' },
+  { n: 'Pressure Player', g: 0, arm: 'explore', hyp: 'Barrel every street when checked to.', pred: 3, mid: 3.8, lo: -1.9, hi: 9.4, v: 'inconclusive' },
+  { n: 'GTO-ish Balanced', g: 0, arm: 'explore', hyp: 'Balanced ranges beat an exploitable field.', pred: 8, mid: 0.9, lo: -4.2, hi: 6.0, v: 'refuted' },
+  { n: 'Patient Trapper', g: 0, arm: 'explore', hyp: 'Slow-playing big hands extracts more from aggressive LLMs.', pred: 6, mid: -1.4, lo: -6.9, hi: 4.0, v: 'refuted' },
+  { n: 'No card', g: '–', arm: 'control', hyp: 'Base model with no strategy card.', pred: 0, mid: -2.2, lo: -7.0, hi: 2.6, v: 'control' },
+  { n: 'Nit', g: 0, arm: 'explore', hyp: 'Folding all but premiums bleeds to the blinds.', pred: -2, mid: -6.7, lo: -11.9, hi: -1.5, v: 'confirmed' },
+];
+const LINEAGE = [
+  ['Gen 0', '8 cards, spanning the space', 'Pressure Player, GTO-ish Balanced, Patient Trapper, Nit, Calling Station, Maniac, Position Only, Chatty Bluffer'],
+  ['Gen 1', '3 exploit · 2 explore', 'Pressure Player → River Bully (river overbets only) · → Turn Barreler · Chatty Bluffer → Table-Talk Bluffer · new: Short-Stack Shover, Check-Raise Specialist'],
+  ['Gen 2', 'running · 1,840 / 3,000 hands', 'River Bully → River Bully+ (adds thin value) · → Bully vs LLMs only · new: Limp-Trapper, Min-Raise Prober'],
+];
+function labTabHTML() {
+  const vb = { confirmed: 'color:var(--success);box-shadow:inset 0 0 0 1px currentColor', refuted: 'color:var(--error);box-shadow:inset 0 0 0 1px currentColor', inconclusive: 'color:var(--ui-text-muted);box-shadow:inset 0 0 0 1px var(--ui-border-accented)', control: '' };
+  const rows = LAB.map(s => `<tr><td><b style="font-weight:600;color:var(--ui-text-highlighted)">Luna · ${s.n}</b><div class="dimmed" style="font-size:12px;white-space:normal;max-width:230px">${s.hyp}</div></td>
+    <td><span class="badge ${s.arm === 'exploit' ? 'solid-primary' : s.arm === 'control' ? 'subtle' : 'outline'}">${s.arm}</span><div class="dimmed" style="font-size:11.5px;margin-top:3px">gen ${s.g}${s.from ? ' · from ' + s.from : ''}</div></td>
+    <td class="r num">${s.pred > 0 ? '+' : ''}${s.pred}</td><td>${ciBar(s.lo, s.hi, s.mid, 80)}</td><td><span class="badge ${s.v === 'control' ? 'subtle' : ''}" style="${vb[s.v]}">${s.v}</span></td></tr>`).join('');
+  const X = v => 34 + ((v + 10) / 22) * 226, Y = v => 150 - ((v + 10) / 25) * 140;
+  const dots = LAB.map(s => `<circle cx="${X(s.pred)}" cy="${Y(s.mid)}" r="4.5" fill="${s.v === 'control' ? 'var(--ui-text-muted)' : s.v === 'refuted' ? 'var(--error)' : s.v === 'confirmed' ? 'var(--success)' : 'var(--ui-text-toned)'}"/><text x="${X(s.pred) + 7}" y="${Y(s.mid) + 4}" font-size="10" fill="var(--ui-text-toned)">${s.v === 'control' ? 'Control' : s.n.split(' ')[0]}</text>`).join('');
+  const scatter = `<svg viewBox="0 0 290 178" width="100%" role="img" aria-label="Predicted vs actual bb/100"><line x1="${X(-10)}" y1="${Y(-10)}" x2="${X(12)}" y2="${Y(12)}" stroke="var(--ui-border-accented)" stroke-dasharray="4 3"/>
+    <line x1="34" x2="260" y1="${Y(0)}" y2="${Y(0)}" stroke="var(--ui-border)"/><line x1="${X(0)}" x2="${X(0)}" y1="10" y2="150" stroke="var(--ui-border)"/>${dots}
+    <text x="147" y="172" font-size="10" text-anchor="middle" fill="var(--ui-text-dimmed)">Fable's prediction (bb/100)</text><text x="4" y="14" font-size="10" fill="var(--ui-text-dimmed)">actual</text></svg>`;
+  const lineage = LINEAGE.map(([g, sub, txt]) => `<li style="padding:10px 16px;border-bottom:1px solid var(--ui-border-muted)"><div style="display:flex;gap:8px;align-items:baseline"><b style="font-weight:600;color:var(--ui-text-highlighted)">${g}</b><span class="dimmed" style="font-size:12px">${sub}</span></div><div style="font-size:12.5px;margin-top:3px">${txt}</div></li>`).join('');
+  return `<div class="card-ui" style="margin-bottom:16px"><header><h3>Field notes · after generation 1</h3><span class="badge vendor" style="--c:var(--series-anthropic)">Fable</span></header>
+      <div class="body" style="font-size:13.5px"><p style="margin:0 0 8px">My pre-registered favorite, GTO-ish Balanced (+8 predicted), can't be told apart from the control. Late-street aggression is doing the work: River Bully's edge comes almost entirely from Jev and Luna Decisions folding to overbets (a 71% fold rate). Table talk helped against LLM seats only, which I didn't expect.</p>
+      <p style="margin:0" class="muted">Gen 2: three mutations of River Bully (exploit), two untested ideas (explore). The explore quota is enforced by the runner, not by me.</p></div></div>
+    <div class="grid"><section><div class="card-ui"><header><h3>Strategy cards vs the reference field</h3><span class="badge subtle">base: GPT-6 Luna · bb/100</span></header>
+      <div class="tbl-wrap lab" style="padding:0"><table><thead><tr><th>Card · pre-registered hypothesis</th><th>Arm</th><th class="r">Predicted</th><th>Actual · 95% CI</th><th>Verdict</th></tr></thead><tbody>${rows}</tbody></table></div>
+      <footer class="panel-foot">Field: Jev, Luna Decisions, no-card control, current champion. Duplicate seeds; successive halving decides who gets more hands.</footer></div></section>
+    <aside style="display:flex;flex-direction:column;gap:16px"><div class="card-ui"><header><h3>Prior vs result</h3></header><div class="body">${scatter}<p class="dimmed" style="font-size:11.5px;margin:6px 0 0">The dashed line is a perfect prediction. Predictions were written before any hand was dealt.</p></div></div>
+      <div class="card-ui"><header><h3>Lineage</h3><span class="badge outline">60% exploit · 40% explore</span></header><ul class="log">${lineage}</ul></div></aside></div>`;
+}
+function resultsLabHTML() {
+  const tabs = [['results', 'Results'], ['lab', 'Strategy Lab']];
+  const head = resTab === 'results'
+    ? ['Run · 2026-10-14 · 6max-turbo-dup', 'Six models, 120 sit-and-gos']
+    : ['Strategy Lab · run lab-01 · $11.60 of $30', 'Generation 2 of 4'];
+  return `<div style="display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap;margin-bottom:16px"><div style="flex:1;min-width:220px"><div class="stat-label">${head[0]}</div>
+      <h2 style="margin:6px 0 0;font-size:20px;font-weight:600;color:var(--ui-text-highlighted)">${head[1]}</h2></div>
+      <div class="btn-group">${tabs.map(([k, l]) => `<button class="btn sm outline ${k === resTab ? 'on' : ''}" data-restab="${k}">${l}</button>`).join('')}</div>
+      <button class="btn sm ghost" data-act="copycmd">Copy CLI command</button></div>
+    ${resTab === 'results' ? resultsTabHTML() : labTabHTML()}`;
+}
+
+/* ================= Render ================= */
+function headerHTML() {
+  const dark = document.documentElement.classList.contains('dark');
+  const inHand = frame > 0 && frame < 5;
+  const nav = frame >= 5 ? `<div class="btn-group hdr-meta hide-sm">${[['Watch', 5], ['Results', 6]].map(([l, i]) => `<button class="btn xs outline ${i === frame ? 'on' : ''}" data-frame="${i}">${l}</button>`).join('')}</div>` : '';
+  return `<header class="app-header"><div class="in">
+    <div class="logo"><span class="mark">♠</span>Hold'em AI</div>${nav}
+    ${frame === 5 ? `<div class="btn-group">${['Pause', '1×', '4×', 'Max'].map(k => `<button class="btn xs outline ${k === pace ? 'on' : ''}" data-pace="${k}">${k}</button>`).join('')}</div>
+      <span class="badge subtle"><span class="num" style="font-size:13px">$0.42</span><span class="hide-sm">&nbsp;this session</span></span>` : ''}
+    ${inHand ? `<div class="hdr-meta"><span class="badge subtle hide-sm">Hand #14</span><span class="badge outline">Blinds 5/10</span></div>
+      <button class="btn sm ghost" data-frame="4">${I.out}<span class="hide-sm">Leave table</span></button>` : ''}
+    <button class="btn sm square ghost" data-act="mode" aria-label="Toggle color mode">${dark ? I.moon : I.sun}</button>
+  </div></header>`;
+}
+
+function render() {
+  const app = document.getElementById('app');
+  let body;
+  if (frame === 0) body = setupHTML();
+  else if (frame === 5) body = `<div class="grid"><section>${tableHTML(5)}${spectatorBarHTML()}</section><aside>${spectatorPanelHTML()}</aside></div>`;
+  else if (frame === 6) body = resultsLabHTML();
+  else {
+    const tf = frame === 4 ? 3 : frame;
+    body = `<div class="grid"><section>${tableHTML(tf)}${actionBarHTML(tf)}</section><aside>${tf >= 3 ? reviewPanelHTML() : talkPanelHTML(tf)}</aside></div>`;
+    if (frame === 4) body += summaryHTML();
+  }
+  app.innerHTML = headerHTML() + `<main>${body}</main>`;
+  document.getElementById('tabs').innerHTML = FRAMES.map((f, i) => `<button class="sb-tab ${i === frame ? 'on' : ''}" data-frame="${i}">${i + 1} · ${f.name}</button>`).join('');
+  document.getElementById('caption').textContent = FRAMES[frame].cap;
+  bindLive();
+}
+
+function go(i) { frame = Math.max(0, Math.min(FRAMES.length - 1, i)); openSelect = null; render(); window.scrollTo({ top: 0 }); }
+
+function toast(title, desc) {
+  const el = document.createElement('div');
+  el.className = 'toast'; el.innerHTML = `<i></i><div><b>${title}</b><span>${desc}</span></div>`;
+  document.getElementById('toasts').appendChild(el);
+  setTimeout(() => el.remove(), 3200);
+}
+
+/* ================= Interaction ================= */
+function setRaise(v) {
+  v = Math.max(120, Math.min(1070, Math.round(v / 5) * 5));
+  live.r = v;
+  const s = document.getElementById('slider'), a = document.getElementById('amt'), b = document.getElementById('raiseBtn');
+  if (!s) return;
+  s.value = v; s.style.setProperty('--p', ((v - 120) / 950) * 100 + '%');
+  if (document.activeElement !== a) a.value = fmt(v);
+  b.textContent = v === 1070 ? 'All-in 1,070' : 'Raise to ' + fmt(v);
+  document.querySelectorAll('[data-preset]').forEach(p => p.classList.toggle('on', +p.dataset.preset === v));
+}
+function bindLive() {
+  const s = document.getElementById('slider'), a = document.getElementById('amt');
+  if (s) s.addEventListener('input', e => setRaise(+e.target.value));
+  if (a) {
+    a.addEventListener('change', e => setRaise(+e.target.value.replace(/\D/g, '') || 120));
+    a.addEventListener('blur', () => { a.value = fmt(live.r); });
+  }
+}
+
+document.addEventListener('click', e => {
+  const t = e.target.closest('[data-pace],[data-tab],[data-restab],[data-frame],[data-act],[data-preset],[data-open],[data-sel],[data-remove],[data-acc]');
+  if (!t) { if (openSelect) { openSelect = null; render(); } return; }
+  const d = t.dataset;
+  if (d.frame !== undefined) return go(+d.frame);
+  if (d.pace) { pace = d.pace; toast(pace === 'Pause' ? 'Paused after this action' : 'Pace ' + pace, pace === 'Max' ? 'No thinking floor; hands fly by.' : 'About 1.5 s per action at 1×.'); return render(); }
+  if (d.tab) { specTab = d.tab; return render(); }
+  if (d.restab) { resTab = d.restab; return render(); }
+  if (d.preset) return setRaise(+d.preset);
+  if (d.open) { openSelect = openSelect === d.open ? null : d.open; return render(); }
+  if (d.sel) {
+    const v = d.val;
+    if (d.sel.startsWith('seat')) setup.seats[+d.sel.slice(4)] = v; else setup[d.sel] = v;
+    openSelect = null; return render();
+  }
+  if (d.remove) { setup.seats.splice(+d.remove, 1); return render(); }
+  if (d.acc) { openAcc.has(d.acc) ? openAcc.delete(d.acc) : openAcc.add(d.acc); return render(); }
+  switch (d.act) {
+    case 'mode': document.documentElement.classList.toggle('dark'); return render();
+    case 'add': {
+      const unused = MODELS.find(m => !setup.seats.includes(m.id));
+      setup.seats.push(unused.id); return render();
+    }
+    case 'deal': toast('Dealing hand #1', `${setup.seats.length + 1} players · ${setup.stack} stacks · blinds ${setup.blinds}`); return go(1);
+    case 'fold':
+      live.done = { kind: 'fold', wait: 'You folded. Watching the river play out…' };
+      live.extra = [{ p: 'you', a: 'fold' }];
+      toast('You folded', 'Ace-jack goes in the muck. Claude Opus 5.5 and Luna Decisions play on.'); return render();
+    case 'call':
+      live.done = { kind: 'call', amt: 60, wait: 'Dealing the river…' };
+      live.extra = [{ p: 'you', a: 'call 60' }];
+      toast('You call 60', 'Pot is 390. The river is coming.'); return render();
+    case 'raise': {
+      const amt = live.r, allin = amt === 1070;
+      live.done = { kind: 'raise', amt, wait: 'Waiting on Claude Opus 5.5…' };
+      live.extra = [{ p: 'you', a: allin ? 'go all-in for 1,070' : 'raise to ' + fmt(amt) }, { p: 'opus', thinking: 1 }];
+      toast(allin ? 'You are all-in' : 'You raise to ' + fmt(amt), `${fmt(amt - 60)} more than the call. Claude Opus 5.5 acts next.`); return render();
+    }
+    case 'reset': live = fresh(); return render();
+    case 'copycmd': toast('Copied', 'node bench/tournament.ts --lineup … --matches 20 --budget 25'); return;
+    case 'next-hand': toast('Dealing hand #15', 'Button moves to you. GPT-6 Sol posts the small blind.'); return;
+    case 'again': toast('New session, same table', 'Stacks reset to 1,000. Dealing hand #1.'); live = fresh(); return go(1);
+  }
+});
+document.getElementById('prev').onclick = () => go(frame - 1);
+document.getElementById('next').onclick = () => go(frame + 1);
+document.addEventListener('keydown', e => {
+  if (e.target.matches('input')) return;
+  if (e.key === 'ArrowRight') go(frame + 1);
+  if (e.key === 'ArrowLeft') go(frame - 1);
+  if (e.key === 'Escape' && openSelect) { openSelect = null; render(); }
+});
+if (window.matchMedia('(prefers-color-scheme: dark)').matches) document.documentElement.classList.add('dark');
+render();
+</script>
+</body>
+</html>

@@ -1,0 +1,47 @@
+/**
+ * Models that can take a seat. Bare `provider/model` strings resolve through
+ * the Vercel AI Gateway when `AI_GATEWAY_API_KEY` is set.
+ */
+export type Reasoning = 'none' | 'low' | 'medium' | 'high'
+
+export interface ModelOption {
+  id: string
+  label: string
+  vendor: string
+  /**
+   * `llm`: chat model asked for structured `{ reasoning, tableTalk, choice }`.
+   * `evaluation`: decision model (Luna Decisions, Jev) asked one typed choice
+   * question over the action menu; answers with probabilities, no prose.
+   */
+  kind: 'llm' | 'evaluation'
+  /**
+   * ai@7 top-level reasoning effort. Every OpenAI LLM needs an explicit value
+   * (unset is slow); GPT-6 has no 'minimal', so Luna uses 'none'. Haiku 5.5 is
+   * unset until Sprint 2 measures it. Evaluation models take no `reasoning`.
+   */
+  reasoning?: Reasoning
+}
+
+export const MODELS: ModelOption[] = [
+  { id: 'openai/gpt-6-sol', label: 'GPT-6 Sol', vendor: 'OpenAI', kind: 'llm', reasoning: 'low' },
+  { id: 'openai/gpt-6-astra', label: 'GPT-6 Astra', vendor: 'OpenAI', kind: 'llm', reasoning: 'low' },
+  { id: 'openai/gpt-6-luna', label: 'GPT-6 Luna', vendor: 'OpenAI', kind: 'llm', reasoning: 'none' },
+  { id: 'anthropic/claude-opus-5.5', label: 'Claude Opus 5.5', vendor: 'Anthropic', kind: 'llm', reasoning: 'low' },
+  { id: 'anthropic/claude-sonnet-5.5', label: 'Claude Sonnet 5.5', vendor: 'Anthropic', kind: 'llm', reasoning: 'low' },
+  { id: 'anthropic/claude-haiku-5.5', label: 'Claude Haiku 5.5', vendor: 'Anthropic', kind: 'llm' },
+  { id: 'google/gemini-3.1-pro-preview', label: 'Gemini 3.1 Pro', vendor: 'Google', kind: 'llm', reasoning: 'low' },
+  { id: 'openai/gpt-6-luna-decisions', label: 'GPT-6 Luna Decisions', vendor: 'OpenAI', kind: 'evaluation' },
+  { id: 'typesafe-ai/jev', label: 'Jev', vendor: 'TypeSafe AI', kind: 'evaluation' }
+]
+
+/** Sol, Opus 5.5, Luna Decisions, Jev — 5-handed with the human. */
+export const DEFAULT_LINEUP: string[] = [
+  'openai/gpt-6-sol',
+  'anthropic/claude-opus-5.5',
+  'openai/gpt-6-luna-decisions',
+  'typesafe-ai/jev'
+]
+
+export function findModel(value: unknown): ModelOption | undefined {
+  return typeof value === 'string' ? MODELS.find(m => m.id === value) : undefined
+}
