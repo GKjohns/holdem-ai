@@ -24,10 +24,16 @@ The list lives in `shared/utils/models.ts`; prices per token in `shared/utils/pr
 
 Every seat sees only what a human in that chair would: its own two cards, the board, every stack and bet, who sits where (seat order and positions), the action so far, and a menu of legal options with exact chip amounts ("Raise to 250, raising by the size of the pot (pot becomes 400)"). Nobody gets odds, equity or hand strength. Working that out is the model's job.
 
-- **Language models** get the seat rendered as text and answer with structured output: `{ reasoning, tableTalk, choice }`. The reasoning is shown after the hand; table talk is said out loud at the table (trimmed to 80 characters, and dropped if it names the speaker's cards).
+- **Language models** get the seat rendered as text and answer with structured output: `{ reasoning, tableTalk, choice }`. The reasoning is shown after the hand; table talk is said out loud at the table (trimmed to 80 characters, and dropped if it names the speaker's own cards, as codes like "Kh" or in words like "pocket jacks"; ranks on the board are fine). Each seat is reminded of its own last 5 lines so it doesn't repeat itself.
 - **Decision models** (Luna Decisions, Jev) get the same facts as JSON and answer one typed choice question over the menu through `experimental_decide`. They return a choice plus a probability per option, in about 300 ms, with no prose.
 
 A model error, timeout (30 s) or illegal pick falls back to check-if-free-else-fold and is flagged in the UI.
+
+Seats are told the format: Play and Watch tables are cash games (fixed blinds); batch and Strategy Lab tables are sit-and-gos, and each prompt gives the blind level and how many hands are left at it.
+
+### Changed after the findings report
+
+The B5 findings report (`internal_docs/20261009_holdem_vs_models/findings/report.html`) flagged three prompt bugs, fixed 2026-10-10: the seat prompt called every table a "cash game", even sit-and-gos with blinds doubling every 10 hands; table talk could name a seat's own hole cards in words; and the repeat-guard window could drop a seat's habitual line ("Your move.", 100 times from Sol). **The B3, B4 and B5 numbers were all measured before these fixes**, so they describe seats that were told "cash game" in a tournament. Rerunning would change the benchmark and costs money; nothing has been rerun. Old run files still parse and show on `/results` and `/lab`.
 
 ## In the app
 
