@@ -1,0 +1,378 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hold'em AI Verification</title>
+<style>
+  :root {
+    --bg: #faf8f4; --surface: #ffffff; --ink: #1f1c18; --muted: #6b645a; --line: #e4ded3;
+    --accent: #c2410c; --ok: #15803d; --warn: #b45309; --bad: #b91c1c; --code-bg: #f3efe7;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #171512; --surface: #201d19; --ink: #ece7df; --muted: #a59d91; --line: #35302a;
+      --accent: #fb923c; --ok: #4ade80; --warn: #fbbf24; --bad: #f87171; --code-bg: #26221d;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #171512; --surface: #201d19; --ink: #ece7df; --muted: #a59d91; --line: #35302a;
+    --accent: #fb923c; --ok: #4ade80; --warn: #fbbf24; --bad: #f87171; --code-bg: #26221d;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font: 16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  main { max-width: 920px; margin: 0 auto; padding: 48px 16px 96px; }
+  header.top { border-bottom: 1px solid var(--line); padding-bottom: 24px; margin-bottom: 8px; }
+  h1 { font-size: 2rem; line-height: 1.2; margin: 0 0 8px; letter-spacing: -0.01em; }
+  h2 { font-size: 1.4rem; margin: 56px 0 12px; padding-top: 8px; border-top: 1px solid var(--line); }
+  h3 { font-size: 1.05rem; margin: 32px 0 8px; }
+  p, li { max-width: 72ch; }
+  .meta { color: var(--muted); font-size: 0.9rem; }
+  .pill { display: inline-block; font-size: 0.78rem; font-weight: 600; padding: 2px 10px; border-radius: 999px;
+          border: 1px solid currentColor; margin-right: 6px; vertical-align: middle; }
+  .pill.ok { color: var(--ok); } .pill.warn { color: var(--warn); } .pill.bad { color: var(--bad); }
+  nav.toc { margin: 24px 0 0; font-size: 0.92rem; }
+  nav.toc a { color: var(--accent); text-decoration: none; margin-right: 14px; white-space: nowrap; }
+  a { color: var(--accent); }
+  code { font: 0.86em/1.4 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; background: var(--code-bg);
+         padding: 1px 5px; border-radius: 4px; }
+  pre { font: 0.8rem/1.45 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; background: var(--code-bg);
+        border: 1px solid var(--line); border-radius: 8px; padding: 14px; overflow-x: auto; margin: 8px 0 0; }
+  pre code { background: none; padding: 0; }
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 20px 0; }
+  .stat { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; }
+  .stat b { display: block; font-size: 1.35rem; font-variant-numeric: tabular-nums; }
+  .stat span { color: var(--muted); font-size: 0.82rem; }
+  .table-wrap { overflow-x: auto; margin: 12px 0; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.9rem; font-variant-numeric: tabular-nums; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  th { color: var(--muted); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.03em; }
+  td.num, th.num { text-align: right; }
+  figure { margin: 24px 0; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 10px; }
+  figure img { display: block; border-radius: 6px; }
+  figcaption { font-size: 0.88rem; color: var(--muted); padding: 10px 4px 2px; }
+  figcaption b { color: var(--ink); }
+  .samples { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+  .samples h4 { margin: 12px 0 0; font-size: 0.9rem; }
+  .callout { background: var(--surface); border-left: 3px solid var(--accent); padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 16px 0; }
+  .issues li { margin-bottom: 6px; }
+  ol.path { padding-left: 1.2em; }
+  ol.path > li { max-width: none; margin-bottom: 8px; }
+  ol.path > li > strong { font-size: 1.02rem; }
+</style>
+</head>
+<body>
+<main>
+
+<header class="top">
+  <h1>Hold'em AI: verification report</h1>
+  <p class="meta">Plan <code>20261009_holdem_vs_models</code> · Sprints 1–4 complete · report built 2026-10-10 from the plan, <code>samples/</code> and <code>screenshots/</code> (no new model calls)</p>
+  <p><span class="pill ok">Sprints 1–4 complete</span><span class="pill ok">39 tests green</span><span class="pill ok">0 fallbacks in 20-hand self-play</span><span class="pill warn">Bonus B1–B4 not started</span></p>
+  <nav class="toc">
+    <a href="#built">What was built</a><a href="#s1">Sprint 1</a><a href="#s2">Sprint 2</a><a href="#s3">Sprint 3</a><a href="#s4">Sprint 4</a><a href="#golden">Golden path</a><a href="#spend">Spend</a>
+  </nav>
+</header>
+
+<section id="built">
+  <h2>What was built</h2>
+  <p>A local Nuxt 4 app where you sit at a no-limit Texas Hold'em cash game (2–6 seats, full NLHE rules: min-raise, all-ins, side and split pots, button rotation, eliminations) against AI opponents, each seat a different model. In <strong>Play</strong> mode you pick 1–5 opponents and play hands; each model's reasoning or probability spread stays sealed until the hand ends, then opens up in a per-seat review, and a session leaderboard appears when you leave or bust. In <strong>Watch</strong> mode (pulled forward from bonus B1) 2–6 AIs play each other unattended with every card and every thought shown live. Two kinds of decider sit behind one shared action menu: general <strong>LLMs</strong> (GPT-6, Claude 5.5, Gemini 3.1) called through <code>generateText</code> + <code>Output.object</code>, and the <strong>decision models</strong> <code>gpt-6-luna-decisions</code> and <code>Jev</code> called through <code>experimental_evaluate</code> (an alias of <code>experimental_decide</code> in ai@7), which return a choice plus probabilities instead of prose. Kyle's rule holds throughout: <strong>an AI gets only what a human at the table has</strong>. The only model input is <code>seatView()</code>, which carries the seat's own cards, the board, chip counts, positions and the action log. It has no odds, equity or hand-strength helpers.</p>
+</section>
+
+<!-- ───────────── Sprint 1 ───────────── -->
+<section id="s1">
+  <h2>Sprint 1: Scaffold and poker engine</h2>
+  <p><span class="pill ok">Complete</span> A booting Nuxt shell and a pure, immutable NLHE engine in <code>shared/utils/</code> (<code>cards</code>, <code>handRank</code>, <code>table</code>, <code>menu</code>), runnable under bare Node.</p>
+  <div class="stats">
+    <div class="stat"><b>29</b><span>tests at Sprint 1 (6 handRank · 17 table · 6 menu)</span></div>
+    <div class="stat"><b>39</b><span>tests after Sprint 4</span></div>
+    <div class="stat"><b>500</b><span>seeded random-action hands, chips conserved</span></div>
+    <div class="stat"><b>117</b><span>multi-pot hands in that walk</span></div>
+  </div>
+  <h3>Chip-conservation property test</h3>
+  <p>500 seeded hands of random legal actions across 106 tables. After every hand the sum of stacks equals the starting chips. The walk covered 330 showdowns, 117 multi-pot hands, 28 spots where a short all-in did not reopen action, and 14 split pots. <code>npm run typecheck</code> and <code>npm run lint</code> are clean, and <code>/</code> returns 200 with the header and color-mode toggle.</p>
+  <h3>Rule decisions</h3>
+  <ul>
+    <li>Callers owe the full big blind even when the BB is short (<code>currentBet = bigBlind</code>).</li>
+    <li>Re-raise eligibility for a seat that already acted is <code>currentBet − committed ≥ lastRaiseSize</code>. A single short all-in doesn't reopen action. Several short all-ins that add up to a full raise do, which is the TDA cumulative rule.</li>
+    <li><code>canRaise</code> is false when no other live seat has chips behind. A lone seat that covers every all-in gets no decision, and the board runs out.</li>
+    <li>Uncalled chips are returned at the end of each betting round, so the pot is right during all-in runouts.</li>
+    <li>Odd chips go one at a time, starting left of the button. The button moves (no dead button), and the first hand's button is the human.</li>
+    <li>The deck for each hand is seeded with <code>seed ^ handNo·φ</code>, so any hand replays from <code>(seed, handNo)</code>. The engine burns a card before each street.</li>
+    <li>Menu wording uses chips and the resulting pot only, e.g. <code>Raise to 250, raising by the size of the pot (pot becomes 400)</code>. It never states odds or a judgment.</li>
+  </ul>
+  <h3>Deviations and known issues</h3>
+  <ul class="issues">
+    <li>Extra exports (<code>TableConfig</code>, <code>LegalActions</code>, <code>potTotal</code>, <code>positionOf</code>, <code>withTableTalk</code>, <code>compareHands</code>…) beyond the contract.</li>
+    <li>No resting <code>showdown</code> street: the engine goes straight to <code>complete</code> with <code>result</code> set, and the UI stages the reveal.</li>
+    <li>Blinds are not <code>ActionEvent</code>s. They show up as <code>lastAction</code> and in <code>committed</code>.</li>
+    <li>Busted seats are also <code>folded: true</code>, and they're left out of <code>SeatView.opponents</code> and <code>deltas</code>.</li>
+  </ul>
+  <p class="meta"><strong>Visual proof:</strong> none. This sprint is engine-only and is proven by tests. Dark mode was deferred to Sprint 3's screenshots.</p>
+</section>
+
+<!-- ───────────── Sprint 2 ───────────── -->
+<section id="s2">
+  <h2>Sprint 2: Deciders, API and self-play</h2>
+  <p><span class="pill ok">Complete</span> <code>server/utils/decide.ts</code> branches on model kind. <code>POST /api/decide</code> validates <code>{ modelId, view }</code> with zod and builds the menu server-side. <code>bench/selfplay.ts</code> drives an all-AI table through the engine and <code>decide()</code>.</p>
+
+  <h3>Sample decisions (same flop spot, fixture view)</h3>
+  <p>Each seat faces a 60-chip flop bet with the pot at 180. The requests are in <a href="samples/request-gpt-6-sol.json"><code>samples/request-*.json</code></a>; full <code>view</code> for the Luna Decisions seat: <a href="samples/request-luna-decisions.json">request-luna-decisions.json</a>.</p>
+  <div class="samples">
+    <div>
+      <h4>LLM: GPT-6 Sol (<a href="samples/response-gpt-6-sol.json">json</a>)</h4>
+<pre><code>{
+  "menuId": "fold",
+  "action": { "type": "fold" },
+  "reasoning": "Bottom pair with a weak kicker is unlikely
+    to hold up against a bet into four players, especially
+    with two players still to act.",
+  "fallback": false,
+  "model": "openai/gpt-6-sol",
+  "latencyMs": 2755,
+  "usage": { "input": 966, "output": 68 }
+}</code></pre>
+    </div>
+    <div>
+      <h4>Decision model: Luna Decisions (<a href="samples/response-luna-decisions.json">json</a>)</h4>
+<pre><code>{
+  "menuId": "fold",
+  "action": { "type": "fold" },
+  "reasoning": "Fold and give up this hand — fold 83%,
+    call 11%, pot 2%",
+  "probabilities": {
+    "fold": 0.83, "call": 0.11, "raise_min": 0.01,
+    "raise_half_pot": 0.01, "raise_pot": 0.02,
+    "raise_2x_pot": 0.01, "all_in": 0.01
+  },
+  "fallback": false,
+  "model": "openai/gpt-6-luna-decisions",
+  "latencyMs": 277,
+  "usage": { "input": 597, "output": 0 }
+}</code></pre>
+    </div>
+    <div>
+      <h4>Decision model: Jev (<a href="samples/response-jev.json">json</a>)</h4>
+<pre><code>{
+  "menuId": "call",
+  "action": { "type": "call" },
+  "reasoning": "Call 60 (pot becomes 240) — call 59%,
+    fold 32%, min raise 4%",
+  "probabilities": {
+    "fold": 0.32, "call": 0.59, "raise_min": 0.04,
+    "raise_half_pot": 0.02, "raise_pot": 0.02,
+    "raise_2x_pot": 0.01, "all_in": 0
+  },
+  "fallback": false,
+  "model": "typesafe-ai/jev",
+  "latencyMs": 200,
+  "usage": { "input": 997, "output": 78 }
+}</code></pre>
+    </div>
+  </div>
+  <p class="meta">Long reasoning strings are wrapped here for display; the linked files are verbatim. The saved Luna Decisions and Jev responses (277 ms, 200 ms) are re-runs. The plan's checkbox quotes the first run (0.18 s, 0.25 s).</p>
+  <p>Missing key: <code>503</code> with "AI_GATEWAY_API_KEY is not set. Add it to .env and restart the dev server.", tested on a keyless copy on port 3011 (<a href="samples/response-missing-key.json">response-missing-key.json</a>). The key check runs before body validation, so a request with no key and a bad body gets 503, not 400.</p>
+
+  <h3>Pilot gate</h3>
+  <div class="callout">
+    <p><strong>First 5-hand pilot failed the gate.</strong> Luna Decisions refused one flop spot (top set facing a check) with <code>DecisionRefusalError</code> on 4 of 4 tries. That made its fallback rate 6.3%, over the 5% bar (<a href="samples/selfplay-pilot-5-failed.txt">selfplay-pilot-5-failed.txt</a>). The fix was to have <code>decide()</code> retry a refusal once with "Which option is the best poker play here?". The re-pilot had 0 fallbacks across all three models (<a href="samples/selfplay-pilot-5.txt">selfplay-pilot-5.txt</a>), and only then did the 20-hand run go ahead.</p>
+    <p>The cost estimator was off by the gate's own measure: it predicted $0.00025/hand and the pilot measured $0.00065 (2.6×). Random dry-run play folds hands early, and decision-model JSON costs more tokens than chars/4 counts. The estimator was recalibrated; the gate was not loosened. The new estimate is $0.0006/hand, and the 20-hand run measured $0.00062/hand.</p>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Run</th><th class="num">Hands</th><th>Engine errors</th><th>Chips conserved</th><th>Luna Decisions fallback</th><th class="num">Cost</th><th class="num">$/hand</th><th>Gate</th></tr></thead>
+      <tbody>
+        <tr><td>Pilot 1</td><td class="num">5</td><td>0</td><td>yes</td><td>6.3%</td><td class="num">$0.00327</td><td class="num">$0.00065</td><td><span class="pill bad">fail</span></td></tr>
+        <tr><td>Re-pilot</td><td class="num">5</td><td>0</td><td>yes</td><td>0%</td><td class="num">$0.00298</td><td class="num">$0.00060</td><td><span class="pill ok">pass</span></td></tr>
+        <tr><td>Full run</td><td class="num">20</td><td>0</td><td>yes</td><td>0%</td><td class="num">$0.01241</td><td class="num">$0.00062</td><td><span class="pill ok">pass</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>20-hand self-play (seed 7, 5/10 blinds, 1,000 stacks, 147 s, 0 rebuys)</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Model</th><th class="num">Decisions</th><th class="num">Fallbacks</th><th class="num">Fold</th><th class="num">Check</th><th class="num">Call</th><th class="num">Raise</th><th class="num">All-in</th><th class="num">Avg latency</th><th class="num">Cost</th><th class="num">Final stack</th></tr></thead>
+      <tbody>
+        <tr><td>Jev</td><td class="num">61</td><td class="num">0</td><td class="num">9</td><td class="num">31</td><td class="num">17</td><td class="num">4</td><td class="num">0</td><td class="num">261 ms</td><td class="num">$0.00213</td><td class="num">648</td></tr>
+        <tr><td>GPT-6 Luna Decisions</td><td class="num">58</td><td class="num">0</td><td class="num">6</td><td class="num">29</td><td class="num">11</td><td class="num">12</td><td class="num">0</td><td class="num">209 ms</td><td class="num">$0.00270</td><td class="num">1,278</td></tr>
+        <tr><td>GPT-6 Luna (LLM)</td><td class="num">67</td><td class="num">0</td><td class="num">7</td><td class="num">39</td><td class="num">14</td><td class="num">7</td><td class="num">0</td><td class="num">1,778 ms</td><td class="num">$0.00759</td><td class="num">1,074</td></tr>
+        <tr><th>Total</th><td class="num">186</td><td class="num">0</td><td colspan="6"></td><td class="num">$0.01241</td><td class="num">3,000</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="meta">No degenerate model: fold rates are 10–15%, and every model raises. The full printout is in <a href="samples/selfplay-20.txt">selfplay-20.txt</a> and the data in <a href="samples/selfplay-20.json">selfplay-20.json</a>.</p>
+
+  <h3>Deviations and known issues</h3>
+  <ul class="issues">
+    <li><code>experimental_evaluate</code> is a deprecated alias of <code>experimental_decide</code> in ai@7. They are the same function.</li>
+    <li>Luna Decisions effort: <code>providerOptions.openai.reasoningEffort</code> comes back as an <code>unsupported</code> warning with the same answer and latency, so it stays at default.</li>
+    <li>Haiku 5.5 set to <code>reasoning: 'low'</code>. Unset averaged 2.5 s with a 4.5 s / 497-token tail; <code>low</code> averaged 1.6 s and made the same choice on 4 of 5 views (<a href="samples/haiku-latency.txt">haiku-latency.txt</a>).</li>
+    <li>Prompts call the human seat "Human player", and preflop blinds are derived from <code>committed − logged chips</code> because blinds aren't log events.</li>
+    <li>The harness rebuys busted seats and checks conservation against starting chips plus rebuys. <code>--out</code> does not save views.</li>
+    <li>Gap handed to Sprint 4: <code>SeatView</code> had no seat order or opponent positions (fixed in 4.4b). Refusal retries were only logged (also fixed in 4.4b).</li>
+  </ul>
+  <p class="meta"><strong>Visual proof:</strong> none (server-only sprint). The proof is the JSON samples and self-play printouts above.</p>
+</section>
+
+<!-- ───────────── Sprint 3 ───────────── -->
+<section id="s3">
+  <h2>Sprint 3: Setup screen, playable table, Watch mode</h2>
+  <p><span class="pill ok">Complete</span> Setup card, <code>useTable()</code> client loop (35 s client timeout, 700 ms thinking floor, fallback toasts), custom felt / seats / cards, the action bar, Table talk, and Watch mode pulled forward from B1.1–B1.3.</p>
+
+  <figure>
+    <img src="screenshots/sprint3_setup.webp" alt="Setup screen with default lineup" style="max-width:100%">
+    <figcaption><b>Setup works with the default lineup.</b> Play mode, 1–5 opponents (Sol, Opus 5.5, Luna Decisions, Jev), stack and blinds selects, and "Deal me in".</figcaption>
+  </figure>
+  <figure>
+    <img src="screenshots/sprint3_setup_menu.webp" alt="Seat model picker open" style="max-width:100%">
+    <figcaption><b>The seat picker groups the roster by decider kind</b> (Language models vs Decision models), so you can tell which path each seat will take.</figcaption>
+  </figure>
+  <figure>
+    <img src="screenshots/sprint3_your_turn.webp" alt="Table on the human's turn" style="max-width:100%">
+    <figcaption><b>A dealt hand reaches the human with a live action bar.</b> Five seats, blinds posted, your hole cards face up, AI cards face down, Fold / Call / raise presets and slider enabled.</figcaption>
+  </figure>
+  <figure>
+    <img src="screenshots/sprint3_your_turn_dark.webp" alt="Same table in dark mode" style="max-width:100%">
+    <figcaption><b>Dark tokens render on the table</b> (closes Sprint 1's deferred dark-mode check): felt, cards, vendor badges and the action bar stay legible.</figcaption>
+  </figure>
+  <figure>
+    <img src="screenshots/sprint3_ai_thinking.webp" alt="AI seat thinking" style="max-width:100%">
+    <figcaption><b>The AI turn loop runs.</b> One seat pulses "thinking…", the action bar is disabled with "Waiting on …", and the log updates as decisions land. Reasoning stays sealed mid-hand in Play mode.</figcaption>
+  </figure>
+  <figure>
+    <img src="screenshots/sprint3_raise_preset.webp" alt="Raise preset selected" style="max-width:100%">
+    <figcaption><b>Raise sizing matches the menu formula.</b> The Pot preset gives 35 at 5/10 preflop, the slider arrows move the amount, and typed values outside the range snap back, so an illegal amount can't be submitted.</figcaption>
+  </figure>
+  <figure>
+    <img src="screenshots/sprint3_mobile_390.webp" alt="Table at 390px" style="max-width:100%">
+    <figcaption><b>Usable at 390 px:</b> scrollWidth is 390 (no horizontal scroll), and the action bar is reachable with the panel stacked below.</figcaption>
+  </figure>
+  <figure>
+    <img src="screenshots/sprint3_mobile_390_result.webp" alt="3-way all-in result at 390px" style="max-width:100%">
+    <figcaption><b>A 3-way all-in runs out to completion on mobile.</b> This is the "3 full hands including one showdown" check; bet pills hide under 640 px to make room for the result strip.</figcaption>
+  </figure>
+  <figure>
+    <img src="screenshots/sprint3_setup_watch.webp" alt="Setup in Watch mode" style="max-width:100%">
+    <figcaption><b>Watch mode is a first-class setup option.</b> The "Your seat" Play / Watch toggle takes 2–6 AI seats, and the button reads "Start the table".</figcaption>
+  </figure>
+  <figure>
+    <img src="screenshots/sprint3_watch_mode.webp" alt="Watch mode running" style="max-width:100%">
+    <figcaption><b>An all-AI table runs unattended with nothing hidden.</b> 4 cheap seats at Max for about 20 hands: every hole card up, live reasoning, table talk and probability bars, Pause · 1× · 4× · Max, and chips conserved (sum 4,000).</figcaption>
+  </figure>
+  <figure>
+    <img src="screenshots/sprint3_watch_mode_dark.webp" alt="Watch mode dark" style="max-width:100%">
+    <figcaption><b>Watch mode in dark:</b> the probability bars and vendor colors stay readable on the dark surface.</figcaption>
+  </figure>
+  <p class="meta"><code>sprint3_showdown.webp</code> is left out on purpose. It predates the result strip, chip pills and bar-color fix, and <code>sprint4_showdown.webp</code> below replaces it.</p>
+
+  <h3>Deviations and known issues</h3>
+  <ul class="issues">
+    <li>Watch mode was pulled in from B1.1–B1.3 at Kyle's request. <code>useTable</code> allows zero human seats, auto-deals after a beat, and stops when one seat has every chip or at 100 hands. The engine needed no change.</li>
+    <li>Information hygiene: <code>app/utils/reveal.ts</code> is the single gate (<code>tests/reveal.test.ts</code>). In Play mode a Playwright DOM check found 0 reasoning or probability nodes mid-hand.</li>
+    <li>Finished hands stay on the table until the next deal, with a result strip and per-seat +/− pills (Kyle).</li>
+    <li>The felt changed from Sprint 1's deep green to the storyboard's sage (<code>--felt-bg #a4ae9f</code>). Hand # / blinds / Leave moved into the app header.</li>
+    <li>Debug params: <code>?stacks=</code>, <code>?seats=</code>, <code>?mode=watch</code>.</li>
+    <li>Known at the time: <code>UInputNumber</code> reset out-of-range input to the min (fixed in Sprint 4), and decision models sometimes pick an option that isn't their top probability (still open).</li>
+  </ul>
+</section>
+
+<!-- ───────────── Sprint 4 ───────────── -->
+<section id="s4">
+  <h2>Sprint 4: Showdown review, history, summary, docs</h2>
+  <p><span class="pill ok">Complete</span> Showdown highlighting, the per-seat hand review, Hands and Chips tabs, the session summary modal, eliminations, the 4.4b SeatView follow-ups, and <code>README.md</code> + <code>AGENTS.md</code>. The suite is at 39 tests (Sprint 4 added 3 prompt, 3 session and 1 seating test), and typecheck and lint are green.</p>
+
+  <figure>
+    <img src="screenshots/sprint4_showdown.webp" alt="Showdown with hand review" style="max-width:100%">
+    <figcaption><b>The "watch models think" payoff works.</b> Cards revealed, the winning five lifted and the rest dimmed, a winner ring, the result line, and the review panel open with GPT-6 Sol's reasoning plus per-option bars for Jev and Luna Decisions.</figcaption>
+  </figure>
+  <figure>
+    <img src="screenshots/sprint4_review_luna_decisions.webp" alt="Luna Decisions review" style="max-width:100%">
+    <figcaption><b>The review covers every street for a decision model:</b> 4 Luna Decisions decisions from preflop to river, each with latency and a <code>UProgress</code> row per option ≥ 1% (the chosen one in primary). This is also where a choice that isn't the top probability shows up.</figcaption>
+  </figure>
+  <figure>
+    <img src="screenshots/sprint4_side_pot.webp" alt="Side pot result" style="max-width:100%">
+    <figcaption><b>Side pots are built and labeled correctly</b> via <code>/play?stacks=100,500,1000,1000,1000</code>: "Main pot · Luna Decisions wins 201 … / Side pot · Luna Decisions wins 294 …", 495 in total. The human busted on this hand, which opened the summary a second time.</figcaption>
+  </figure>
+  <figure>
+    <img src="screenshots/sprint4_hands_tab_watch.webp" alt="Hands tab" style="max-width:100%">
+    <figcaption><b>Hands no longer disappear (4.4a).</b> After 10 Watch hands at Max the Hands tab lists them newest first with the board and colored chip swings. An expanded hand shows every hole card and the full log with reasoning.</figcaption>
+  </figure>
+  <figure>
+    <img src="screenshots/sprint4_chips_tab_watch.webp" alt="Chips tab" style="max-width:100%">
+    <figcaption><b>Chip trends render from session history:</b> an inline-SVG stack line per seat in vendor colors (a shared hue is dashed), a crosshair tooltip, a legend, and current-stack bars with net +/− since the start.</figcaption>
+  </figure>
+  <figure>
+    <img src="screenshots/sprint4_summary_leave.webp" alt="Summary on leave" style="max-width:100%">
+    <figcaption><b>Leave table opens the session leaderboard</b> with net chips, hands won, average decision time and cost from <code>pricing.ts</code> × usage. GPT-6 Sol is $0.019 after 3 hands. "Play again (same table)" and "New table" are both present.</figcaption>
+  </figure>
+  <figure>
+    <img src="screenshots/sprint4_summary_watch.webp" alt="Summary in Watch mode" style="max-width:100%">
+    <figcaption><b>Leave works in Watch mode too</b>, and the table pauses under the modal so no decisions (or spend) happen while it's open.</figcaption>
+  </figure>
+  <figure>
+    <img src="screenshots/sprint4_summary_busted.webp" alt="Busted summary" style="max-width:100%">
+    <figcaption><b>Busting ends the session by itself:</b> the "You're out of chips" summary opens without a Leave click.</figcaption>
+  </figure>
+
+  <h3>Deviations and known issues</h3>
+  <ul class="issues">
+    <li>The plan said "no separate component" for 4.2. Reusing the review in the Hands tab needed <code>HandReview.vue</code>, plus <code>HandLog</code>, <code>HandHistory</code>, <code>ChipChart</code> and <code>SessionSummary</code>. The pure math is in <code>app/utils/session.ts</code>.</li>
+    <li>In Play mode the review replaces the live log at hand end (storyboard frame 4). Watch mode keeps the live log because hands auto-deal.</li>
+    <li>Added <code>--series-human</code> (light <code>#b03a8c</code>, dark <code>#b04fb0</code>) because primary orange can't be told apart from <code>--series-openai</code> on the chart. The palette validator passes (worst CVD ΔE 9.2 / 8.8). Jev's ink neutral fails chroma checks by design.</li>
+    <li>Pot labels are "Main pot / Side pot", or "Side pot 1, 2" when there are several, instead of the plan's "Side pot 2" for the first.</li>
+    <li>4.4b: <code>SeatView</code> gains <code>opponents[].position</code>, <code>seatOrder</code> and <code>priorTableTalk</code>, and <code>Decision.retried</code> marks a refusal that was retried. A test confirms Watch-mode prompts never mention a human.</li>
+    <li>The raise input clamps to [min raise, all-in] (99999 → 1,000, 5 → 20) instead of resetting to the min.</li>
+    <li><strong>Not verified in the browser:</strong> "You cleaned out the table" (needs every AI to bust) is wired but was never reached.</li>
+    <li><strong>Open:</strong> final bet pills (including an uncalled bet) stay on the table after a hand. Decision models still sometimes pick a non-top-probability option. A Sprint 3 HMR-era <code>Cannot read properties of null (reading 'hole')</code> error appeared in old console history and did not recur.</li>
+  </ul>
+</section>
+
+<!-- ───────────── Golden path ───────────── -->
+<section id="golden">
+  <h2>End-to-end golden path</h2>
+  <p>One session from setup to summary, using the screenshots above in order. The Hands and Chips shots come from a Watch session, because those tabs fill fastest there. The same components render in Play mode, which shows only showdown cards and your own.</p>
+  <ol class="path">
+    <li><strong>Setup:</strong> pick opponents, stack, blinds; Deal me in.
+      <figure><img src="screenshots/sprint3_setup.webp" alt="Setup" style="max-width:100%"><figcaption><b>Entry point:</b> the lineup is chosen and kept in <code>useState</code>.</figcaption></figure></li>
+    <li><strong>Your turn:</strong> blinds posted, AIs act through <code>/api/decide</code>, action reaches you.
+      <figure><img src="screenshots/sprint3_your_turn.webp" alt="Your turn" style="max-width:100%"><figcaption><b>Engine, deciders and UI connect:</b> AI decisions applied, the human gets legal options only.</figcaption></figure></li>
+    <li><strong>Showdown:</strong> cards up, best five highlighted, review unlocks.
+      <figure><img src="screenshots/sprint4_showdown.webp" alt="Showdown" style="max-width:100%"><figcaption><b>Sealed reasoning is released only after the hand completes.</b></figcaption></figure></li>
+    <li><strong>Hands tab:</strong> the finished hand is in the history with its full log.
+      <figure><img src="screenshots/sprint4_hands_tab_watch.webp" alt="Hands tab" style="max-width:100%"><figcaption><b>Completed hands are recorded</b> with board, pots, deltas and decisions.</figcaption></figure></li>
+    <li><strong>Chips tab:</strong> stacks over hands.
+      <figure><img src="screenshots/sprint4_chips_tab_watch.webp" alt="Chips tab" style="max-width:100%"><figcaption><b>The session history feeds the chart</b>; current stacks and net since start.</figcaption></figure></li>
+    <li><strong>Summary:</strong> Leave table → leaderboard with cost.
+      <figure><img src="screenshots/sprint4_summary_leave.webp" alt="Summary" style="max-width:100%"><figcaption><b>The session closes with per-model net, wins, speed and dollars.</b></figcaption></figure></li>
+  </ol>
+</section>
+
+<!-- ───────────── Spend ───────────── -->
+<section id="spend">
+  <h2>Spend to date</h2>
+  <p>About <strong>$0.11</strong> of the <code>holdem-ai-50</code> key's <strong>$50</strong> quota, against a $3 soft cap for Sprints 1–4.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Item</th><th class="num">Cost</th><th>Source</th></tr></thead>
+      <tbody>
+        <tr><td>Sprint 1</td><td class="num">$0</td><td>no model calls</td></tr>
+        <tr><td>Sprint 2: 20-hand self-play</td><td class="num">$0.0124</td><td>selfplay-20.json</td></tr>
+        <tr><td>Sprint 2: two 5-hand pilots</td><td class="num">$0.0063</td><td>pilot printouts ($0.00327 + $0.00298)</td></tr>
+        <tr><td>Sprint 2: Haiku latency check</td><td class="num">$0.0022</td><td>haiku-latency.txt ($0.00119 + $0.00099)</td></tr>
+        <tr><td>Sprint 2: samples and probes</td><td class="num">&lt; $0.005</td><td>plan</td></tr>
+        <tr><td><strong>Sprint 2 total</strong></td><td class="num"><strong>≈ $0.03</strong></td><td>plan</td></tr>
+        <tr><td>Sprint 3: about 25 hands, cheap seats (mostly the Watch run)</td><td class="num">not recorded</td><td>plan gives hands, not dollars</td></tr>
+        <tr><td>Sprint 4: about 24 hands (Watch table $0.020, Sol table $0.019, side-pot table and checks &lt; $0.01)</td><td class="num">≈ $0.05</td><td>plan</td></tr>
+        <tr><th>Total</th><td class="num"><strong>≈ $0.11</strong></td><td>key-level figure; Sprint 3 is about $0.03 by difference</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="meta">Remaining soft allocations: B1 + B2 $5, B3 $15, B4 $25, reserve $2. None of the bonus sprints have started.</p>
+</section>
+
+</main>
+</body>
+</html>
