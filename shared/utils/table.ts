@@ -4,7 +4,7 @@
  * returns a new state; illegal input throws.
  */
 import type {
-  ActionEvent, Card, HandResult, LegalActions, PlayerAction, Seat, SeatView, TableConfig, TableState
+  ActionEvent, Card, GameFormat, HandResult, LegalActions, PlayerAction, Seat, SeatView, TableConfig, TableState
 } from './types.ts'
 import { fullDeck, shuffle } from './cards.ts'
 import { rankHand } from './handRank.ts'
@@ -189,7 +189,28 @@ export function withTableTalk(prev: TableState, seatId: string, tableTalk: strin
   return state
 }
 
-export function seatView(state: TableState, seatId: string): SeatView {
+/** How many of its own lines a seat is reminded of (a player remembers what they just said). */
+export const PRIOR_TALK_MAX = 5
+
+/**
+ * A seat's own recent lines for `priorTableTalk`: everything it said this session, oldest first,
+ * deduplicated by most recent use, last `max`. A line said again moves to the end, so a habit like
+ * "Your move." stays in the window instead of aging out behind newer one-offs.
+ */
+export function recentTalk(said: string[], max = PRIOR_TALK_MAX): string[] {
+  const out: string[] = []
+  for (const line of said) {
+    const t = line.trim()
+    if (!t) continue
+    const i = out.indexOf(t)
+    if (i >= 0) out.splice(i, 1)
+    out.push(t)
+  }
+  return out.slice(-max)
+}
+
+/** `game` is the format the floor announces (cash, or the sit-and-go blind level); omitted = not stated. */
+export function seatView(state: TableState, seatId: string, game?: GameFormat): SeatView {
   const seat = state.seats.find(s => s.id === seatId)
   if (!seat) throw new Error(`No seat ${seatId}`)
   const legal = legalFor(state, seat)
@@ -214,7 +235,8 @@ export function seatView(state: TableState, seatId: string): SeatView {
         position: positionOf(state, state.seats.indexOf(s))
       })),
     seatOrder: seatOrder(state),
-    log: structuredClone(state.log)
+    log: structuredClone(state.log),
+    ...(game ? { game: structuredClone(game) } : {})
   }
 }
 

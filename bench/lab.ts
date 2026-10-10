@@ -43,7 +43,7 @@ import type { Interval } from '../shared/utils/stats.ts'
 import { aliasesFor, AXES, TABLE_ALIASES, AXIS_NAMES, axisDiff, cardMarkdown, CONTROL_ID, exploreQuota, hash32, heldOutVerdict, NO_CHAMPION_ID, thompsonTopUp, validateGeneration, verdict, wordCount } from '../shared/utils/strategy.ts'
 import type { Axes, StrategyCard } from '../shared/utils/strategy.ts'
 import { newTable, seatView, startHand } from '../shared/utils/table.ts'
-import { SNG_TURBO, withLevel } from '../shared/utils/tournament.ts'
+import { SNG_TURBO, sngFormat, withLevel } from '../shared/utils/tournament.ts'
 import { measuredCostPerDecision, measuredDecisionsPerHand, openRun, runPool } from './runner.ts'
 import type { RunHandle, Spend } from './runner.ts'
 
@@ -226,7 +226,7 @@ function brief(): LabBrief {
   const names = [...aliases, ...config.field.map(short)]
   const state = startHand(withLevel(newTable({ players: names.map((name, i) => ({ id: `seat-${i + 1}`, name, modelId: null })), stacks: 1500, smallBlind: 1, bigBlind: 2 }, 424242), tournament.levels).state)
   const toAct = state.seats[state.toAct!]!.id
-  const view = seatView(state, toAct)
+  const view = seatView(state, toAct, sngFormat(tournament.levels, state.handNo))
   briefMemo = {
     baseLabel: short(config.base),
     baseStyle,

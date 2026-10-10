@@ -17,7 +17,7 @@
 import { appendFileSync, existsSync, mkdirSync, readdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs'
 import { createHash } from 'node:crypto'
 import { join } from 'node:path'
-import { decide, INSTRUCTIONS, renderPrompt, tableState } from '../server/utils/decide.ts'
+import { decide, renderPrompt, SNG_INSTRUCTIONS, tableState } from '../server/utils/decide.ts'
 import { schedule } from '../shared/utils/duplicate.ts'
 import type { ScheduledTournament } from '../shared/utils/duplicate.ts'
 import { buildMenu } from '../shared/utils/menu.ts'
@@ -26,8 +26,8 @@ import { costUsd, PRICING } from '../shared/utils/pricing.ts'
 import { seededRng } from '../shared/utils/rng.ts'
 import { parseRun } from '../shared/utils/runs.ts'
 import type { RunDecisionRecord, RunEndLine, RunHandLine, RunPlayer, RunSeat, RunStartLine, TournamentLine } from '../shared/utils/runs.ts'
-import { applyAction, newTable, seatView, startHand, withTableTalk } from '../shared/utils/table.ts'
-import { bustsThisHand, survivorsPlaced, withLevel } from '../shared/utils/tournament.ts'
+import { applyAction, newTable, recentTalk, seatView, startHand, withTableTalk } from '../shared/utils/table.ts'
+import { bustsThisHand, sngFormat, survivorsPlaced, withLevel } from '../shared/utils/tournament.ts'
 import type { Finish, TournamentFormat } from '../shared/utils/tournament.ts'
 import type { Decision, SeatView, TableState } from '../shared/utils/types.ts'
 
@@ -154,7 +154,7 @@ export function tokenEstimate(modelId: string, view: SeatView, card?: string): n
   const kind = findModel(modelId)!.kind
   const menu = buildMenu(view)
   const chars = kind === 'llm'
-    ? INSTRUCTIONS.length + (card?.length ?? 0) + renderPrompt(view, menu).length
+    ? SNG_INSTRUCTIONS.length + (card?.length ?? 0) + renderPrompt(view, menu).length
     : JSON.stringify(tableState(view)).length + JSON.stringify(menu.map(o => o.describe)).length
   const scale = kind === 'llm' ? 1.3 : modelId === 'typesafe-ai/jev' ? 3.1 : 1.9
   return costUsd(modelId, { input: Math.ceil(chars / 4 * scale), output: kind === 'llm' ? 250 : 0 })
@@ -170,7 +170,6 @@ const viewHash = (v: SeatView, card?: string) => createHash('sha1').update(JSON.
 export class Halt extends Error {}
 class HandStuck extends Error {}
 
-const PRIOR_TALK_MAX = 6
 const now = () => new Date().toISOString()
 
 export interface RunHandle {
@@ -317,8 +316,9 @@ export function openRun(opts: RunOptions): RunHandle {
           const seat = state.seats[state.toAct]!
           const player = playerOfSeat.get(seat.id)!
           const modelId = player.modelId
-          const prior = (talk.get(seat.id) ?? []).slice(-PRIOR_TALK_MAX)
-          const view: SeatView = { ...seatView(state, seat.id), ...(prior.length ? { priorTableTalk: prior } : {}) }
+          const prior = recentTalk(talk.get(seat.id) ?? [])
+          const game = opts.format === 'sng' ? sngFormat(opts.tournament.levels, state.handNo) : { type: 'cash' as const }
+          const view: SeatView = { ...seatView(state, seat.id, game), ...(prior.length ? { priorTableTalk: prior } : {}) }
           const logIndex = state.log.length
           const key = cacheKey(t.tournamentId, state.handNo, logIndex)
           const hash = viewHash(view, player.card)
@@ -362,10 +362,7 @@ export function openRun(opts: RunOptions): RunHandle {
             const menu = buildMenu(view)
             state = applyAction(state, seat.id, (menu.find(o => o.id === 'check') ?? menu.find(o => o.id === 'fold')!).action)
           }
-          if (decision.tableTalk) {
-            const lines = talk.get(seat.id) ?? []
-            if (!lines.includes(decision.tableTalk)) talk.set(seat.id, [...lines, decision.tableTalk])
-          }
+          if (decision.tableTalk) talk.set(seat.id, [...(talk.get(seat.id) ?? []), decision.tableTalk])
           actionLabels.push(state.seats.find(s => s.id === seat.id)!.lastAction ?? decision.action.type)
           records.push({ handNo: state.handNo, seatId: seat.id, street: view.street, logIndex, view, decision })
         }
@@ -477,7 +474,7 @@ export async function estimateRun(opts: RunOptions): Promise<{ perHand: number, 
       while (state.toAct !== null && state.street !== 'complete') {
         const seat = state.seats[state.toAct]!
         const p = seatPlayers[state.toAct]!
-        const view = seatView(state, seat.id)
+        const view = seatView(state, seat.id, sngFormat(opts.tournament.levels, state.handNo))
         decisions[p.id] = (decisions[p.id] ?? 0) + 1
         usd[p.id] = (usd[p.id] ?? 0) + (estimateCost[p.id] ?? tokenEstimate(p.modelId, view, p.card))
         state = applyAction(state, seat.id, randomDecision(p.modelId, view, `${t.tournamentId}|${state.handNo}|${state.log.length}`).action)

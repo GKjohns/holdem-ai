@@ -13,7 +13,7 @@ import { z } from 'zod'
 import { buildMenu } from '../../shared/utils/menu.ts'
 import { findModel } from '../../shared/utils/models.ts'
 import type { ModelOption, Reasoning } from '../../shared/utils/models.ts'
-import type { ActionEvent, Decision, MenuId, MenuOption, SeatView } from '../../shared/utils/types.ts'
+import type { ActionEvent, Card, Decision, GameFormat, MenuId, MenuOption, SeatView } from '../../shared/utils/types.ts'
 
 export interface DecideInput {
   modelId: string
@@ -38,9 +38,11 @@ export const CALL_TIMEOUT_MS = 30_000
 const SLEEP_SKEW_MS = 5_000
 const TABLE_TALK_MAX = 80
 
-export const INSTRUCTIONS = `You are an AI player seated at a no-limit Texas Hold'em cash game against other AI players and possibly a human. Play to win chips.
+const CASH_OPENER = 'You are an AI player seated at a no-limit Texas Hold\'em cash game against other AI players and possibly a human. The blinds never change. Play to win chips.'
 
-Rules you know as a player:
+const SNG_OPENER = 'You are an AI player seated at a no-limit Texas Hold\'em sit-and-go tournament against other AI players. Everyone started with the same stack, the blinds go up on a fixed schedule, and a player who runs out of chips is out. Players finish in the order they bust; the last player with chips wins. Play to finish as high as you can. Each turn tells you the current blind level and how many hands are left at it.'
+
+const RULES = `Rules you know as a player:
 - Each player has two private hole cards. Five community cards come out: the flop (3), the turn (1), the river (1). Betting rounds happen preflop, on the flop, on the turn, and on the river.
 - Blinds: the small blind and big blind post forced bets before the cards are dealt. Preflop action starts left of the big blind; after the flop it starts with the first active player left of the button.
 - No-limit: a raise must be at least the size of the previous bet or raise, and you can always go all-in. If you go all-in for less than a call, you can only win the part of the pot you matched (side pots).
@@ -54,11 +56,22 @@ Answer fields:
 - tableTalk: one short in-character line you say out loud at the table (under 80 characters), or an empty string to stay quiet. Banter is fine; never reveal or hint at your exact cards. Vary it: never repeat a line you've already said this session.
 - choice: the option id you take.`
 
+/** Cash-game seats (interactive /play and Watch tables, and any view that doesn't state a format). */
+export const INSTRUCTIONS = `${CASH_OPENER}
+
+${RULES}`
+
+/** Sit-and-go seats (batch runs and Strategy Lab tables). */
+export const SNG_INSTRUCTIONS = `${SNG_OPENER}
+
+${RULES}`
+
 /** A seat = base model + strategy card: the card rides in the instructions, after the rules. */
-export function instructionsFor(strategyCard?: string): string {
+export function instructionsFor(strategyCard?: string, game?: GameFormat['type']): string {
+  const base = game === 'sng' ? SNG_INSTRUCTIONS : INSTRUCTIONS
   const card = strategyCard?.trim()
-  if (!card) return INSTRUCTIONS
-  return `${INSTRUCTIONS}
+  if (!card) return base
+  return `${base}
 
 Your strategy card (your coach's plan for how you play at this table; follow it, using only what you can see from your seat):
 ${card}`
@@ -179,7 +192,7 @@ async function decideWithLlm(option: ModelOption, input: DecideInput, menu: Menu
   const started = Date.now()
   const { output, usage } = await generateText({
     model: (input.model as LanguageModel | undefined) ?? option.id,
-    instructions: instructionsFor(input.strategyCard),
+    instructions: instructionsFor(input.strategyCard, input.view.game?.type),
     prompt: renderPrompt(input.view, menu),
     output: Output.object({ schema }),
     // Reasoning models think in output tokens; a low cap starves the JSON.
@@ -348,11 +361,23 @@ function actionLines(view: SeatView): string[] {
   })
 }
 
+/** What the floor announces about the format and blinds; a view without `game` keeps the pre-B5 wording. */
+function formatWords(view: SeatView): string {
+  const g = view.game
+  if (!g) return `Big blind ${view.bigBlind}.`
+  if (g.type === 'cash') return `Cash game, big blind ${view.bigBlind}.`
+  const head = `Sit-and-go tournament, blind level ${g.level}, big blind ${view.bigBlind}.`
+  if (!g.next) return `${head} This is the top level; the blinds stay here.`
+  const next = `${g.next.smallBlind}/${g.next.bigBlind}`
+  if (g.handsLeftAtLevel === 0) return `${head} This is the last hand at this level; the blinds go up to ${next} next hand.`
+  return `${head} ${g.handsLeftAtLevel} more hand${g.handsLeftAtLevel === 1 ? '' : 's'} at this level after this one, then the blinds go up to ${next}.`
+}
+
 export function renderPrompt(view: SeatView, menu: MenuOption[]): string {
   const { me } = view
   const lines: string[] = []
   const others = view.opponents.map(o => displayName(o.name)).join(', ')
-  lines.push(`Hand #${view.handNo}, ${view.street}. Big blind ${view.bigBlind}.`)
+  lines.push(`Hand #${view.handNo}, ${view.street}. ${formatWords(view)}`)
   lines.push(`You are ${me.name}, ${positionWords(view.position)}, playing against ${others}.`)
   lines.push('', `Your cards: ${view.hole.join(' ')}`)
   lines.push(`Board: ${view.board.length ? view.board.join(' ') : '(no community cards yet)'}`)
@@ -377,8 +402,16 @@ export function renderPrompt(view: SeatView, menu: MenuOption[]): string {
 }
 
 export function tableState(view: SeatView) {
+  const g = view.game
   return {
-    game: 'No-limit Texas Hold\'em cash game',
+    game: g?.type === 'sng' ? 'No-limit Texas Hold\'em sit-and-go tournament' : 'No-limit Texas Hold\'em cash game',
+    ...(g?.type === 'sng'
+      ? {
+          blind_level: g.level,
+          hands_left_at_level_after_this_one: g.handsLeftAtLevel,
+          next_level_blinds: g.next ? `${g.next.smallBlind}/${g.next.bigBlind}` : 'none (top level)'
+        }
+      : {}),
     hand_number: view.handNo,
     street: view.street,
     me: {
@@ -409,10 +442,74 @@ export function tableState(view: SeatView) {
   }
 }
 
-/** Trim to 80 chars and drop any line that names one of the speaker's hole cards. */
-function cleanTableTalk(text: string, view: SeatView): string | undefined {
+// ── table talk hygiene ─────────────────────────────────────────────────────
+
+/** Words a player uses for each rank. Counting words (2–T) only in plural or card phrases; see below. */
+const RANK_WORDS: Record<string, { plain: string[], counting?: string }> = {
+  A: { plain: ['aces?', 'rockets', 'bullets'] },
+  K: { plain: ['kings?', 'cowboys'] },
+  Q: { plain: ['queens?', 'ladies'] },
+  J: { plain: ['jacks?', 'hooks'] },
+  T: { plain: ['tens'], counting: 'ten' },
+  9: { plain: ['nines'], counting: 'nine' },
+  8: { plain: ['eights'], counting: 'eight' },
+  7: { plain: ['sevens'], counting: 'seven' },
+  6: { plain: ['sixes'], counting: 'six' },
+  5: { plain: ['fives'], counting: 'five' },
+  4: { plain: ['fours'], counting: 'four' },
+  3: { plain: ['threes', 'treys?'], counting: 'three' },
+  2: { plain: ['twos', 'deuces?', 'ducks'], counting: 'two' }
+}
+const SINGULAR: Record<string, string> = { ace: 'A', king: 'K', queen: 'Q', jack: 'J', ten: 'T', nine: '9', eight: '8', seven: '7', six: '6', five: '5', four: '4', three: '3', trey: '3', two: '2', deuce: '2' }
+const HAND_WORD = Object.keys(SINGULAR).join('|')
+const HAND_WORDS = new RegExp(`\\b(${HAND_WORD})-(${HAND_WORD})\\b`, 'gi')
+const rankOfWord = (w: string) => SINGULAR[w.toLowerCase()]!
+const SUIT_WORDS: Record<string, string> = { h: 'hearts?', s: 'spades?', d: 'diamonds?', c: 'clubs?' }
+
+function rankPattern(rank: string): RegExp {
+  const w = RANK_WORDS[rank]!
+  const alts = [...w.plain]
+  // "ten", "four" alone are usually counting ("four-bet", "two pair"); only card phrases count.
+  if (w.counting) alts.push(`(?:pocket|set of|trip|pair of) ${w.counting}s?`, `${w.counting}[- ]high`)
+  // Digit plurals: "pocket 9s", "10s full". (Letter shorthand like "AK" is matched case-sensitively below.)
+  if (w.counting) alts.push(`${rank === 'T' ? '10' : rank}'?s`)
+  return new RegExp(`\\b(?:${alts.join('|')})\\b`, 'i')
+}
+
+/**
+ * True when a line names the speaker's own hole cards: a card code ("Kh"), a hole rank in words
+ * ("Kings again", "pocket jacks", "set of fours", "AK") that isn't on the board, or a suit it holds
+ * in a flush/draw phrase ("heart flush") unless the board alone shows that flush. A rank or suit
+ * that's on the board is public, so naming it is fine.
+ */
+export function namesOwnCards(text: string, hole: Card[], board: Card[]): boolean {
+  if (hole.some(c => new RegExp(`\\b${c}\\b`).test(text))) return true
+  const boardRanks = new Set(board.map(c => c[0]))
+  const hidden = [...new Set(hole.map(c => c[0]!))].filter(r => !boardRanks.has(r))
+  if (hidden.some(r => rankPattern(r).test(text))) return true
+  // Two-rank shorthand like "AK", "KQs", "JJ", "99", "A-K": case-sensitive, and a pure-digit pair
+  // only when it's a pocket pair ("99"), so chip counts like "45" pass.
+  for (const m of text.matchAll(/\b([2-9TJQKA])-?([2-9TJQKA])[so]?\b/g)) {
+    const [a, b] = [m[1]!, m[2]!]
+    if (/^\d$/.test(a) && /^\d$/.test(b) && a !== b) continue
+    if (hidden.includes(a) || hidden.includes(b)) return true
+  }
+  // Hyphenated hands in words: "nine-seven", "ten-four suited", "king-trey".
+  for (const m of text.matchAll(HAND_WORDS)) {
+    if ([m[1]!, m[2]!].some(w => hidden.includes(rankOfWord(w)))) return true
+  }
+  for (const suit of new Set(hole.map(c => c[1]!))) {
+    if (board.filter(c => c[1] === suit).length >= 5) continue
+    const word = SUIT_WORDS[suit]!
+    if (new RegExp(`\\b${word}\\b[^.!?]{0,20}\\b(?:flush|draw|suited)\\b|\\b(?:flush|draw|suited)\\b[^.!?]{0,12}\\b${word}\\b`, 'i').test(text)) return true
+  }
+  return false
+}
+
+/** Trim to 80 chars and drop any line that names the speaker's own hole cards (codes or words). */
+export function cleanTableTalk(text: string, view: Pick<SeatView, 'hole' | 'board'>): string | undefined {
   const t = text.trim().replace(/\s+/g, ' ')
   if (!t) return undefined
-  if (view.hole.some(c => new RegExp(`\\b${c}\\b`).test(t))) return undefined
+  if (namesOwnCards(t, view.hole, view.board)) return undefined
   return t.length > TABLE_TALK_MAX ? `${t.slice(0, TABLE_TALK_MAX - 1).trimEnd()}…` : t
 }

@@ -3,7 +3,7 @@
  * no Nuxt) so tests and bench scripts run it under bare Node. The engine itself is unchanged:
  * blinds are set on the state between hands, and busts are read off the stacks.
  */
-import type { TableState } from './types.ts'
+import type { GameFormat, TableState } from './types.ts'
 
 export interface BlindLevel { sb: number, bb: number, hands: number }
 
@@ -29,6 +29,21 @@ export function levelIndex(levels: BlindLevel[], handNo: number): number {
     if (handNo <= end) return i
   }
   return levels.length - 1
+}
+
+/** What a player at a sit-and-go is told about the blinds on hand `handNo` (1-based). */
+export function sngFormat(levels: BlindLevel[], handNo: number): GameFormat {
+  const level = levelIndex(levels, handNo)
+  const end = levels.slice(0, level + 1).reduce((n, l) => n + l.hands, 0)
+  const last = level === levels.length - 1
+  const next = levels[level + 1]
+  return {
+    type: 'sng',
+    level: level + 1,
+    // The last level repeats, so it has no "next".
+    handsLeftAtLevel: last ? 0 : Math.max(0, end - handNo),
+    ...(next ? { next: { smallBlind: next.sb, bigBlind: next.bb } } : {})
+  }
 }
 
 /** The state with the blinds for the next hand set; call before startHand(). */

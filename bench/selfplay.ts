@@ -100,7 +100,7 @@ for (let h = 0; h < hands; h++) {
       break
     }
     const seat = state.seats[state.toAct]!
-    const view = seatView(state, seat.id)
+    const view = seatView(state, seat.id, { type: 'cash' })
     const decision = dryRun ? await dryDecide(seat.modelId!, view) : await decide({ modelId: seat.modelId!, view })
     rows.push({ hand: state.handNo, seat: seat.id, model: seat.modelId!, street: state.street, decision })
     spent += costUsd(seat.modelId!, decision.usage)

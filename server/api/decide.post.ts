@@ -43,6 +43,15 @@ const viewSchema = z.object({
   })).min(1).max(5),
   seatOrder: z.array(z.string()).max(6).optional(),
   priorTableTalk: z.array(z.string().max(200)).max(10).optional(),
+  game: z.discriminatedUnion('type', [
+    z.object({ type: z.literal('cash') }),
+    z.object({
+      type: z.literal('sng'),
+      level: z.number().int().positive(),
+      handsLeftAtLevel: chips,
+      next: z.object({ smallBlind: z.number().int().positive(), bigBlind: z.number().int().positive() }).optional()
+    })
+  ]).optional(),
   log: z.array(z.object({
     seatId: z.string(),
     street,

@@ -12,7 +12,7 @@ import { z } from 'zod'
 import { PLANNER_MODEL } from '../../shared/utils/models.ts'
 import { AXES, AXIS_NAMES, exploreQuota } from '../../shared/utils/strategy.ts'
 import type { StrategyCard } from '../../shared/utils/strategy.ts'
-import { INSTRUCTIONS } from './decide.ts'
+import { SNG_INSTRUCTIONS } from './decide.ts'
 
 export const PLANNER_TIMEOUT_MS = 300_000
 /** Cards (≈ 300 tokens each) + memo + thinking; reasoning tokens count against this. */
@@ -77,7 +77,7 @@ export function plannerInstructions(b: LabBrief): string {
 THE PLAYER
 A player is ${b.baseLabel} (a fast, cheap language model, reasoning off) plus one strategy card. The card is appended to the model's system instructions, after these standard instructions every seat gets:
 <<<
-${INSTRUCTIONS}
+${SNG_INSTRUCTIONS}
 >>>
 then: "Your strategy card (your coach's plan for how you play at this table; follow it, using only what you can see from your seat):" and the card text. Holding the model fixed means score differences come from the card, not the model.
 Without a card, ${b.baseLabel} played like this in an earlier 8-match benchmark: ${b.baseStyle}.

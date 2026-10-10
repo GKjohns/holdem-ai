@@ -1,5 +1,5 @@
 import type { ActionEvent, Card, Decision, HandResult, MenuId, PlayerAction, SeatView, Street, TableState } from '~~/shared/utils/types'
-import { activeSeatCount, applyAction, legalActions, newTable, seatView, startHand, withTableTalk } from '~~/shared/utils/table'
+import { activeSeatCount, applyAction, legalActions, newTable, recentTalk, seatView, startHand, withTableTalk } from '~~/shared/utils/table'
 import { buildMenu } from '~~/shared/utils/menu'
 import { seatStats, sessionCost } from '~~/shared/utils/stats'
 import { narratorCost, scoutingMarkdown, type Narration, type ScoutingReport } from '~~/shared/utils/narration'
@@ -51,8 +51,6 @@ export interface HandRecord {
 }
 
 /** Lines a seat already said this session, newest last (deduped), so the LLM can vary its banter. */
-const PRIOR_TALK_MAX = 6
-
 export function useTable(lineup: Lineup, opts: { stacks?: number[], seed?: number, cap?: Ref<number>, narratorOn?: Ref<boolean>, restore?: TableSnapshot } = {}) {
   const snap = opts.restore
   const hasHuman = lineup.mode === 'play'
@@ -260,13 +258,9 @@ export function useTable(lineup: Lineup, opts: { stacks?: number[], seed?: numbe
   })
   if (!snap && import.meta.client) logSessionStart()
 
+  /** This seat's own recent lines, most recently used last (see recentTalk()). */
   function priorTalk(seatId: string): string[] {
-    const lines: string[] = []
-    for (const d of decisions.value) {
-      const t = d.seatId === seatId ? d.decision.tableTalk : undefined
-      if (t && !lines.includes(t)) lines.push(t)
-    }
-    return lines.slice(-PRIOR_TALK_MAX)
+    return recentTalk(decisions.value.flatMap(d => d.seatId === seatId && d.decision.tableTalk ? [d.decision.tableTalk] : []))
   }
 
   function startNextHand() {
@@ -394,7 +388,8 @@ export function useTable(lineup: Lineup, opts: { stacks?: number[], seed?: numbe
       const handNo = state.value.handNo
       const logIndex = state.value.log.length
       const prior = priorTalk(seat.id)
-      const view: SeatView = { ...seatView(state.value, seat.id), ...(prior.length ? { priorTableTalk: prior } : {}) }
+      // Interactive tables are cash-style: fixed blinds, so the seat is told it's a cash game.
+      const view: SeatView = { ...seatView(state.value, seat.id, { type: 'cash' }), ...(prior.length ? { priorTableTalk: prior } : {}) }
       thinking.value = seat.id
       const started = performance.now()
       let decision: Decision

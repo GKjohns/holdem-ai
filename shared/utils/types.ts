@@ -117,7 +117,25 @@ export interface SeatView {
   log: ActionEvent[]
   /** Lines this seat has already said this session (client-supplied; LLMs are told not to repeat them). */
   priorTableTalk?: string[]
+  /**
+   * The game format, as the floor would announce it: a cash game with fixed blinds, or a sit-and-go
+   * with its current blind level and how many hands are left at it. Optional so B3–B5 run files
+   * (written before this field existed) still parse; a view without it reads as a cash game.
+   */
+  game?: GameFormat
 }
+
+export type GameFormat
+  = | { type: 'cash' }
+    | {
+      type: 'sng'
+      /** 1-based blind level. */
+      level: number
+      /** Hands still to be played at this level after the current one (0 = last hand at this level). */
+      handsLeftAtLevel: number
+      /** Blinds at the next level; absent at the last level, which repeats. */
+      next?: { smallBlind: number, bigBlind: number }
+    }
 
 export type MenuId = 'fold' | 'check' | 'call' | 'raise_min' | 'raise_half_pot' | 'raise_pot' | 'raise_2x_pot' | 'all_in'
 
