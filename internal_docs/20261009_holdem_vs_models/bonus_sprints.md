@@ -154,7 +154,8 @@ Storyboard: frames **6–7** in [`storyboard.html`](./storyboard.html) (Spectato
 **Budget:** report follow-ups ≤ $3, taken from B4 (B4 cap becomes $22).
 
 
-1. ~~Budget for B4~~ **Resolved 2026-10-09:** $50 total key quota; B4 gets ≤ $25. Pilot first (2 generations × 4 cards, ≤ $3), then show Kyle the pilot summary + projected cost before the full run.
+## Open Questions (for Kyle)
+1. ~~Budget for B4~~ **Resolved 2026-10-10:** $50 total key quota; B4 ≤ $22 (B5 gets $3). Pilot first (2 generations × 4 cards, ≤ $3). Kyle said "go all the way through" (2026-10-10): scale after a passing pilot without stopping to ask, within caps.
 2. **Base model for strategy cards:** one cheap model (cleaner experiment, the default) or the top cards crossed across 2–3 base models (tells us whether strategies transfer)?
 3. **Should B1 spectator sessions feed B3's results?** It's free data, but those sessions aren't duplicate-seeded. Default: store them, tagged `casual`, and exclude them from CIs.
 
