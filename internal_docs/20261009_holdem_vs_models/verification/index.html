@@ -72,7 +72,7 @@
   <p class="meta">Plan <code>20261009_holdem_vs_models</code> · Sprints 1–4 complete · report built 2026-10-10 from the plan, <code>samples/</code> and <code>screenshots/</code> (no new model calls)</p>
   <p><span class="pill ok">Sprints 1–4 complete</span><span class="pill ok">39 tests green</span><span class="pill ok">0 fallbacks in 20-hand self-play</span><span class="pill warn">Bonus B1–B4 not started</span></p>
   <nav class="toc">
-    <a href="#built">What was built</a><a href="#s1">Sprint 1</a><a href="#s2">Sprint 2</a><a href="#s3">Sprint 3</a><a href="#s4">Sprint 4</a><a href="#golden">Golden path</a><a href="#b1">Bonus B1</a><a href="#b2">Bonus B2</a><a href="#b3">Bonus B3</a><a href="#spend">Spend</a>
+    <a href="#built">What was built</a><a href="#s1">Sprint 1</a><a href="#s2">Sprint 2</a><a href="#s3">Sprint 3</a><a href="#s4">Sprint 4</a><a href="#golden">Golden path</a><a href="#b1">Bonus B1</a><a href="#b2">Bonus B2</a><a href="#b3">Bonus B3</a><a href="#b4">Bonus B4</a><a href="#spend">Spend</a>
   </nav>
 </header>
 
@@ -498,6 +498,72 @@
   <p class="meta"><strong>Data for B4/B5:</strong> <code>data/runs/20261010_main.jsonl</code> (31 MB; 1,913 hands, 40 tournaments), <code>data/runs/20261010_pilot.jsonl</code> (Gemini's only batch data), <code>data/runs/20261010_main_scouting.md</code>. Read with <code>parseRun()</code> (<code>shared/utils/runs.ts</code>); <code>runDetail()</code> (<code>server/utils/results.ts</code>) reproduces every number on the page.</p>
 </section>
 
+<!-- ───────────── Bonus B4 ───────────── -->
+<section id="b4">
+  <h2>Bonus B4: Strategy Lab (run by Fable)</h2>
+  <p><span class="pill ok">Complete</span> A player is one cheap base model (GPT-6 Luna, reasoning off) plus a <b>strategy card</b>: about 200 words of style guidance appended to its instructions, never odds or stats (checked in code). Fable (<code>anthropic/claude-fable-5.1</code>) never sits. It writes each generation's cards with <b>pre-registered</b> predictions, reads god-view histories of completed hands and <code>stats.ts</code> numbers, and writes a memo and the next generation (~60% exploit / ~40% explore, quota enforced in code). Every card plays duplicate matches at its own table against the control (Luna, no card), the current champion, Jev and Luna Decisions. Successive halving and a Thompson top-up allocate matches. The top 3 then replay on fresh seeds against a different field. <code>bench/lab.ts</code> runs it; <code>/lab</code> reads <code>data/lab/</code>. 70 tests (+8); typecheck and lint are green.</p>
+  <div class="stats">
+    <div class="stat"><b>13</b><span>cards over 2 generations (+ 8 in the pilot)</span></div>
+    <div class="stat"><b>7,573</b><span>hands, 0 fallbacks, chips conserved on every one</span></div>
+    <div class="stat"><b>0</b><span>cards whose edge over the control survived the held-out final</span></div>
+    <div class="stat"><b>$17.53</b><span>B4 total on the key (cap $22)</span></div>
+  </div>
+
+  <h3>Pilot gate (before scaling)</h3>
+  <figure>
+    <img src="screenshots/b4_pilot_lab.webp" alt="Pilot lab run page" style="max-width:100%">
+    <figcaption><b>Pilot <code>20261010_lab_pilot</code>:</b> 2 generations × 4 cards, 20-hand cap, 1,200 hands. $2.71 by pricing.ts (tables $1.48, Fable $1.23), <b>$3.03 on the key</b> (metering ≈ 1.1× pricing.ts, as in B3), so $0.03 over the $3 line on the key. <code>bench/labgate.ts</code> passed all 7 checks: 0 engine errors and chips conserved; 0 fallbacks; no degenerate card (fold 13–73%, all raise); $0.00124/hand vs the $0.00120 estimate (1.03×); predictions written before each generation's first hand (07:39:16 &lt; 07:39:24; 07:52:00 &lt; 07:52:05); explore quota 4/0 then 2/2; every B5 field present. This page rendering was the last check. The pilot already showed the lab's core problem: Patient Caller led the control by +83 [+1, +161] over 2 matches, then posted −82 pooled over 8 as champion.</figcaption>
+  </figure>
+
+  <h3>Full run <code>20261010_lab</code></h3>
+  <figure>
+    <img src="screenshots/b4_lab_full.webp" alt="Full lab run page" style="max-width:100%">
+    <figcaption><b><code>/lab/20261010_lab</code>:</b> Fable's field notes on top. Below them: the pooled leaderboard with CI bars on one shared scale, the lineage tree, prior vs result, each generation with its rounds, champion seat and memo, the held-out final, and every card with its hypothesis and verdict. 8 cards in gen 0, then 3 exploit + 2 explore. 153 tournaments, $13.23 by pricing.ts (training $5.52, held-out $4.90, Fable $2.82 over 3 calls, all valid on the first try). The gate passed on the whole run.</figcaption>
+  </figure>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Card</th><th class="num">Matches</th><th class="num">Training lead (bb/100)</th><th class="num">Predicted</th><th class="num">Held-out lead (3 matches)</th><th>Held-out verdict</th></tr></thead>
+      <tbody>
+        <tr><td>Bot Hunter (gen 0)</td><td class="num">4</td><td class="num">+24 [+1, +55]</td><td class="num">+60</td><td class="num">−24 [−59, +10]</td><td>overfit</td></tr>
+        <tr><td>Balanced Solid (gen 0, champion ×2)</td><td class="num">13</td><td class="num">+13 [−3, +26] (own table +27 [+20, +35])</td><td class="num">+42</td><td class="num">−1 [−45, +23]</td><td>overfit</td></tr>
+        <tr><td>Silver Tongue (gen 0)</td><td class="num">3</td><td class="num">+7 [−2, +21]</td><td class="num">−40</td><td class="num">+10 [−16, +36]</td><td>inconclusive</td></tr>
+        <tr><td>Solid Hunter (gen 1, crossover)</td><td class="num">4</td><td class="num">+2 [−22, +26]</td><td class="num">+30</td><td class="num">—</td><td></td></tr>
+        <tr><td>Sticky Hunter (gen 1, mutation)</td><td class="num">3</td><td class="num">−20 [−61, +28]</td><td class="num">+24</td><td class="num">—</td><td></td></tr>
+        <tr><td>Blitz Maniac (gen 0)</td><td class="num">3</td><td class="num">−49 [−116, +30]</td><td class="num">−65</td><td class="num">—</td><td></td></tr>
+        <tr><td>Two identical card-less Lunas (gen 0 champion seat)</td><td class="num">17</td><td class="num">−9 [−32, +10]</td><td class="num">0</td><td class="num">—</td><td>the noise floor</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p><b>Bottom line:</b> no card beat the card-less base model by a margin that survived. Medium-tight, raise-first, rare-bluff cards were the only ones positive in absolute bb/100 with a CI above 0 (Balanced Solid +18 [+6, +31] over 2,925 hands), but their lead over the control is within the noise floor, and Bot Hunter's named-opponent exploits flipped sign on a field without Jev and Luna Decisions. Every gen-1 exploit card landed below its parents. On the held-out table Sol won 7 of 18 tournaments at +58 [+18, +79] bb/100.</p>
+  <figure>
+    <img src="screenshots/b4_lab_lineage_scatter.webp" alt="Lineage and prior vs result" style="max-width:100%">
+    <figcaption><b>Where Fable's priors were most wrong.</b> Silver Tongue, the "talkative bluffer" it expected to lose, went −45 → +11 bb/100: Luna softened the bluffing text (WTSD 42%, 15 calls vs 171 bets). Silver Value missed by −38, Granite Rock and Table Reader by −35. The misses were systematic: all 7 cards predicted positive came in 19–38 below, and the 4 predicted to lose by 15+ came in 25–56 above. The rank order was right only at the top of gen 0.</figcaption>
+  </figure>
+  <figure>
+    <img src="screenshots/b4_lab_heldout.webp" alt="Held-out final" style="max-width:100%">
+    <figcaption><b>Held-out final:</b> the top 3 cards + control vs GPT-6 Sol + Claude Haiku 5.5, 3 fresh matches × 6 rotations. <code>heldout.json</code> records 0 overlap against 2,060 seeds (every run on disk + every planned training seed). The code refuses to run on overlap, and it did refuse once, for a test lab that reused an earlier lab's <code>--seed</code>. "Overfit" means the edge is gone (≤ 0); with ±35 CIs that's "did not reproduce", not "proven worse".</figcaption>
+  </figure>
+  <figure>
+    <img src="screenshots/b4_lab_card.webp" alt="A card with its hypothesis and verdict" style="max-width:100%">
+    <figcaption>A card with its hypothesis, axes, prediction and verdict (mechanical: the predicted sign of the lead against its CI).</figcaption>
+  </figure>
+  <figure>
+    <img src="screenshots/b4_lab_dark.webp" alt="Lab in dark mode" style="max-width:100%">
+    <img src="screenshots/b4_lab_mobile.webp" alt="Lab at 390 px" style="max-width:390px">
+    <figcaption>Dark mode, and 390 px (tables and the lineage tree scroll inside their cards). <code>b4_lab_list.webp</code> shows the runs list.</figcaption>
+  </figure>
+
+  <h3>Resumable, idempotent, honest</h3>
+  <ul class="issues">
+    <li>✅ A fake lab killed with <code>-9</code> twice and resumed matched an uninterrupted run exactly (hands, allocations, champions, held-out picks). Reruns of the finished pilot and full run made 0 calls with the budget pinned at what was spent.</li>
+    <li>✅ The runner was extracted to <code>bench/runner.ts</code>. A rerun of B3's main run is $0, and B3's pilot replayed from its cache alone matched on all 90 hands.</li>
+    <li>⚠️ The fake-run idempotency test found a bug: halving rankings and crowning were computed from everything on disk, so a rerun could see later rounds. Now each round ranks only on the matches allocated before it.</li>
+    <li>⚠️ Budget cut the run to 2 generations (default 4). The guard stopped before gen 2 at $7.50 so it could keep the held-out final and notes. Round 1 is one match per card, so 7 of 13 cards have no CI. The held-out was raised from 2 to 3 matches mid-run (SIGINT, resume) once tables proved cheaper than estimated (0.62×).</li>
+    <li>Deviations: neutral table aliases for base-model seats; one Fable call per generation (memo + next cards); per-card B2 scouting reports dropped for cost (Fable reads stats and decisive god-view hands instead); held-out field is Sol + Haiku at one 6-seat table.</li>
+  </ul>
+  <p class="meta"><strong>Data for B5:</strong> <code>data/lab/20261010_lab/</code> (<code>field_notes.md</code>, <code>gen&lt;N&gt;/</code> predictions, allocations, outcomes and memos, <code>cards/*.md</code>, <code>planner/*.json</code> with Fable's full prompts and outputs, <code>runs/*.jsonl</code> table files and <code>runs/heldout.jsonl</code>, <code>heldout.json</code>, <code>lab.jsonl</code>) and <code>data/lab/20261010_lab_pilot/</code>. Read with <code>labDetail(loadLab(labDir(run)))</code> (<code>server/utils/lab.ts</code>); schema in <code>AGENTS.md</code> § Strategy Lab.</p>
+</section>
+
 <!-- ───────────── Spend ───────────── -->
 <section id="spend">
   <h2>Spend to date</h2>
@@ -517,6 +583,7 @@
         <tr><td>Bonus B1: about 35 cheap-seat hands (Watch + Play, cap and reload tests)</td><td class="num">≈ $0.06</td><td>in-app meter / JSONL usage</td></tr>
         <tr><td>Bonus B2: 13 narrated hands in the app + 2 curl probes + 2 scouting reports, cheap seats</td><td class="num">≈ $0.24</td><td>key quota $2.127 → $2.368 (includes the seats' own decisions)</td></tr>
         <tr><td>Bonus B3: pilot $1.34 + main run $12.29 + scouting report $0.065 (pricing.ts), rest in-flight calls lost to two kills and metering</td><td class="num">$14.48</td><td>key quota $2.37 → $16.85</td></tr>
+        <tr><td>Bonus B4: pilot $2.71 + full lab $13.23 (tables $10.42, Fable $2.82) by pricing.ts, rest metering (≈ 1.1×)</td><td class="num">$17.53</td><td>key quota $16.85 → $34.38</td></tr>
         <tr><th>Total (Sprints 1–4)</th><td class="num"><strong>≈ $0.11</strong></td><td>key-level figure; Sprint 3 is about $0.03 by difference</td></tr>
       </tbody>
     </table>

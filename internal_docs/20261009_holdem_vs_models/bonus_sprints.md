@@ -1,7 +1,7 @@
 # Hold'em AI — Bonus Sprints: Spectator, Narrator, Tournaments, Strategy Lab
 
 **Created:** October 9, 2026
-**Status:** B1–B3 complete (2026-10-10); B4–B5 not started · optional · runs only after Sprints 1–4 of [`implementation_plan.md`](./implementation_plan.md) are done
+**Status:** B1–B4 complete (2026-10-10); B5 not started · optional · runs only after Sprints 1–4 of [`implementation_plan.md`](./implementation_plan.md) are done
 **Context:** Kyle: "let them just watch the models play against each other… track their performance… an AI narrator… tournaments, a bunch of times, see the trends… then have a really powerful model like Fable plan strategies, personalities, approaches and explore: work the explore-exploit, test a few at the same time, and learn empirically what wins. Don't rely on what you think will win."
 
 **Goal:** four optional sprints that build on each other. Each one is useful on its own, so we can stop after any of them:
@@ -149,7 +149,7 @@ Pairs whose difference CI excludes 0 (7 of 10): Sol beats every other seat (+79 
 
 ---
 
-## Sprint B4: Strategy Lab (explore / exploit, run by Fable) `[Not Started]`
+## Sprint B4: Strategy Lab (explore / exploit, run by Fable) `[Complete]`
 **Goal:** learn **empirically** which strategies and personalities win, instead of trusting anyone's priors, Fable's included.
 **Estimated effort:** 5–6 hours of build, then lab runs gated on budget
 
@@ -175,10 +175,48 @@ Pairs whose difference CI excludes 0 (7 of 10): Sol beats every other seat (+79 
 - B4.5 Report: when a lab run finishes, write `data/lab/<run>/field_notes.md`: what wins, what loses, where the priors were wrong, what still looks like noise, and what to test next.
 
 ### Verification
-- [ ] A 2-generation mini-run (4 cards, $3 cap) completes end to end; the explore quota holds; the predictions file was written **before** the first hand (check timestamps)
-- [ ] The control card is in every generation; the champion's lead over the control has a CI reported
-- [ ] Held-out final runs on seeds never used in training generations (asserted in code)
-- [ ] `/lab` renders lineage, verdicts, and the prior-vs-result scatter
+- [x] **Pilot** `20261010_lab_pilot` (2 generations × 4 cards, 20-hand cap, r1 1 / r2 1, no held-out, no field notes): 60 tournaments, 1,200 hands, 13,380 decisions. **$2.71 by pricing.ts** (tables $1.48, Fable $1.23 over 2 calls); **the key moved $3.03** ($16.85 → $19.88; metering runs ~1.1× pricing.ts, as in B3), so the pilot is $0.03 over its $3 line on the key. `bench/labgate.ts` passed all 7 checks: 0 engine errors and chips conserved on 1,200 hands; 0 fallbacks for every player; no degenerate card (fold rates 13–73%, every player raises); $0.00124/hand vs the $0.00120 estimate (1.03×); predictions written before the first hand (gen 0 07:39:16 < 07:39:24, gen 1 07:52:00 < 07:52:05, file mtimes too); explore quota 4/0 then 2/2; every B5 field present. `/lab/20261010_lab_pilot` renders (2 generations, 8 scatter points, lineage with 2 champion rings, 0 console warnings) — `b4_pilot_lab.webp`
+- [x] The pilot's own finding already showed the lab's central problem: Patient Caller led the control by +83 [+1, +161] over its 2 matches, then came in at −82 pooled over 8 once it sat in the champion seat
+- [x] **Full run** `20261010_lab`: 2 generations (8 cards, then 3 exploit + 2 explore), 13 cards, 153 tournaments, 7,573 hands (6,675 training + 898 held-out), 61,477 decisions, **$13.23 by pricing.ts** (training tables $5.52, held-out $4.90, Fable $2.82 over 3 calls). Gate passed on the whole run: 0 engine errors, chips conserved on all 7,573 hands, **0 fallbacks**, fold rates 5–66%, $0.00083/hand vs $0.00134 estimated (0.62×), predictions before first hand in both generations, quota 8/0 and 2/3 — `b4_lab_full.webp`, `b4_lab_dark.webp`, `b4_lab_mobile.webp`, `b4_lab_list.webp`
+- [x] The control (and a champion seat) is at every table; the champion's lead over the control is reported with a CI per generation: gen 0's champion seat (a second card-less Luna) −9 [−32, +10] over 17 matches, gen 1's (Balanced Solid) +9 [−12, +25] over 10
+- [x] Held-out final on 3 fresh matches; `heldout.json` records 0 overlap against 2,060 seeds (every run on disk + every planned training seed), and the code refuses to run otherwise. Tested once for real: a fake lab with the same `--seed` as an earlier one was refused ("held-out seeds overlap training seeds") — `b4_lab_heldout.webp`
+- [x] `/lab` renders lineage, verdicts, the prior-vs-result scatter, Fable's memos and field notes — `b4_lab_lineage_scatter.webp`, `b4_lab_card.webp`
+- [x] **Resumable and idempotent:** a fake lab killed with `-9` twice (mid-gen 0 round 2 and mid-gen 1 round 1) and resumed matched an uninterrupted run exactly (hand fingerprint, allocations, champions, held-out picks). Reruns of the finished pilot (1.3 s) and full run (5.5 s) made 0 calls with `--budget` pinned at what was spent. The full run was interrupted once on purpose (SIGINT during the held-out, to raise it from 2 to 3 matches); the resume replayed 176 cached decisions and dropped 15 partial hand lines
+- [x] B3 compatibility after extracting the runner: a rerun of `20261010_main` is $0, and the B3 pilot replayed from its cache alone (hand lines stripped) gave identical hands and finish orders on all 90 hands
+- [x] `npm test` (70: +8 `tests/strategy.test.ts`), `npm run typecheck`, `npm run lint` green
+
+#### Results (`20261010_lab`; lead = card − control bb/100 on the same matches, 95% match-bootstrap CI)
+
+| Card (gen, kind) | Matches | Own-table lead | Pooled lead | Predicted lead | Held-out lead (3 matches) | Verdict |
+|---|---|---|---|---|---|---|
+| Bot Hunter (0, explore) | 4 | +24 [+1, +55] | +24 [+1, +55] | +60 | **−24 [−59, +10]** | confirmed in training · **overfit** held-out |
+| Balanced Solid (0, explore; champion both gens) | 3 own / 13 pooled | +27 [+20, +35] | +13 [−3, +26] | +42 | **−1 [−45, +23]** | confirmed in training · **overfit** held-out |
+| Silver Tongue (0, explore) | 3 | +7 [−2, +21] | +7 [−2, +21] | −40 | +10 [−16, +36] | inconclusive · inconclusive |
+| Solid Hunter (1, crossover of the two above) | 4 | +2 [−22, +26] | +2 | +30 | — | inconclusive |
+| Sticky Hunter (1, mutation of Bot Hunter) | 3 | −20 [−61, +28] | −20 | +24 | — | inconclusive |
+| Blitz Maniac (0, explore) | 3 | −49 [−116, +30] | −49 | −65 | — | inconclusive |
+| 7 more cards (1 match each, cut by halving) | 1 | −110 to +11 | | | — | no CI |
+
+The control played +10 [+2, +22] bb/100 over 27 matches (6,065 hands) at these tables. On the held-out table Sol won 7 of the 18 tournaments at +58 [+18, +79] bb/100 (its B3 rate was +81), Haiku lost −59 [−86, −42], the control −1 [−6, +3]; Silver Tongue won 5, Balanced Solid 1, Bot Hunter 0.
+
+**Bottom line:** no card beat the card-less base model by a margin that survived. The noise floor, measured directly by two identical card-less Lunas in gen 0, is −9 [−32, +10] over 17 matches, as wide as most effects. Medium-tight, raise-first, rare-bluff cards were the only ones positive in absolute bb/100 with a CI above 0 (Balanced Solid +18 [+6, +31] over 2,925 hands). Their *lead over the control* is unproven everywhere, and Bot Hunter's named-opponent exploits flipped sign on a field without Jev and Luna Decisions. Exploit children (gen 1) all landed below their parents: the parents' gen-0 leads were partly luck (Balanced Solid +27 → +9 as champion, unchanged card).
+
+**Where Fable's priors were most wrong** (predicted vs measured bb/100 at the card's own table): Silver Tongue, the "talkative bluffer" it expected to lose (−45 → +11; Luna tempered the bluffing instructions: WTSD 42%, 15 calls vs 171 bets); Silver Value −38; Granite Rock and Table Reader −35 each. The errors were systematic: all 7 cards Fable predicted positive came in 19–38 below, and the 4 it predicted to lose by 15+ came in 25–56 above (shrinkage toward the control; Quiet Trapper, predicted −5, was the near-miss at −12). Rank order was right only at the top of gen 0 (Bot Hunter and Balanced Solid, predicted 1–2, finished 1–2). The pilot (Fable never saw it) had the same shape: its "Bot Hunter" was predicted +60 and posted −51.
+
+#### Notes & deviations (2026-10-10)
+- **Base model: GPT-6 Luna (reasoning `none`).** From B3: $0.03/100 hands (Haiku $0.08), 0 fallbacks in 3,676 decisions, 2.0 s, and +2 [−25, +26] bb/100, a mid-strength player with room to move either way. Haiku lost −46 [−96, −4] with a wider CI, so card effects would have been harder to see. Cross-model transfer (Open Question 2) stays untested.
+- **Runner extracted:** `bench/runner.ts` holds B3's runner as a module (one shared pool and budget across many tables; a lineup entry is a player = model + optional card); `bench/tournament.ts` is a thin CLI over it. Run files gained `players`, `lab`, `playerId`, `cardId` (all optional, AGENTS.md § Batch runs); stats group by `playerOf(seat)`. A card seat's cache hash covers the card text.
+- **Table names:** base-model seats get neutral aliases (Ash, Birch, Cedar, Elm, Hazel, Rowan, seeded per table) so opponents never see a card name or role. Jev, Luna Decisions, Sol and Haiku keep their labels, so a card *can* name them, which is guidance a human could have (and what the held-out field tests).
+- **Card hygiene in code:** `bannedContent()` rejects percentages, HUD stats, win rates, equity/odds numbers; cards are 40–230 words; `validateGeneration()` checks the explore quota (`Math.round(0.4 n)`, gen 0 all explore), ≥ 2 axis differences between new ideas and from every tested card, mutations change ≤ 1 axis, crossovers take each axis from a parent, parents come from the top 3 by pooled lead, ranks are a permutation. A failed generation gets one re-ask with the errors; none was needed (5/5 Fable calls valid first try).
+- **Fable calls:** `generateText + Output.object`, reasoning `medium`, `maxOutputTokens` 20,000, 300 s timeout, `maxRetries: 1`. Reflection and the next generation are one call (memo + cards), and the last memo rides with the field notes, which saves re-sending ~40k tokens of results. Measured: gen 0 $0.32–0.50 (7k in / 5–9k out), later generations $0.92–1.48 (37–68k in / 11–16k out), field notes $0.84. Fable reads `stats.ts` profiles, predictions vs results, and 3–4 god-view decisive hands per card with every seat's reasoning or probabilities; **B2 scouting reports per card were dropped** (≈ $0.4/generation for a narrator's reading of the same data); the B3 scouting report is in the prior evidence instead.
+- **Allocation:** round 1 one match per card, the top half by own-table lead get +2 (successive halving), then one Thompson top-up match (seeded batch draws from N(lead, se²)). Each round ranks on exactly the matches allocated before it, and crowning uses only generations ≤ g. **Bug found by the fake-run idempotency test:** the first version ranked on everything on disk, so a rerun saw later rounds and could re-allocate; fixed with `unitsOf(..., upTo)` and a test.
+- **Champion seat:** the best pooled lead among the generation's survivors and the sitting champion; gen 0's champion seat is a second card-less Luna (`control-2`), which turned out to be the most useful seat in the lab: a direct measure of the noise floor.
+- **Scale cut by budget:** 2 generations instead of the default 4. The budget guard (`spent + next generation + held-out + notes > cap`) stopped before gen 2 at $7.50. Round 1 is 1 match per card, so 7 of 13 cards have no CI. The held-out was planned at 2 matches and raised to 3 mid-run once tables proved cheaper than estimated ($0.00083/hand vs $0.00134; the estimator assumed B3's tournament length, and cards bust each other faster).
+- **Held-out field:** the top 3 cards + control vs GPT-6 Sol + Claude Haiku 5.5 at one 6-seat table (no seat from the reference field except the control). Verdicts: `holds` if the held-out lead CI is above 0, `overfit` if the point estimate is ≤ 0, otherwise `inconclusive`. With ±35 CIs after 3 matches, "overfit" here means "did not reproduce", not "proven worse".
+- **Verdicts on pre-registrations** are mechanical: the predicted sign of the lead vs the lead's CI (`verdict()` in `strategy.ts`). Fable's own reading is in its memos.
+- **Spend:** key $16.85 → $34.38 = **$17.53** for B4 (cap $22): pilot $2.71 + full run $13.23 by pricing.ts ($15.94), the rest metering (~1.1×). A shell watcher on the key's metered spend was the hard backstop (stop at $38.70); it never fired.
+
+**For B5:** everything is under `data/lab/20261010_lab/` (and the pilot under `data/lab/20261010_lab_pilot/`): `field_notes.md`, `gen<N>/{predictions,allocation,outcome,memo}.json`, `cards/*.md`, `planner/*.json` (Fable's full prompts and outputs), `runs/g<N>-<card>.jsonl` (14 table files, same hand schema as B3 with `playerId`/`cardId` and the card text in `run_start.players`), `runs/heldout.jsonl`, `heldout.json`, `lab.jsonl`. Read with `labDetail(loadLab(labDir('20261010_lab')))` from `server/utils/lab.ts` under bare Node; schema in AGENTS.md § Strategy Lab. Hunches worth chasing: Luna follows aggression/sizing text literally but softens bluff frequency; literal rule-following creates leaks (Table Reader folding to bets, Solid Hunter folding jacks to 4-bets); one duplicate-seeded hand moved three cards' one-match leads by 34–75 bb; Jev's shoves are often weak (ace-high, one pair).
 
 ---
 
