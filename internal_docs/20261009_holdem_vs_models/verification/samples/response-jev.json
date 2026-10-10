@@ -1,0 +1,23 @@
+{
+  "menuId": "call",
+  "action": {
+    "type": "call"
+  },
+  "reasoning": "Call 60 (pot becomes 240) — call 59%, fold 32%, min raise 4%",
+  "probabilities": {
+    "fold": 0.32,
+    "call": 0.59,
+    "raise_min": 0.04,
+    "raise_half_pot": 0.02,
+    "raise_pot": 0.02,
+    "raise_2x_pot": 0.01,
+    "all_in": 0
+  },
+  "fallback": false,
+  "model": "typesafe-ai/jev",
+  "latencyMs": 200,
+  "usage": {
+    "input": 997,
+    "output": 78
+  }
+}

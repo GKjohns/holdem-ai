@@ -250,7 +250,7 @@ Interactive mock: [`storyboard.html`](./storyboard.html) — open it in a browse
 
 ---
 
-### Sprint 2: Deciders + API + self-play harness `[Not Started]`
+### Sprint 2: Deciders + API + self-play harness `[Complete]`
 **Goal:** any model can make a legal poker decision through `/api/decide`, proven by an all-AI self-play run.
 **Estimated effort:** 3 hours
 
@@ -262,10 +262,21 @@ Interactive mock: [`storyboard.html`](./storyboard.html) — open it in a browse
 - 2.5 `bench/selfplay.ts` — `node bench/selfplay.ts --hands 20 --models jev,openai/gpt-6-luna-decisions,openai/gpt-6-luna` runs an all-AI table through the engine + `decide()` directly, prints each action + final stacks + cost. Default to the two decision models + Luna (cheap). Also measure Haiku 5.5 latency unset vs `low` and record the pick in `models.ts` doc comment.
 
 #### Verification
-- [ ] `curl -X POST localhost:3000/api/decide` with a fixture view returns a legal `Decision` for one LLM, Luna Decisions, and Jev
-- [ ] Self-play 20 hands with 3 cheap models: zero engine errors, chips conserved, fallback rate reported (target < 5%)
-- [ ] Missing key → 503 with readable message
-- [ ] Spend for the sprint < $2 (check `vercel ai-gateway api-keys inspect` or the summary printout)
+- [x] `curl -X POST localhost:3000/api/decide` with a fixture view returns a legal `Decision` for one LLM, Luna Decisions, and Jev (GPT-6 Sol fold 2.8 s, Luna Decisions fold 83% in 0.18 s, Jev call 59% in 0.25 s). Requests and responses are in `verification/samples/`.
+- [x] Self-play 20 hands with 3 cheap models: zero engine errors, chips conserved, 0% fallback for all three (`samples/selfplay-20.{txt,json}`). This ran only after the 5-hand pilot passed the gate.
+- [x] Missing key → 503 with "AI_GATEWAY_API_KEY is not set. Add it to .env and restart the dev server." Tested on a keyless copy on port 3011 (`samples/response-missing-key.json`).
+- [x] Spend for the sprint < $2: about $0.03 by the summary printouts (20-hand run $0.0124, pilots $0.006, Haiku check $0.002, samples and probes under $0.005)
+
+#### Notes & deviations (2026-10-09)
+- **Files:** `server/utils/decide.ts`, `server/api/decide.post.ts`, `shared/utils/pricing.ts` (`PRICING` + `costUsd`), `bench/selfplay.ts`, `bench/latency.ts`. `models.ts` changed only in a doc comment and Haiku's `reasoning`.
+- **`experimental_decide`, not `experimental_evaluate`:** ai@7 marks `experimental_evaluate` as a deprecated alias of `experimental_decide`. They are the same function.
+- **Luna Decisions refusals:** in the first pilot, Luna Decisions refused one flop spot (`DecisionRefusalError`, top set facing a check) on 4 of 4 tries. That was a 6.3% fallback rate, so the pilot failed the gate. Rewording the question fixed it, so `decide()` now retries a refusal once with "Which option is the best poker play here?". After that, the re-pilot and the 20-hand run had 0 fallbacks. Refusals are only logged (`[decide] refusal, retrying reworded`) and are not on `Decision`. B3 should grep for them.
+- **Luna Decisions effort:** `providerOptions.openai.reasoningEffort` comes back as an `unsupported` warning, with the same answer and latency. It stays at default, as noted in `models.ts`.
+- **Haiku 5.5 → `reasoning: 'low'`:** on 5 views, unset averaged 2.5 s with a 4.5 s / 497-token thinking tail. `low` averaged 1.6 s and made the same choice on 4 of 5 (`samples/haiku-latency.txt`).
+- **What the models see:** the human's seat is named "You", so prompts call it "Human player". Blinds aren't log events, so on preflop each seat's blind is shown as `committed − logged preflop chips`. Decision models get the same facts as JSON (`tableState`) and the menu `describe` strings as criteria.
+- **Route order:** a missing key returns 503 before the body is validated (400).
+- **Self-play harness:** busted seats rebuy between hands, and chip conservation is checked against starting chips plus rebuys. `--dry-run` plays passive-leaning random actions and estimates tokens as chars/4, scaled by input tokens measured on the fixture (LLM ×1.3, Luna Decisions ×1.9, Jev ×3.1). The first estimator used uniform random play and raw chars/4. It said $0.00025/hand, and the first pilot measured $0.00065, 2.6× over. Random play folds hands away early, and the decision models' JSON costs more tokens than chars/4 counts. I recalibrated the estimator instead of loosening the gate. The new estimate is $0.0006/hand, and the 20-hand run measured $0.00062/hand. `--out` writes `{ summary, decisions }`, but not views.
+- **Engine gap (for Sprint 4 / B3, not fixed here):** `SeatView` has no seat order or opponent positions, so a model can't tell who has the button except from the order of the action log.
 
 ---
 

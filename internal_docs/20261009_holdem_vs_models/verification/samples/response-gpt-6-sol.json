@@ -1,0 +1,14 @@
+{
+  "menuId": "fold",
+  "action": {
+    "type": "fold"
+  },
+  "reasoning": "Bottom pair with a weak kicker is unlikely to hold up against a bet into four players, especially with two players still to act.",
+  "fallback": false,
+  "model": "openai/gpt-6-sol",
+  "latencyMs": 2755,
+  "usage": {
+    "input": 966,
+    "output": 68
+  }
+}

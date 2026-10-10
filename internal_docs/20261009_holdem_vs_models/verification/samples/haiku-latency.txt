@@ -1,0 +1,12 @@
+  unset  preflop raise_min      1674ms out=102
+  unset  preflop check          2415ms out=92
+  unset  flop    check          2231ms out=105
+  unset  turn    check          1753ms out=116
+  unset  river   raise_half_pot 4508ms out=497
+anthropic/claude-haiku-5.5 reasoning=unset: avg 2516ms · median 2231ms · avg out 182 tok · fallbacks 0/5 · $0.00119
+  low    preflop raise_min      1361ms out=109
+  low    preflop check          1175ms out=78
+  low    flop    check          1752ms out=107
+  low    turn    check          1804ms out=108
+  low    river   check          1924ms out=120
+anthropic/claude-haiku-5.5 reasoning=low: avg 1603ms · median 1752ms · avg out 104 tok · fallbacks 0/5 · $0.00099

@@ -1,0 +1,65 @@
+/**
+ * POST /api/decide — ask a seated model for its action. The menu is rebuilt
+ * server-side from the view, and the decision logic lives in
+ * `server/utils/decide.ts` so the self-play harness shares it. Model errors
+ * and timeouts come back as 200 with `fallback: true`.
+ */
+import { z } from 'zod'
+import type { SeatView } from '~~/shared/utils/types'
+import { decide } from '../utils/decide'
+
+const card = z.string().regex(/^[2-9TJQKA][shdc]$/)
+const street = z.enum(['preflop', 'flop', 'turn', 'river', 'showdown', 'complete'])
+const chips = z.number().int().nonnegative()
+const action = z.discriminatedUnion('type', [
+  z.object({ type: z.literal('fold') }),
+  z.object({ type: z.literal('check') }),
+  z.object({ type: z.literal('call') }),
+  z.object({ type: z.literal('raise'), to: chips }),
+  z.object({ type: z.literal('all_in') })
+])
+
+const viewSchema = z.object({
+  handNo: z.number().int().positive(),
+  street,
+  board: z.array(card).max(5),
+  hole: z.array(card).length(2),
+  me: z.object({ id: z.string(), name: z.string(), stack: chips, committed: chips }),
+  pot: chips,
+  toCall: chips,
+  minRaiseTo: chips,
+  maxRaiseTo: chips,
+  canRaise: z.boolean(),
+  bigBlind: z.number().int().positive(),
+  position: z.string(),
+  opponents: z.array(z.object({
+    id: z.string(),
+    name: z.string(),
+    stack: chips,
+    committed: chips,
+    folded: z.boolean(),
+    allIn: z.boolean()
+  })).min(1).max(5),
+  log: z.array(z.object({
+    seatId: z.string(),
+    street,
+    action,
+    added: chips,
+    raiseTo: chips.optional(),
+    tableTalk: z.string().max(200).optional()
+  })).max(200)
+})
+
+const bodySchema = z.object({ modelId: z.string().min(1), view: viewSchema })
+
+export default defineEventHandler(async (event) => {
+  if (!useRuntimeConfig().aiGatewayApiKey) {
+    throw createError({ statusCode: 503, statusMessage: 'AI_GATEWAY_API_KEY is not set. Add it to .env and restart the dev server.' })
+  }
+  const parsed = bodySchema.safeParse(await readBody(event))
+  if (!parsed.success) {
+    throw createError({ statusCode: 400, statusMessage: 'Invalid decide request', data: parsed.error.issues })
+  }
+  // Cards are regex-checked above; the schema just can't express the template-literal type.
+  return decide({ modelId: parsed.data.modelId, view: parsed.data.view as SeatView })
+})

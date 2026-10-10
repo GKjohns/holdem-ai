@@ -1,0 +1,1338 @@
+{
+  "summary": {
+    "dryRun": false,
+    "hands": 5,
+    "seed": 11,
+    "blinds": "5/10",
+    "startingStack": 1000,
+    "rebuys": 0,
+    "engineErrors": 0,
+    "chipsConserved": true,
+    "totalCostUsd": 0.002979066,
+    "costPerHandUsd": 0.0005958132,
+    "wallClockSec": 40,
+    "perModel": [
+      {
+        "model": "typesafe-ai/jev",
+        "decisions": 19,
+        "fallbacks": 0,
+        "fallbackRate": 0,
+        "mix": {
+          "fold": 0,
+          "check": 10,
+          "call": 8,
+          "raise": 1,
+          "all_in": 0
+        },
+        "foldRate": 0,
+        "avgLatencyMs": 283,
+        "usage": {
+          "input": 16123,
+          "output": 1413
+        },
+        "costUsd": 0.0006771660000000001,
+        "finalStack": 1031
+      },
+      {
+        "model": "openai/gpt-6-luna-decisions",
+        "decisions": 15,
+        "fallbacks": 0,
+        "fallbackRate": 0,
+        "mix": {
+          "fold": 2,
+          "check": 7,
+          "call": 2,
+          "raise": 4,
+          "all_in": 0
+        },
+        "foldRate": 0.13333333333333333,
+        "avgLatencyMs": 227,
+        "usage": {
+          "input": 7067,
+          "output": 0
+        },
+        "costUsd": 0.0007067,
+        "finalStack": 1104
+      },
+      {
+        "model": "openai/gpt-6-luna",
+        "decisions": 14,
+        "fallbacks": 0,
+        "fallbackRate": 0,
+        "mix": {
+          "fold": 2,
+          "check": 8,
+          "call": 2,
+          "raise": 2,
+          "all_in": 0
+        },
+        "foldRate": 0.14285714285714285,
+        "avgLatencyMs": 2258,
+        "usage": {
+          "input": 12187,
+          "output": 753
+        },
+        "costUsd": 0.0015952,
+        "finalStack": 865
+      }
+    ]
+  },
+  "decisions": [
+    {
+      "hand": 1,
+      "seat": "seat-1",
+      "model": "typesafe-ai/jev",
+      "street": "preflop",
+      "decision": {
+        "menuId": "raise_min",
+        "action": {
+          "type": "raise",
+          "to": 20
+        },
+        "reasoning": "Raise to 20, the minimum raise (pot becomes 35) — min raise 30%, call 27%, pot 26%",
+        "probabilities": {
+          "fold": 0.01,
+          "call": 0.27,
+          "raise_min": 0.3,
+          "raise_half_pot": 0.1,
+          "raise_pot": 0.26,
+          "raise_2x_pot": 0.06,
+          "all_in": 0
+        },
+        "fallback": false,
+        "model": "typesafe-ai/jev",
+        "latencyMs": 291,
+        "usage": {
+          "input": 772,
+          "output": 79
+        }
+      }
+    },
+    {
+      "hand": 1,
+      "seat": "seat-2",
+      "model": "openai/gpt-6-luna-decisions",
+      "street": "preflop",
+      "decision": {
+        "menuId": "fold",
+        "action": {
+          "type": "fold"
+        },
+        "reasoning": "Fold and give up this hand — fold 76%, call 15%, pot 3%",
+        "probabilities": {
+          "fold": 0.76,
+          "call": 0.15,
+          "raise_min": 0.02,
+          "raise_half_pot": 0.02,
+          "raise_pot": 0.03,
+          "raise_2x_pot": 0.01,
+          "all_in": 0.01
+        },
+        "fallback": false,
+        "model": "openai/gpt-6-luna-decisions",
+        "latencyMs": 271,
+        "usage": {
+          "input": 443,
+          "output": 0
+        }
+      }
+    },
+    {
+      "hand": 1,
+      "seat": "seat-3",
+      "model": "openai/gpt-6-luna",
+      "street": "preflop",
+      "decision": {
+        "menuId": "fold",
+        "action": {
+          "type": "fold"
+        },
+        "reasoning": "With 7-2 offsuit, calling a raise out of position is unprofitable, and reraising is worse. Fold.",
+        "fallback": false,
+        "model": "openai/gpt-6-luna",
+        "latencyMs": 1502,
+        "usage": {
+          "input": 856,
+          "output": 45
+        }
+      }
+    },
+    {
+      "hand": 2,
+      "seat": "seat-2",
+      "model": "openai/gpt-6-luna-decisions",
+      "street": "preflop",
+      "decision": {
+        "menuId": "raise_pot",
+        "action": {
+          "type": "raise",
+          "to": 35
+        },
+        "reasoning": "Raise to 35, raising by the size of the pot (pot becomes 50) — pot 34%, min raise 22%, half-pot 22%",
+        "probabilities": {
+          "fold": 0.02,
+          "call": 0.07,
+          "raise_min": 0.22,
+          "raise_half_pot": 0.22,
+          "raise_pot": 0.34,
+          "raise_2x_pot": 0.11,
+          "all_in": 0.02
+        },
+        "fallback": false,
+        "model": "openai/gpt-6-luna-decisions",
+        "latencyMs": 192,
+        "usage": {
+          "input": 430,
+          "output": 0
+        }
+      }
+    },
+    {
+      "hand": 2,
+      "seat": "seat-3",
+      "model": "openai/gpt-6-luna",
+      "street": "preflop",
+      "decision": {
+        "menuId": "fold",
+        "action": {
+          "type": "fold"
+        },
+        "reasoning": "Q3 offsuit is weak from the small blind against a raise and a big blind still to act. Folding avoids investing more chips in a poor spot.",
+        "fallback": false,
+        "model": "openai/gpt-6-luna",
+        "latencyMs": 1592,
+        "usage": {
+          "input": 848,
+          "output": 49
+        }
+      }
+    },
+    {
+      "hand": 2,
+      "seat": "seat-1",
+      "model": "typesafe-ai/jev",
+      "street": "preflop",
+      "decision": {
+        "menuId": "call",
+        "action": {
+          "type": "call"
+        },
+        "reasoning": "Call 25 (pot becomes 75) — call 53%, fold 22%, min raise 12%",
+        "probabilities": {
+          "fold": 0.22,
+          "call": 0.53,
+          "raise_min": 0.12,
+          "raise_half_pot": 0.05,
+          "raise_pot": 0.06,
+          "raise_2x_pot": 0.02,
+          "all_in": 0
+        },
+        "fallback": false,
+        "model": "typesafe-ai/jev",
+        "latencyMs": 336,
+        "usage": {
+          "input": 808,
+          "output": 78
+        }
+      }
+    },
+    {
+      "hand": 2,
+      "seat": "seat-1",
+      "model": "typesafe-ai/jev",
+      "street": "flop",
+      "decision": {
+        "menuId": "check",
+        "action": {
+          "type": "check"
+        },
+        "reasoning": "Check (pot stays 75) — check 47%, half-pot 26%, pot 15%",
+        "probabilities": {
+          "check": 0.47,
+          "raise_min": 0.06,
+          "raise_half_pot": 0.26,
+          "raise_pot": 0.15,
+          "raise_2x_pot": 0.04,
+          "all_in": 0.02
+        },
+        "fallback": false,
+        "model": "typesafe-ai/jev",
+        "latencyMs": 390,
+        "usage": {
+          "input": 799,
+          "output": 71
+        }
+      }
+    },
+    {
+      "hand": 2,
+      "seat": "seat-2",
+      "model": "openai/gpt-6-luna-decisions",
+      "street": "flop",
+      "decision": {
+        "menuId": "check",
+        "action": {
+          "type": "check"
+        },
+        "reasoning": "Check (pot stays 75) — check 29%, half-pot 28%, pot 23%",
+        "probabilities": {
+          "check": 0.29,
+          "raise_min": 0.1,
+          "raise_half_pot": 0.28,
+          "raise_pot": 0.23,
+          "raise_2x_pot": 0.06,
+          "all_in": 0.04
+        },
+        "fallback": false,
+        "model": "openai/gpt-6-luna-decisions",
+        "latencyMs": 170,
+        "usage": {
+          "input": 457,
+          "output": 0
+        }
+      }
+    },
+    {
+      "hand": 2,
+      "seat": "seat-1",
+      "model": "typesafe-ai/jev",
+      "street": "turn",
+      "decision": {
+        "menuId": "check",
+        "action": {
+          "type": "check"
+        },
+        "reasoning": "Check (pot stays 75) — check 51%, half-pot 23%, pot 14%",
+        "probabilities": {
+          "check": 0.51,
+          "raise_min": 0.07,
+          "raise_half_pot": 0.23,
+          "raise_pot": 0.14,
+          "raise_2x_pot": 0.03,
+          "all_in": 0.02
+        },
+        "fallback": false,
+        "model": "typesafe-ai/jev",
+        "latencyMs": 219,
+        "usage": {
+          "input": 829,
+          "output": 71
+        }
+      }
+    },
+    {
+      "hand": 2,
+      "seat": "seat-2",
+      "model": "openai/gpt-6-luna-decisions",
+      "street": "turn",
+      "decision": {
+        "menuId": "raise_half_pot",
+        "action": {
+          "type": "raise",
+          "to": 38
+        },
+        "reasoning": "Bet 38, betting half the pot (pot becomes 113) — half-pot 32%, pot 29%, check 16%",
+        "probabilities": {
+          "check": 0.16,
+          "raise_min": 0.1,
+          "raise_half_pot": 0.32,
+          "raise_pot": 0.29,
+          "raise_2x_pot": 0.09,
+          "all_in": 0.04
+        },
+        "fallback": false,
+        "model": "openai/gpt-6-luna-decisions",
+        "latencyMs": 159,
+        "usage": {
+          "input": 478,
+          "output": 0
+        }
+      }
+    },
+    {
+      "hand": 2,
+      "seat": "seat-1",
+      "model": "typesafe-ai/jev",
+      "street": "turn",
+      "decision": {
+        "menuId": "call",
+        "action": {
+          "type": "call"
+        },
+        "reasoning": "Call 38 (pot becomes 151) — call 66%, fold 13%, min raise 8%",
+        "probabilities": {
+          "fold": 0.13,
+          "call": 0.66,
+          "raise_min": 0.08,
+          "raise_half_pot": 0.05,
+          "raise_pot": 0.05,
+          "raise_2x_pot": 0.01,
+          "all_in": 0.02
+        },
+        "fallback": false,
+        "model": "typesafe-ai/jev",
+        "latencyMs": 236,
+        "usage": {
+          "input": 891,
+          "output": 78
+        }
+      }
+    },
+    {
+      "hand": 2,
+      "seat": "seat-1",
+      "model": "typesafe-ai/jev",
+      "street": "river",
+      "decision": {
+        "menuId": "check",
+        "action": {
+          "type": "check"
+        },
+        "reasoning": "Check (pot stays 151) — check 51%, half-pot 14%, pot 14%",
+        "probabilities": {
+          "check": 0.51,
+          "raise_min": 0.05,
+          "raise_half_pot": 0.14,
+          "raise_pot": 0.14,
+          "raise_2x_pot": 0.05,
+          "all_in": 0.11
+        },
+        "fallback": false,
+        "model": "typesafe-ai/jev",
+        "latencyMs": 308,
+        "usage": {
+          "input": 879,
+          "output": 71
+        }
+      }
+    },
+    {
+      "hand": 2,
+      "seat": "seat-2",
+      "model": "openai/gpt-6-luna-decisions",
+      "street": "river",
+      "decision": {
+        "menuId": "raise_half_pot",
+        "action": {
+          "type": "raise",
+          "to": 76
+        },
+        "reasoning": "Bet 76, betting half the pot (pot becomes 227) — half-pot 53%, check 21%, min raise 16%",
+        "probabilities": {
+          "check": 0.21,
+          "raise_min": 0.16,
+          "raise_half_pot": 0.53,
+          "raise_pot": 0.08,
+          "raise_2x_pot": 0.01,
+          "all_in": 0.01
+        },
+        "fallback": false,
+        "model": "openai/gpt-6-luna-decisions",
+        "latencyMs": 170,
+        "usage": {
+          "input": 509,
+          "output": 0
+        }
+      }
+    },
+    {
+      "hand": 2,
+      "seat": "seat-1",
+      "model": "typesafe-ai/jev",
+      "street": "river",
+      "decision": {
+        "menuId": "call",
+        "action": {
+          "type": "call"
+        },
+        "reasoning": "Call 76 (pot becomes 303) — call 67%, fold 20%, all-in 4%",
+        "probabilities": {
+          "fold": 0.2,
+          "call": 0.67,
+          "raise_min": 0.03,
+          "raise_half_pot": 0.02,
+          "raise_pot": 0.03,
+          "raise_2x_pot": 0.01,
+          "all_in": 0.04
+        },
+        "fallback": false,
+        "model": "typesafe-ai/jev",
+        "latencyMs": 300,
+        "usage": {
+          "input": 938,
+          "output": 78
+        }
+      }
+    },
+    {
+      "hand": 3,
+      "seat": "seat-3",
+      "model": "openai/gpt-6-luna",
+      "street": "preflop",
+      "decision": {
+        "menuId": "call",
+        "action": {
+          "type": "call"
+        },
+        "reasoning": "6-2 suited is too weak to raise from the button, but calling 10 closes the action cheaply and gives a chance to make a disguised strong hand.",
+        "fallback": false,
+        "model": "openai/gpt-6-luna",
+        "latencyMs": 1810,
+        "usage": {
+          "input": 836,
+          "output": 50
+        }
+      }
+    },
+    {
+      "hand": 3,
+      "seat": "seat-1",
+      "model": "typesafe-ai/jev",
+      "street": "preflop",
+      "decision": {
+        "menuId": "call",
+        "action": {
+          "type": "call"
+        },
+        "reasoning": "Call 5 (pot becomes 30) — call 45%, min raise 26%, fold 8%",
+        "probabilities": {
+          "fold": 0.08,
+          "call": 0.45,
+          "raise_min": 0.26,
+          "raise_half_pot": 0.08,
+          "raise_pot": 0.08,
+          "raise_2x_pot": 0.03,
+          "all_in": 0.02
+        },
+        "fallback": false,
+        "model": "typesafe-ai/jev",
+        "latencyMs": 192,
+        "usage": {
+          "input": 782,
+          "output": 78
+        }
+      }
+    },
+    {
+      "hand": 3,
+      "seat": "seat-2",
+      "model": "openai/gpt-6-luna-decisions",
+      "street": "preflop",
+      "decision": {
+        "menuId": "check",
+        "action": {
+          "type": "check"
+        },
+        "reasoning": "Check (pot stays 30) — check 98%, min raise 1%, pot 1%",
+        "probabilities": {
+          "check": 0.98,
+          "raise_min": 0.01,
+          "raise_half_pot": 0,
+          "raise_pot": 0.01,
+          "raise_2x_pot": 0,
+          "all_in": 0
+        },
+        "fallback": false,
+        "model": "openai/gpt-6-luna-decisions",
+        "latencyMs": 246,
+        "usage": {
+          "input": 441,
+          "output": 0
+        }
+      }
+    },
+    {
+      "hand": 3,
+      "seat": "seat-1",
+      "model": "typesafe-ai/jev",
+      "street": "flop",
+      "decision": {
+        "menuId": "check",
+        "action": {
+          "type": "check"
+        },
+        "reasoning": "Check (pot stays 30) — check 49%, min raise 18%, half-pot 18%",
+        "probabilities": {
+          "check": 0.49,
+          "raise_min": 0.18,
+          "raise_half_pot": 0.18,
+          "raise_pot": 0.11,
+          "raise_2x_pot": 0.03,
+          "all_in": 0.01
+        },
+        "fallback": false,
+        "model": "typesafe-ai/jev",
+        "latencyMs": 206,
+        "usage": {
+          "input": 794,
+          "output": 71
+        }
+      }
+    },
+    {
+      "hand": 3,
+      "seat": "seat-2",
+      "model": "openai/gpt-6-luna-decisions",
+      "street": "flop",
+      "decision": {
+        "menuId": "check",
+        "action": {
+          "type": "check"
+        },
+        "reasoning": "Check (pot stays 30) — check 51%, min raise 21%, half-pot 21%",
+        "probabilities": {
+          "check": 0.51,
+          "raise_min": 0.21,
+          "raise_half_pot": 0.21,
+          "raise_pot": 0.04,
+          "raise_2x_pot": 0.02,
+          "all_in": 0.01
+        },
+        "fallback": false,
+        "model": "openai/gpt-6-luna-decisions",
+        "latencyMs": 198,
+        "usage": {
+          "input": 461,
+          "output": 0
+        }
+      }
+    },
+    {
+      "hand": 3,
+      "seat": "seat-3",
+      "model": "openai/gpt-6-luna",
+      "street": "flop",
+      "decision": {
+        "menuId": "check",
+        "action": {
+          "type": "check"
+        },
+        "reasoning": "I have only a weak backdoor flush draw and no pair; with two players checking, betting is unlikely to improve enough to justify it. Check and take the free card.",
+        "fallback": false,
+        "model": "openai/gpt-6-luna",
+        "latencyMs": 9623,
+        "usage": {
+          "input": 852,
+          "output": 53
+        }
+      }
+    },
+    {
+      "hand": 3,
+      "seat": "seat-1",
+      "model": "typesafe-ai/jev",
+      "street": "turn",
+      "decision": {
+        "menuId": "check",
+        "action": {
+          "type": "check"
+        },
+        "reasoning": "Check (pot stays 30) — check 46%, min raise 18%, pot 15%",
+        "probabilities": {
+          "check": 0.46,
+          "raise_min": 0.18,
+          "raise_half_pot": 0.14,
+          "raise_pot": 0.15,
+          "raise_2x_pot": 0.04,
+          "all_in": 0.03
+        },
+        "fallback": false,
+        "model": "typesafe-ai/jev",
+        "latencyMs": 303,
+        "usage": {
+          "input": 835,
+          "output": 71
+        }
+      }
+    },
+    {
+      "hand": 3,
+      "seat": "seat-2",
+      "model": "openai/gpt-6-luna-decisions",
+      "street": "turn",
+      "decision": {
+        "menuId": "check",
+        "action": {
+          "type": "check"
+        },
+        "reasoning": "Check (pot stays 30) — check 35%, min raise 26%, half-pot 22%",
+        "probabilities": {
+          "check": 0.35,
+          "raise_min": 0.26,
+          "raise_half_pot": 0.22,
+          "raise_pot": 0.12,
+          "raise_2x_pot": 0.04,
+          "all_in": 0.01
+        },
+        "fallback": false,
+        "model": "openai/gpt-6-luna-decisions",
+        "latencyMs": 268,
+        "usage": {
+          "input": 491,
+          "output": 0
+        }
+      }
+    },
+    {
+      "hand": 3,
+      "seat": "seat-3",
+      "model": "openai/gpt-6-luna",
+      "street": "turn",
+      "decision": {
+        "menuId": "check",
+        "action": {
+          "type": "check"
+        },
+        "reasoning": "I have only a weak draw and little showdown value on a paired board, so betting is unlikely to improve my position. Check and take the free river.",
+        "fallback": false,
+        "model": "openai/gpt-6-luna",
+        "latencyMs": 1825,
+        "usage": {
+          "input": 884,
+          "output": 49
+        }
+      }
+    },
+    {
+      "hand": 3,
+      "seat": "seat-1",
+      "model": "typesafe-ai/jev",
+      "street": "river",
+      "decision": {
+        "menuId": "check",
+        "action": {
+          "type": "check"
+        },
+        "reasoning": "Check (pot stays 30) — check 62%, min raise 12%, all-in 11%",
+        "probabilities": {
+          "check": 0.62,
+          "raise_min": 0.12,
+          "raise_half_pot": 0.05,
+          "raise_pot": 0.08,
+          "raise_2x_pot": 0.02,
+          "all_in": 0.11
+        },
+        "fallback": false,
+        "model": "typesafe-ai/jev",
+        "latencyMs": 530,
+        "usage": {
+          "input": 874,
+          "output": 71
+        }
+      }
+    },
+    {
+      "hand": 3,
+      "seat": "seat-2",
+      "model": "openai/gpt-6-luna-decisions",
+      "street": "river",
+      "decision": {
+        "menuId": "check",
+        "action": {
+          "type": "check"
+        },
+        "reasoning": "Check (pot stays 30) — check 60%, min raise 20%, half-pot 9%",
+        "probabilities": {
+          "check": 0.6,
+          "raise_min": 0.2,
+          "raise_half_pot": 0.09,
+          "raise_pot": 0.05,
+          "raise_2x_pot": 0.04,
+          "all_in": 0.02
+        },
+        "fallback": false,
+        "model": "openai/gpt-6-luna-decisions",
+        "latencyMs": 312,
+        "usage": {
+          "input": 520,
+          "output": 0
+        }
+      }
+    },
+    {
+      "hand": 3,
+      "seat": "seat-3",
+      "model": "openai/gpt-6-luna",
+      "street": "river",
+      "decision": {
+        "menuId": "check",
+        "action": {
+          "type": "check"
+        },
+        "reasoning": "The board is trip nines with an ace, and my six-high has no meaningful showdown value. A bluff is unlikely to fold a better hand on this checked-through board, so I’ll take the free showdown.",
+        "fallback": false,
+        "model": "openai/gpt-6-luna",
+        "latencyMs": 1795,
+        "usage": {
+          "input": 916,
+          "output": 61
+        }
+      }
+    },
+    {
+      "hand": 4,
+      "seat": "seat-1",
+      "model": "typesafe-ai/jev",
+      "street": "preflop",
+      "decision": {
+        "menuId": "call",
+        "action": {
+          "type": "call"
+        },
+        "reasoning": "Call 10 (pot becomes 25) — call 33%, min raise 29%, pot 16%",
+        "probabilities": {
+          "fold": 0.08,
+          "call": 0.33,
+          "raise_min": 0.29,
+          "raise_half_pot": 0.11,
+          "raise_pot": 0.16,
+          "raise_2x_pot": 0.03,
+          "all_in": 0
+        },
+        "fallback": false,
+        "model": "typesafe-ai/jev",
+        "latencyMs": 311,
+        "usage": {
+          "input": 769,
+          "output": 78
+        }
+      }
+    },
+    {
+      "hand": 4,
+      "seat": "seat-2",
+      "model": "openai/gpt-6-luna-decisions",
+      "street": "preflop",
+      "decision": {
+        "menuId": "call",
+        "action": {
+          "type": "call"
+        },
+        "reasoning": "Call 5 (pot becomes 30) — call 29%, min raise 24%, half-pot 23%",
+        "probabilities": {
+          "fold": 0.03,
+          "call": 0.29,
+          "raise_min": 0.24,
+          "raise_half_pot": 0.23,
+          "raise_pot": 0.14,
+          "raise_2x_pot": 0.06,
+          "all_in": 0.01
+        },
+        "fallback": false,
+        "model": "openai/gpt-6-luna-decisions",
+        "latencyMs": 199,
+        "usage": {
+          "input": 442,
+          "output": 0
+        }
+      }
+    },
+    {
+      "hand": 4,
+      "seat": "seat-3",
+      "model": "openai/gpt-6-luna",
+      "street": "preflop",
+      "decision": {
+        "menuId": "check",
+        "action": {
+          "type": "check"
+        },
+        "reasoning": "With T9 offsuit in the big blind and no raise to face, checking keeps the pot small with a playable but modest hand.",
+        "fallback": false,
+        "model": "openai/gpt-6-luna",
+        "latencyMs": 1705,
+        "usage": {
+          "input": 842,
+          "output": 45
+        }
+      }
+    },
+    {
+      "hand": 4,
+      "seat": "seat-2",
+      "model": "openai/gpt-6-luna-decisions",
+      "street": "flop",
+      "decision": {
+        "menuId": "raise_half_pot",
+        "action": {
+          "type": "raise",
+          "to": 15
+        },
+        "reasoning": "Bet 15, betting half the pot (pot becomes 45) — half-pot 30%, check 27%, min raise 23%",
+        "probabilities": {
+          "check": 0.27,
+          "raise_min": 0.23,
+          "raise_half_pot": 0.3,
+          "raise_pot": 0.15,
+          "raise_2x_pot": 0.04,
+          "all_in": 0.01
+        },
+        "fallback": false,
+        "model": "openai/gpt-6-luna-decisions",
+        "latencyMs": 162,
+        "usage": {
+          "input": 454,
+          "output": 0
+        }
+      }
+    },
+    {
+      "hand": 4,
+      "seat": "seat-3",
+      "model": "openai/gpt-6-luna",
+      "street": "flop",
+      "decision": {
+        "menuId": "call",
+        "action": {
+          "type": "call"
+        },
+        "reasoning": "I have an open-ended straight draw, but only a small bet to call in a multiway pot. Calling keeps the draw affordable without inflating the pot.",
+        "tableTalk": "I’ll see one more.",
+        "fallback": false,
+        "model": "openai/gpt-6-luna",
+        "latencyMs": 1501,
+        "usage": {
+          "input": 868,
+          "output": 56
+        }
+      }
+    },
+    {
+      "hand": 4,
+      "seat": "seat-1",
+      "model": "typesafe-ai/jev",
+      "street": "flop",
+      "decision": {
+        "menuId": "call",
+        "action": {
+          "type": "call"
+        },
+        "reasoning": "Call 15 (pot becomes 75) — call 59%, min raise 14%, half-pot 11%",
+        "probabilities": {
+          "fold": 0.02,
+          "call": 0.59,
+          "raise_min": 0.14,
+          "raise_half_pot": 0.11,
+          "raise_pot": 0.11,
+          "raise_2x_pot": 0.02,
+          "all_in": 0.01
+        },
+        "fallback": false,
+        "model": "typesafe-ai/jev",
+        "latencyMs": 198,
+        "usage": {
+          "input": 869,
+          "output": 78
+        }
+      }
+    },
+    {
+      "hand": 4,
+      "seat": "seat-2",
+      "model": "openai/gpt-6-luna-decisions",
+      "street": "turn",
+      "decision": {
+        "menuId": "check",
+        "action": {
+          "type": "check"
+        },
+        "reasoning": "Check (pot stays 75) — check 35%, half-pot 27%, min raise 17%",
+        "probabilities": {
+          "check": 0.35,
+          "raise_min": 0.17,
+          "raise_half_pot": 0.27,
+          "raise_pot": 0.14,
+          "raise_2x_pot": 0.05,
+          "all_in": 0.02
+        },
+        "fallback": false,
+        "model": "openai/gpt-6-luna-decisions",
+        "latencyMs": 282,
+        "usage": {
+          "input": 500,
+          "output": 0
+        }
+      }
+    },
+    {
+      "hand": 4,
+      "seat": "seat-3",
+      "model": "openai/gpt-6-luna",
+      "street": "turn",
+      "decision": {
+        "menuId": "check",
+        "action": {
+          "type": "check"
+        },
+        "reasoning": "I have only a gutshot straight draw, with no pair, and two opponents remain. Checking keeps the pot controlled and gives me a chance to improve cheaply on the river.",
+        "fallback": false,
+        "model": "openai/gpt-6-luna",
+        "latencyMs": 1914,
+        "usage": {
+          "input": 889,
+          "output": 53
+        }
+      }
+    },
+    {
+      "hand": 4,
+      "seat": "seat-1",
+      "model": "typesafe-ai/jev",
+      "street": "turn",
+      "decision": {
+        "menuId": "check",
+        "action": {
+          "type": "check"
+        },
+        "reasoning": "Check (pot stays 75) — check 47%, half-pot 24%, pot 17%",
+        "probabilities": {
+          "check": 0.47,
+          "raise_min": 0.06,
+          "raise_half_pot": 0.24,
+          "raise_pot": 0.17,
+          "raise_2x_pot": 0.03,
+          "all_in": 0.03
+        },
+        "fallback": false,
+        "model": "typesafe-ai/jev",
+        "latencyMs": 296,
+        "usage": {
+          "input": 880,
+          "output": 71
+        }
+      }
+    },
+    {
+      "hand": 4,
+      "seat": "seat-2",
+      "model": "openai/gpt-6-luna-decisions",
+      "street": "river",
+      "decision": {
+        "menuId": "check",
+        "action": {
+          "type": "check"
+        },
+        "reasoning": "Check (pot stays 75) — check 42%, min raise 20%, half-pot 17%",
+        "probabilities": {
+          "check": 0.42,
+          "raise_min": 0.2,
+          "raise_half_pot": 0.17,
+          "raise_pot": 0.11,
+          "raise_2x_pot": 0.06,
+          "all_in": 0.04
+        },
+        "fallback": false,
+        "model": "openai/gpt-6-luna-decisions",
+        "latencyMs": 462,
+        "usage": {
+          "input": 528,
+          "output": 0
+        }
+      }
+    },
+    {
+      "hand": 4,
+      "seat": "seat-3",
+      "model": "openai/gpt-6-luna",
+      "street": "river",
+      "decision": {
+        "menuId": "check",
+        "action": {
+          "type": "check"
+        },
+        "reasoning": "With only ten-high and no meaningful draw on the paired, three-diamond board, a bet is unlikely to fold better hands and risks being called by stronger ones. Check and take the free showdown.",
+        "fallback": false,
+        "model": "openai/gpt-6-luna",
+        "latencyMs": 1526,
+        "usage": {
+          "input": 920,
+          "output": 58
+        }
+      }
+    },
+    {
+      "hand": 4,
+      "seat": "seat-1",
+      "model": "typesafe-ai/jev",
+      "street": "river",
+      "decision": {
+        "menuId": "check",
+        "action": {
+          "type": "check"
+        },
+        "reasoning": "Check (pot stays 75) — check 50%, half-pot 19%, pot 15%",
+        "probabilities": {
+          "check": 0.5,
+          "raise_min": 0.09,
+          "raise_half_pot": 0.19,
+          "raise_pot": 0.15,
+          "raise_2x_pot": 0.03,
+          "all_in": 0.04
+        },
+        "fallback": false,
+        "model": "typesafe-ai/jev",
+        "latencyMs": 224,
+        "usage": {
+          "input": 918,
+          "output": 71
+        }
+      }
+    },
+    {
+      "hand": 5,
+      "seat": "seat-2",
+      "model": "openai/gpt-6-luna-decisions",
+      "street": "preflop",
+      "decision": {
+        "menuId": "call",
+        "action": {
+          "type": "call"
+        },
+        "reasoning": "Call 10 (pot becomes 25) — call 92%, min raise 3%, half-pot 3%",
+        "probabilities": {
+          "fold": 0.01,
+          "call": 0.92,
+          "raise_min": 0.03,
+          "raise_half_pot": 0.03,
+          "raise_pot": 0.01,
+          "raise_2x_pot": 0,
+          "all_in": 0
+        },
+        "fallback": false,
+        "model": "openai/gpt-6-luna-decisions",
+        "latencyMs": 151,
+        "usage": {
+          "input": 432,
+          "output": 0
+        }
+      }
+    },
+    {
+      "hand": 5,
+      "seat": "seat-3",
+      "model": "openai/gpt-6-luna",
+      "street": "preflop",
+      "decision": {
+        "menuId": "raise_pot",
+        "action": {
+          "type": "raise",
+          "to": 40
+        },
+        "reasoning": "A♠-high with a ten is a strong hand against a limp, so raise for value and initiative. A modest raise keeps weaker hands in while building the pot.",
+        "tableTalk": "Let's see who wants to play.",
+        "fallback": false,
+        "model": "openai/gpt-6-luna",
+        "latencyMs": 1840,
+        "usage": {
+          "input": 843,
+          "output": 62
+        }
+      }
+    },
+    {
+      "hand": 5,
+      "seat": "seat-1",
+      "model": "typesafe-ai/jev",
+      "street": "preflop",
+      "decision": {
+        "menuId": "call",
+        "action": {
+          "type": "call"
+        },
+        "reasoning": "Call 30 (pot becomes 90) — call 51%, fold 23%, min raise 13%",
+        "probabilities": {
+          "fold": 0.23,
+          "call": 0.51,
+          "raise_min": 0.13,
+          "raise_half_pot": 0.04,
+          "raise_pot": 0.08,
+          "raise_2x_pot": 0.01,
+          "all_in": 0
+        },
+        "fallback": false,
+        "model": "typesafe-ai/jev",
+        "latencyMs": 210,
+        "usage": {
+          "input": 822,
+          "output": 78
+        }
+      }
+    },
+    {
+      "hand": 5,
+      "seat": "seat-2",
+      "model": "openai/gpt-6-luna-decisions",
+      "street": "preflop",
+      "decision": {
+        "menuId": "fold",
+        "action": {
+          "type": "fold"
+        },
+        "reasoning": "Fold and give up this hand — fold 45%, call 35%, min raise 6%",
+        "probabilities": {
+          "fold": 0.45,
+          "call": 0.35,
+          "raise_min": 0.06,
+          "raise_half_pot": 0.06,
+          "raise_pot": 0.04,
+          "raise_2x_pot": 0.02,
+          "all_in": 0.02
+        },
+        "fallback": false,
+        "model": "openai/gpt-6-luna-decisions",
+        "latencyMs": 163,
+        "usage": {
+          "input": 481,
+          "output": 0
+        }
+      }
+    },
+    {
+      "hand": 5,
+      "seat": "seat-3",
+      "model": "openai/gpt-6-luna",
+      "street": "flop",
+      "decision": {
+        "menuId": "check",
+        "action": {
+          "type": "check"
+        },
+        "reasoning": "Top pair with an ace kicker is strong on this relatively dry flop, but checking keeps weaker hands in and avoids building a large pot unnecessarily out of position.",
+        "fallback": false,
+        "model": "openai/gpt-6-luna",
+        "latencyMs": 1680,
+        "usage": {
+          "input": 853,
+          "output": 49
+        }
+      }
+    },
+    {
+      "hand": 5,
+      "seat": "seat-1",
+      "model": "typesafe-ai/jev",
+      "street": "flop",
+      "decision": {
+        "menuId": "check",
+        "action": {
+          "type": "check"
+        },
+        "reasoning": "Check (pot stays 90) — check 52%, half-pot 24%, pot 14%",
+        "probabilities": {
+          "check": 0.52,
+          "raise_min": 0.07,
+          "raise_half_pot": 0.24,
+          "raise_pot": 0.14,
+          "raise_2x_pot": 0.02,
+          "all_in": 0.01
+        },
+        "fallback": false,
+        "model": "typesafe-ai/jev",
+        "latencyMs": 290,
+        "usage": {
+          "input": 840,
+          "output": 71
+        }
+      }
+    },
+    {
+      "hand": 5,
+      "seat": "seat-3",
+      "model": "openai/gpt-6-luna",
+      "street": "turn",
+      "decision": {
+        "menuId": "raise_half_pot",
+        "action": {
+          "type": "raise",
+          "to": 45
+        },
+        "reasoning": "I have top pair with a decent kicker, but the turn completes several straight draws and can hit Jev's calling range. A modest half-pot bet gets value and protects without overcommitting.",
+        "tableTalk": "Let's see where we stand.",
+        "fallback": false,
+        "model": "openai/gpt-6-luna",
+        "latencyMs": 1538,
+        "usage": {
+          "input": 873,
+          "output": 66
+        }
+      }
+    },
+    {
+      "hand": 5,
+      "seat": "seat-1",
+      "model": "typesafe-ai/jev",
+      "street": "turn",
+      "decision": {
+        "menuId": "call",
+        "action": {
+          "type": "call"
+        },
+        "reasoning": "Call 45 (pot becomes 180) — call 69%, min raise 9%, pot 9%",
+        "probabilities": {
+          "fold": 0.04,
+          "call": 0.6900000000000001,
+          "raise_min": 0.09,
+          "raise_half_pot": 0.06,
+          "raise_pot": 0.09,
+          "raise_2x_pot": 0.01,
+          "all_in": 0.02
+        },
+        "fallback": false,
+        "model": "typesafe-ai/jev",
+        "latencyMs": 331,
+        "usage": {
+          "input": 913,
+          "output": 78
+        }
+      }
+    },
+    {
+      "hand": 5,
+      "seat": "seat-3",
+      "model": "openai/gpt-6-luna",
+      "street": "river",
+      "decision": {
+        "menuId": "check",
+        "action": {
+          "type": "check"
+        },
+        "reasoning": "With top pair, I have some showdown value, but the river seven pairs the board and Jev can have stronger hands. Checking avoids turning a marginal hand into a bluff or facing a raise.",
+        "fallback": false,
+        "model": "openai/gpt-6-luna",
+        "latencyMs": 1765,
+        "usage": {
+          "input": 907,
+          "output": 57
+        }
+      }
+    },
+    {
+      "hand": 5,
+      "seat": "seat-1",
+      "model": "typesafe-ai/jev",
+      "street": "river",
+      "decision": {
+        "menuId": "check",
+        "action": {
+          "type": "check"
+        },
+        "reasoning": "Check (pot stays 180) — check 46%, half-pot 22%, pot 18%",
+        "probabilities": {
+          "check": 0.46,
+          "raise_min": 0.04,
+          "raise_half_pot": 0.22,
+          "raise_pot": 0.18,
+          "raise_2x_pot": 0.05,
+          "all_in": 0.05
+        },
+        "fallback": false,
+        "model": "typesafe-ai/jev",
+        "latencyMs": 213,
+        "usage": {
+          "input": 911,
+          "output": 71
+        }
+      }
+    }
+  ]
+}

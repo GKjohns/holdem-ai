@@ -1,0 +1,125 @@
+{
+  "modelId": "openai/gpt-6-luna-decisions",
+  "view": {
+    "handNo": 1,
+    "street": "flop",
+    "board": [
+      "4c",
+      "3s",
+      "Jc"
+    ],
+    "hole": [
+      "8h",
+      "3d"
+    ],
+    "me": {
+      "id": "seat-3",
+      "name": "GPT-6 Luna Decisions",
+      "stack": 970,
+      "committed": 0
+    },
+    "pot": 180,
+    "toCall": 60,
+    "minRaiseTo": 120,
+    "maxRaiseTo": 970,
+    "canRaise": true,
+    "bigBlind": 10,
+    "position": "early",
+    "opponents": [
+      {
+        "id": "you",
+        "name": "You",
+        "stack": 1000,
+        "committed": 0,
+        "folded": true,
+        "allIn": false
+      },
+      {
+        "id": "seat-1",
+        "name": "Gemini 3.1 Pro",
+        "stack": 970,
+        "committed": 0,
+        "folded": false,
+        "allIn": false
+      },
+      {
+        "id": "seat-2",
+        "name": "Claude Opus 5.5",
+        "stack": 910,
+        "committed": 60,
+        "folded": false,
+        "allIn": false
+      },
+      {
+        "id": "seat-4",
+        "name": "Jev",
+        "stack": 970,
+        "committed": 0,
+        "folded": false,
+        "allIn": false
+      }
+    ],
+    "log": [
+      {
+        "seatId": "seat-3",
+        "street": "preflop",
+        "action": {
+          "type": "raise",
+          "to": 30
+        },
+        "added": 30,
+        "raiseTo": 30
+      },
+      {
+        "seatId": "seat-4",
+        "street": "preflop",
+        "action": {
+          "type": "call"
+        },
+        "added": 30
+      },
+      {
+        "seatId": "you",
+        "street": "preflop",
+        "action": {
+          "type": "fold"
+        },
+        "added": 0
+      },
+      {
+        "seatId": "seat-1",
+        "street": "preflop",
+        "action": {
+          "type": "call"
+        },
+        "added": 25
+      },
+      {
+        "seatId": "seat-2",
+        "street": "preflop",
+        "action": {
+          "type": "call"
+        },
+        "added": 20
+      },
+      {
+        "seatId": "seat-1",
+        "street": "flop",
+        "action": {
+          "type": "check"
+        },
+        "added": 0
+      },
+      {
+        "seatId": "seat-2",
+        "street": "flop",
+        "action": {
+          "type": "raise",
+          "to": 60
+        },
+        "added": 60,
+        "raiseTo": 60
+      }
+    ]
+  }
+}

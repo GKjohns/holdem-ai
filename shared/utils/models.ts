@@ -17,7 +17,10 @@ export interface ModelOption {
   /**
    * ai@7 top-level reasoning effort. Every OpenAI LLM needs an explicit value
    * (unset is slow); GPT-6 has no 'minimal', so Luna uses 'none'. Haiku 5.5 is
-   * unset until Sprint 2 measures it. Evaluation models take no `reasoning`.
+   * 'low': measured 2026-10-09 on 5 views, unset averaged 2.5 s with a 4.5 s
+   * thinking tail, low 1.6 s with the same choice on 4 of 5. Evaluation models
+   * take no `reasoning`; Luna Decisions rejects `providerOptions.openai.reasoningEffort`
+   * as unsupported, so it runs at its default effort.
    */
   reasoning?: Reasoning
 }
@@ -28,7 +31,7 @@ export const MODELS: ModelOption[] = [
   { id: 'openai/gpt-6-luna', label: 'GPT-6 Luna', vendor: 'OpenAI', kind: 'llm', reasoning: 'none' },
   { id: 'anthropic/claude-opus-5.5', label: 'Claude Opus 5.5', vendor: 'Anthropic', kind: 'llm', reasoning: 'low' },
   { id: 'anthropic/claude-sonnet-5.5', label: 'Claude Sonnet 5.5', vendor: 'Anthropic', kind: 'llm', reasoning: 'low' },
-  { id: 'anthropic/claude-haiku-5.5', label: 'Claude Haiku 5.5', vendor: 'Anthropic', kind: 'llm' },
+  { id: 'anthropic/claude-haiku-5.5', label: 'Claude Haiku 5.5', vendor: 'Anthropic', kind: 'llm', reasoning: 'low' },
   { id: 'google/gemini-3.1-pro-preview', label: 'Gemini 3.1 Pro', vendor: 'Google', kind: 'llm', reasoning: 'low' },
   { id: 'openai/gpt-6-luna-decisions', label: 'GPT-6 Luna Decisions', vendor: 'OpenAI', kind: 'evaluation' },
   { id: 'typesafe-ai/jev', label: 'Jev', vendor: 'TypeSafe AI', kind: 'evaluation' }

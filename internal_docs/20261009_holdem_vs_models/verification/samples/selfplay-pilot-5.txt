@@ -1,0 +1,124 @@
+
+── Hand 1 · button Jev
+   Jev JcQd · GPT-6 Luna Decisions 4sQh · GPT-6 Luna 2c7h
+   preflop Jev                  raise_min        291ms
+           ↳ Raise to 20, the minimum raise (pot becomes 35) — min raise 30%, call 27%, pot 26%
+   preflop GPT-6 Luna Decisions fold             271ms
+           ↳ Fold and give up this hand — fold 76%, call 15%, pot 3%
+   preflop GPT-6 Luna           fold            1502ms
+           ↳ With 7-2 offsuit, calling a raise out of position is unprofitable, and reraising is worse. Fold.
+   board — · 25 → Jev (Uncontested)
+
+── Hand 2 · button GPT-6 Luna Decisions
+   Jev JcTs · GPT-6 Luna Decisions JdJh · GPT-6 Luna Qs3d
+   preflop GPT-6 Luna Decisions raise_pot        192ms
+           ↳ Raise to 35, raising by the size of the pot (pot becomes 50) — pot 34%, min raise 22%, half-pot 22%
+   preflop GPT-6 Luna           fold            1592ms
+           ↳ Q3 offsuit is weak from the small blind against a raise and a big blind still to act. Folding avoids investing more chips in a poor spot.
+   preflop Jev                  call             336ms
+           ↳ Call 25 (pot becomes 75) — call 53%, fold 22%, min raise 12%
+   flop    Jev                  check            390ms
+           ↳ Check (pot stays 75) — check 47%, half-pot 26%, pot 15%
+   flop    GPT-6 Luna Decisions check            170ms
+           ↳ Check (pot stays 75) — check 29%, half-pot 28%, pot 23%
+   turn    Jev                  check            219ms
+           ↳ Check (pot stays 75) — check 51%, half-pot 23%, pot 14%
+   turn    GPT-6 Luna Decisions raise_half_pot   159ms
+           ↳ Bet 38, betting half the pot (pot becomes 113) — half-pot 32%, pot 29%, check 16%
+   turn    Jev                  call             236ms
+           ↳ Call 38 (pot becomes 151) — call 66%, fold 13%, min raise 8%
+   river   Jev                  check            308ms
+           ↳ Check (pot stays 151) — check 51%, half-pot 14%, pot 14%
+   river   GPT-6 Luna Decisions raise_half_pot   170ms
+           ↳ Bet 76, betting half the pot (pot becomes 227) — half-pot 53%, check 21%, min raise 16%
+   river   Jev                  call             300ms
+           ↳ Call 76 (pot becomes 303) — call 67%, fold 20%, all-in 4%
+   board Js Ks 7d 5s 4c · 303 → GPT-6 Luna Decisions (Three of a kind, jacks)
+
+── Hand 3 · button GPT-6 Luna
+   Jev TcTh · GPT-6 Luna Decisions JsKc · GPT-6 Luna 2d6d
+   preflop GPT-6 Luna           call            1810ms
+           ↳ 6-2 suited is too weak to raise from the button, but calling 10 closes the action cheaply and gives a chance to make a disguised strong hand.
+   preflop Jev                  call             192ms
+           ↳ Call 5 (pot becomes 30) — call 45%, min raise 26%, fold 8%
+   preflop GPT-6 Luna Decisions check            246ms
+           ↳ Check (pot stays 30) — check 98%, min raise 1%, pot 1%
+   flop    Jev                  check            206ms
+           ↳ Check (pot stays 30) — check 49%, min raise 18%, half-pot 18%
+   flop    GPT-6 Luna Decisions check            198ms
+           ↳ Check (pot stays 30) — check 51%, min raise 21%, half-pot 21%
+   flop    GPT-6 Luna           check           9623ms
+           ↳ I have only a weak backdoor flush draw and no pair; with two players checking, betting is unlikely to improve enough to justify it. Check and take the free card
+   turn    Jev                  check            303ms
+           ↳ Check (pot stays 30) — check 46%, min raise 18%, pot 15%
+   turn    GPT-6 Luna Decisions check            268ms
+           ↳ Check (pot stays 30) — check 35%, min raise 26%, half-pot 22%
+   turn    GPT-6 Luna           check           1825ms
+           ↳ I have only a weak draw and little showdown value on a paired board, so betting is unlikely to improve my position. Check and take the free river.
+   river   Jev                  check            530ms
+           ↳ Check (pot stays 30) — check 62%, min raise 12%, all-in 11%
+   river   GPT-6 Luna Decisions check            312ms
+           ↳ Check (pot stays 30) — check 60%, min raise 20%, half-pot 9%
+   river   GPT-6 Luna           check           1795ms
+           ↳ The board is trip nines with an ace, and my six-high has no meaningful showdown value. A bluff is unlikely to fold a better hand on this checked-through board, 
+   board 9h Ac 4d 9s 9c · 30 → Jev (Full house, nines full of tens)
+
+── Hand 4 · button Jev
+   Jev 7cKh · GPT-6 Luna Decisions 4sAs · GPT-6 Luna 9sTh
+   preflop Jev                  call             311ms
+           ↳ Call 10 (pot becomes 25) — call 33%, min raise 29%, pot 16%
+   preflop GPT-6 Luna Decisions call             199ms
+           ↳ Call 5 (pot becomes 30) — call 29%, min raise 24%, half-pot 23%
+   preflop GPT-6 Luna           check           1705ms
+           ↳ With T9 offsuit in the big blind and no raise to face, checking keeps the pot small with a playable but modest hand.
+   flop    GPT-6 Luna Decisions raise_half_pot   162ms
+           ↳ Bet 15, betting half the pot (pot becomes 45) — half-pot 30%, check 27%, min raise 23%
+   flop    GPT-6 Luna           call            1501ms "I’ll see one more."
+           ↳ I have an open-ended straight draw, but only a small bet to call in a multiway pot. Calling keeps the draw affordable without inflating the pot.
+   flop    Jev                  call             198ms
+           ↳ Call 15 (pot becomes 75) — call 59%, min raise 14%, half-pot 11%
+   turn    GPT-6 Luna Decisions check            282ms
+           ↳ Check (pot stays 75) — check 35%, half-pot 27%, min raise 17%
+   turn    GPT-6 Luna           check           1914ms
+           ↳ I have only a gutshot straight draw, with no pair, and two opponents remain. Checking keeps the pot controlled and gives me a chance to improve cheaply on the r
+   turn    Jev                  check            296ms
+           ↳ Check (pot stays 75) — check 47%, half-pot 24%, pot 17%
+   river   GPT-6 Luna Decisions check            462ms
+           ↳ Check (pot stays 75) — check 42%, min raise 20%, half-pot 17%
+   river   GPT-6 Luna           check           1526ms
+           ↳ With only ten-high and no meaningful draw on the paired, three-diamond board, a bet is unlikely to fold better hands and risks being called by stronger ones. Ch
+   river   Jev                  check            224ms
+           ↳ Check (pot stays 75) — check 50%, half-pot 19%, pot 15%
+   board 7s 6d Ks Qd Kd · 75 → Jev (Full house, kings full of sevens)
+
+── Hand 5 · button GPT-6 Luna Decisions
+   Jev Kh9d · GPT-6 Luna Decisions 7cJc · GPT-6 Luna TcAh
+   preflop GPT-6 Luna Decisions call             151ms
+           ↳ Call 10 (pot becomes 25) — call 92%, min raise 3%, half-pot 3%
+   preflop GPT-6 Luna           raise_pot       1840ms "Let's see who wants to play."
+           ↳ A♠-high with a ten is a strong hand against a limp, so raise for value and initiative. A modest raise keeps weaker hands in while building the pot.
+   preflop Jev                  call             210ms
+           ↳ Call 30 (pot becomes 90) — call 51%, fold 23%, min raise 13%
+   preflop GPT-6 Luna Decisions fold             163ms
+           ↳ Fold and give up this hand — fold 45%, call 35%, min raise 6%
+   flop    GPT-6 Luna           check           1680ms
+           ↳ Top pair with an ace kicker is strong on this relatively dry flop, but checking keeps weaker hands in and avoids building a large pot unnecessarily out of posit
+   flop    Jev                  check            290ms
+           ↳ Check (pot stays 90) — check 52%, half-pot 24%, pot 14%
+   turn    GPT-6 Luna           raise_half_pot  1538ms "Let's see where we stand."
+           ↳ I have top pair with a decent kicker, but the turn completes several straight draws and can hit Jev's calling range. A modest half-pot bet gets value and protec
+   turn    Jev                  call             331ms
+           ↳ Call 45 (pot becomes 180) — call 69%, min raise 9%, pot 9%
+   river   GPT-6 Luna           check           1765ms
+           ↳ With top pair, I have some showdown value, but the river seven pairs the board and Jev can have stronger hands. Checking avoids turning a marginal hand into a b
+   river   Jev                  check            213ms
+           ↳ Check (pot stays 180) — check 46%, half-pot 22%, pot 18%
+   board 7d Th Qc Ks 7h · 180 → Jev (Two pair, kings and sevens)
+
+══ Summary
+hands 5 · engine errors 0 · chips conserved true · rebuys 0 · 40s
+typesafe-ai/jev                n= 19 fallback 0.0% · fold 0 check 10 call 8 raise 1 all_in 0 · avg 283ms · $0.00068 · stack 1031
+openai/gpt-6-luna-decisions    n= 15 fallback 0.0% · fold 2 check 7 call 2 raise 4 all_in 0 · avg 227ms · $0.00071 · stack 1104
+openai/gpt-6-luna              n= 14 fallback 0.0% · fold 2 check 8 call 2 raise 2 all_in 0 · avg 2258ms · $0.00160 · stack 865
+measured cost $0.00298 total · $0.00060/hand
+wrote internal_docs/20261009_holdem_vs_models/verification/samples/selfplay-pilot-5.json
