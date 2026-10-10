@@ -61,6 +61,7 @@ The B5 findings report (`internal_docs/20261009_holdem_vs_models/findings/report
 - `shared/utils/stats.ts` — per-seat VPIP, PFR, AF, WTSD, W$SD, latency and cost from hand history.
 - `server/api/log.post.ts` — appends session log lines to `data/sessions/`.
 - `server/utils/narrate.ts` — the Booth: hand narration and the scouting report (prompts, god-view hand rendering, notable-hand picker). `server/api/narrate.post.ts` and `server/api/scouting.post.ts` call it; `shared/utils/narration.ts` has the shared types, stat wording and markdown.
+- `bench/blog_export.ts` — writes the kylejohnson.ai post's replays and figure numbers. The engine and `decide()` are vendored into PersonalWebsite; re-copy after upstream edits.
 - `bench/selfplay.ts` — all-AI self-play through the engine and `decide()` directly; `bench/latency.ts` — latency probe.
 - `tests/` — engine, menu, prompt, narrator, reveal, session and stats tests.
 
