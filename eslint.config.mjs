@@ -15,5 +15,13 @@ export default withNuxt(
         ]
       }
     }
+  },
+  {
+    // B5 analysis notebook: one-off scripts, written dense on purpose.
+    files: ['internal_docs/**/notebook/**/*.ts'],
+    rules: {
+      '@stylistic/max-statements-per-line': 'off',
+      '@typescript-eslint/no-explicit-any': 'off'
+    }
   }
 )

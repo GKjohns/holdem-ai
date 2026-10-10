@@ -1,6 +1,7 @@
 /** Validates lib.ts evalCards against the engine's rankHand on 200k random 7-card pairs. */
 import { rankHand } from '../../../../shared/utils/handRank.ts'
 import { evalCards, cardInt, rand, reseed, category, CATEGORY_NAMES } from './lib.ts'
+
 const RANKS = '23456789TJQKA', SUITS = 'shdc'
 const deck = [...SUITS].flatMap(s => [...RANKS].map(r => r + s))
 reseed(7)

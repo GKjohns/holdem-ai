@@ -30,8 +30,7 @@ function layerEquities(hands: Record<string, number[]>, board: number[], iters =
   }
   if (need === 0) score(board)
   else if (need === 1) for (const c of live) score([...board, c])
-  else if (need === 2) { for (let a = 0; a < live.length; a++) for (let b = a + 1; b < live.length; b++) score([...board, live[a]!, live[b]!]) }
-  else {
+  else if (need === 2) { for (let a = 0; a < live.length; a++) for (let b = a + 1; b < live.length; b++) score([...board, live[a]!, live[b]!]) } else {
     const arr = live.slice()
     for (let k = 0; k < iters; k++) {
       for (let j = 0; j < need; j++) { const x = j + Math.floor(rand() * (arr.length - j)); const t = arr[j]!; arr[j] = arr[x]!; arr[x] = t }

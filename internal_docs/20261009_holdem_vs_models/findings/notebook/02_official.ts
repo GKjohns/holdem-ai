@@ -7,6 +7,7 @@ import { join } from 'node:path'
 import { runDetail } from '../../../../server/utils/results.ts'
 import { labDetail, loadLab, labDir } from '../../../../server/utils/lab.ts'
 import { OUT, ROOT, readRun } from './lib.ts'
+
 mkdirSync(OUT, { recursive: true })
 for (const slug of ['20261010_main', '20261010_pilot']) {
   const d = runDetail(slug, readRun(join(ROOT, `data/runs/${slug}.jsonl`)), '')

@@ -51,8 +51,6 @@ for (const f of runFiles()) {
     const seatById = new Map(h.seats.map(s => [s.id, s]))
     const playerFor = (id: string) => { const s = seatById.get(id)!; return playerOf(s) }
     const holes = h.holes
-    // per seat-hand row
-    const n = h.seats.length
     const dealt = h.seats.filter(s => holes[s.id]?.length)
     for (const s of dealt) {
       const mine = h.log.filter(e => e.seatId === s.id)
