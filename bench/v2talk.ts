@@ -36,10 +36,16 @@ for (const t of ['sol', 'opus', 'fable']) {
 }
 
 let s = 20261011
-const rnd = () => { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296 }
+const rnd = () => {
+  s = (s * 1664525 + 1013904223) >>> 0
+  return s / 4294967296
+}
 const shuffle = <T>(xs: T[]): T[] => {
   const a = xs.slice()
-  for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [a[i], a[j]] = [a[j]!, a[i]!] }
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(rnd() * (i + 1));
+    [a[i], a[j]] = [a[j]!, a[i]!]
+  }
   return a
 }
 const idOf = (r: { table: string, tid: string, handNo: number, logIndex: number }) => `${r.table}:${r.tid}#${r.handNo}#${r.logIndex}`
@@ -94,14 +100,23 @@ for (const m of MODELS) {
 }
 
 const done = new Map<string, any>() // eslint-disable-line @typescript-eslint/no-explicit-any
-if (existsSync(CACHE_FILE)) for (const l of readFileSync(CACHE_FILE, 'utf8').split('\n')) if (l.trim()) { const x = JSON.parse(l); done.set(x.key, x) }
+if (existsSync(CACHE_FILE)) {
+  for (const l of readFileSync(CACHE_FILE, 'utf8').split('\n')) {
+    if (!l.trim()) continue
+    const x = JSON.parse(l)
+    done.set(x.key, x)
+  }
+}
 const keyOf = (j: Job) => `${j.spot}|${j.variant}|${j.model}`
 const todo = jobs.filter(j => !done.has(keyOf(j)))
 const est = todo.reduce((a, j) => a + EST[j.model]!, 0)
 console.log(`spots available ${JSON.stringify(available)}; jobs ${jobs.length}; cached ${done.size}; to run ${todo.length}; estimate $${est.toFixed(3)}`)
 if (args.dry) process.exit(0)
 const cap = Number(args.budget)
-if (todo.length && !(cap > 0)) { console.log('pass --budget <usd>'); process.exit(1) }
+if (todo.length && !(cap > 0)) {
+  console.log('pass --budget <usd>')
+  process.exit(1)
+}
 
 let spent = 0, n = 0, fallbacks = 0
 await runPool(todo.map(j => ({
@@ -126,7 +141,10 @@ const MENTION = /\bnuts\b|\bsays\b|\bsaid\b|\bclaim|\btalk|\bnothing\b|\btable\b
 const summary: Record<string, unknown> = {}
 for (const m of MODELS) {
   const spots = [...new Set(jobs.filter(j => j.model === m).map(j => j.spot))]
-  const full = spots.filter(sp => (Object.keys(TALK) as string[]).every(v => { const x = done.get(`${sp}|${v}|${m}`); return x && !x.fallback }))
+  const full = spots.filter(sp => (Object.keys(TALK) as string[]).every((v) => {
+    const x = done.get(`${sp}|${v}|${m}`)
+    return x && !x.fallback
+  }))
   const fold = (v: string) => full.filter(sp => done.get(`${sp}|${v}|${m}`).menuId === 'fold').length
   const changed = (v: string) => full.filter(sp => done.get(`${sp}|${v}|${m}`).menuId !== done.get(`${sp}|silent|${m}`).menuId).length
   const mentions = full.flatMap(sp => ['nuts', 'nothing'].map(v => done.get(`${sp}|${v}|${m}`))).filter(x => MENTION.test(x.reasoning))

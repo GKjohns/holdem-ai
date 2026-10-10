@@ -825,7 +825,6 @@ function buildFigures(inp: Input) {
   return { standings, personalities, talk, lab, facts }
 }
 
-
 // ---------- figures (v2) ----------
 
 function buildFiguresV2(inp: Input) {
