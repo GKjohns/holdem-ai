@@ -1,0 +1,364 @@
+{
+  "slug": "20261012_v2B_sol",
+  "base": "openai/gpt-6-sol",
+  "unit": "match",
+  "completeMatches": 3,
+  "tournaments": 18,
+  "standings": [
+    {
+      "player": "aggressive",
+      "label": "aggressive",
+      "hands": 719,
+      "bb100": {
+        "value": 26,
+        "lo": 6.9,
+        "hi": 57.7,
+        "n": 3
+      },
+      "bb100Pooled": 26,
+      "prize": {
+        "value": 22.2,
+        "lo": 13.6,
+        "hi": 30.8,
+        "n": 3
+      },
+      "avgFinish": 3.3,
+      "wins": 5,
+      "chipsPerTournament": 1000
+    },
+    {
+      "player": "control",
+      "label": "control",
+      "hands": 699,
+      "bb100": {
+        "value": 11.8,
+        "lo": -2.7,
+        "hi": 34.7,
+        "n": 3
+      },
+      "bb100Pooled": 11.8,
+      "prize": {
+        "value": 21.1,
+        "lo": 2.5,
+        "hi": 39.8,
+        "n": 3
+      },
+      "avgFinish": 3.3,
+      "wins": 6,
+      "chipsPerTournament": 1500
+    },
+    {
+      "player": "tight",
+      "label": "tight",
+      "hands": 699,
+      "bb100": {
+        "value": -16.8,
+        "lo": -50.3,
+        "hi": 0.4,
+        "n": 3
+      },
+      "bb100Pooled": -16.8,
+      "prize": {
+        "value": 15.6,
+        "lo": -3.6,
+        "hi": 34.7,
+        "n": 3
+      },
+      "avgFinish": 3.4,
+      "wins": 1,
+      "chipsPerTournament": -1000
+    },
+    {
+      "player": "math",
+      "label": "math",
+      "hands": 709,
+      "bb100": {
+        "value": -16.2,
+        "lo": -19.5,
+        "hi": -11,
+        "n": 3
+      },
+      "bb100Pooled": -16.2,
+      "prize": {
+        "value": 14.4,
+        "lo": 2.5,
+        "hi": 26.4,
+        "n": 3
+      },
+      "avgFinish": 3.6,
+      "wins": 1,
+      "chipsPerTournament": -1000
+    },
+    {
+      "player": "talker",
+      "label": "talker",
+      "hands": 697,
+      "bb100": {
+        "value": 7.6,
+        "lo": -19.8,
+        "hi": 29.8,
+        "n": 3
+      },
+      "bb100Pooled": 7.6,
+      "prize": {
+        "value": 13.9,
+        "lo": 1.9,
+        "hi": 25.8,
+        "n": 3
+      },
+      "avgFinish": 3.7,
+      "wins": 3,
+      "chipsPerTournament": 0
+    },
+    {
+      "player": "reader",
+      "label": "reader",
+      "hands": 662,
+      "bb100": {
+        "value": -13.6,
+        "lo": -19.9,
+        "hi": -2.3,
+        "n": 3
+      },
+      "bb100Pooled": -13.6,
+      "prize": {
+        "value": 12.8,
+        "lo": -1.8,
+        "hi": 27.3,
+        "n": 3
+      },
+      "avgFinish": 3.8,
+      "wins": 2,
+      "chipsPerTournament": -500
+    }
+  ],
+  "leadsVsControl": [
+    {
+      "persona": "tight",
+      "vsControlBb100": {
+        "value": -30,
+        "lo": -149.1,
+        "hi": 89.2,
+        "n": 3
+      },
+      "vsControlPrize": {
+        "value": -5.6,
+        "lo": -41.7,
+        "hi": 30.6,
+        "n": 3
+      }
+    },
+    {
+      "persona": "aggressive",
+      "vsControlBb100": {
+        "value": 14.6,
+        "lo": -6.5,
+        "hi": 35.6,
+        "n": 3
+      },
+      "vsControlPrize": {
+        "value": 1.1,
+        "lo": -25.8,
+        "hi": 28,
+        "n": 3
+      }
+    },
+    {
+      "persona": "talker",
+      "vsControlBb100": {
+        "value": -3.5,
+        "lo": -116.2,
+        "hi": 109.3,
+        "n": 3
+      },
+      "vsControlPrize": {
+        "value": -7.2,
+        "lo": -36.6,
+        "hi": 22.1,
+        "n": 3
+      }
+    },
+    {
+      "persona": "reader",
+      "vsControlBb100": {
+        "value": -24.5,
+        "lo": -88.2,
+        "hi": 39.2,
+        "n": 3
+      },
+      "vsControlPrize": {
+        "value": -8.3,
+        "lo": -27.3,
+        "hi": 10.6,
+        "n": 3
+      }
+    },
+    {
+      "persona": "math",
+      "vsControlBb100": {
+        "value": -27.2,
+        "lo": -82.7,
+        "hi": 28.2,
+        "n": 3
+      },
+      "vsControlPrize": {
+        "value": -6.7,
+        "lo": -17.6,
+        "hi": 4.3,
+        "n": 3
+      }
+    }
+  ],
+  "styles": [
+    {
+      "id": "tight",
+      "label": "tight",
+      "hands": 699,
+      "decisions": 819,
+      "vpip": 22.5,
+      "pfr": 16.9,
+      "shortStackShovePct": 23.3,
+      "shortSpots": 202,
+      "foldToRiverBetPct": null,
+      "riverFoldsHoldingWinner": "0/0",
+      "riverFoldsHoldingWinnerPct": null,
+      "setClaimsWrong": "0/0",
+      "talkRatePct": 8.2,
+      "reasoningMentionsTalkPct": 0,
+      "reasoningMentionsHistoryPct": 0.9,
+      "reasoningMentionsPayoutsPct": 3.1,
+      "overbetPctOfPostflopBets": 0,
+      "raiseToPct": 0.5,
+      "usdPerDecision": 0.00706,
+      "usd": 5.782,
+      "meanLatencyS": 2.3,
+      "p95LatencyS": 4.3,
+      "fallbacks": 0
+    },
+    {
+      "id": "aggressive",
+      "label": "aggressive",
+      "hands": 719,
+      "decisions": 1093,
+      "vpip": 49.9,
+      "pfr": 38.7,
+      "shortStackShovePct": 23.6,
+      "shortSpots": 144,
+      "foldToRiverBetPct": 69.2,
+      "riverFoldsHoldingWinner": "1/9",
+      "riverFoldsHoldingWinnerPct": 11.1,
+      "setClaimsWrong": "0/1",
+      "talkRatePct": 33.2,
+      "reasoningMentionsTalkPct": 0,
+      "reasoningMentionsHistoryPct": 2.6,
+      "reasoningMentionsPayoutsPct": 2,
+      "overbetPctOfPostflopBets": 0.6,
+      "raiseToPct": 2.5,
+      "usdPerDecision": 0.00737,
+      "usd": 8.055,
+      "meanLatencyS": 2.9,
+      "p95LatencyS": 4.5,
+      "fallbacks": 0
+    },
+    {
+      "id": "talker",
+      "label": "talker",
+      "hands": 697,
+      "decisions": 984,
+      "vpip": 32.1,
+      "pfr": 21.1,
+      "shortStackShovePct": 20.1,
+      "shortSpots": 179,
+      "foldToRiverBetPct": 31.3,
+      "riverFoldsHoldingWinner": "4/5",
+      "riverFoldsHoldingWinnerPct": 80,
+      "setClaimsWrong": "0/0",
+      "talkRatePct": 88.6,
+      "reasoningMentionsTalkPct": 0,
+      "reasoningMentionsHistoryPct": 1.3,
+      "reasoningMentionsPayoutsPct": 4.2,
+      "overbetPctOfPostflopBets": 0,
+      "raiseToPct": 0.9,
+      "usdPerDecision": 0.00739,
+      "usd": 7.276,
+      "meanLatencyS": 2.8,
+      "p95LatencyS": 4.7,
+      "fallbacks": 0
+    },
+    {
+      "id": "reader",
+      "label": "reader",
+      "hands": 662,
+      "decisions": 887,
+      "vpip": 31.1,
+      "pfr": 21.1,
+      "shortStackShovePct": 22,
+      "shortSpots": 141,
+      "foldToRiverBetPct": 71.4,
+      "riverFoldsHoldingWinner": "3/5",
+      "riverFoldsHoldingWinnerPct": 60,
+      "setClaimsWrong": "0/6",
+      "talkRatePct": 15.9,
+      "reasoningMentionsTalkPct": 0.2,
+      "reasoningMentionsHistoryPct": 63.6,
+      "reasoningMentionsPayoutsPct": 2.7,
+      "overbetPctOfPostflopBets": 0,
+      "raiseToPct": 1.2,
+      "usdPerDecision": 0.00741,
+      "usd": 6.57,
+      "meanLatencyS": 2.8,
+      "p95LatencyS": 4.6,
+      "fallbacks": 0
+    },
+    {
+      "id": "math",
+      "label": "math",
+      "hands": 709,
+      "decisions": 1025,
+      "vpip": 33.4,
+      "pfr": 20.9,
+      "shortStackShovePct": 26.9,
+      "shortSpots": 175,
+      "foldToRiverBetPct": 75,
+      "riverFoldsHoldingWinner": "4/6",
+      "riverFoldsHoldingWinnerPct": 66.7,
+      "setClaimsWrong": "0/3",
+      "talkRatePct": 5.1,
+      "reasoningMentionsTalkPct": 0,
+      "reasoningMentionsHistoryPct": 0.5,
+      "reasoningMentionsPayoutsPct": 1.3,
+      "overbetPctOfPostflopBets": 0,
+      "raiseToPct": 2.1,
+      "usdPerDecision": 0.00733,
+      "usd": 7.512,
+      "meanLatencyS": 2.7,
+      "p95LatencyS": 4.6,
+      "fallbacks": 0
+    },
+    {
+      "id": "control",
+      "label": "control",
+      "hands": 699,
+      "decisions": 1022,
+      "vpip": 34.9,
+      "pfr": 24,
+      "shortStackShovePct": 22.6,
+      "shortSpots": 208,
+      "foldToRiverBetPct": 55.6,
+      "riverFoldsHoldingWinner": "3/5",
+      "riverFoldsHoldingWinnerPct": 60,
+      "setClaimsWrong": "0/1",
+      "talkRatePct": 12.4,
+      "reasoningMentionsTalkPct": 0,
+      "reasoningMentionsHistoryPct": 1.5,
+      "reasoningMentionsPayoutsPct": 4.1,
+      "overbetPctOfPostflopBets": 0,
+      "raiseToPct": 1.6,
+      "usdPerDecision": 0.00697,
+      "usd": 7.124,
+      "meanLatencyS": 2.7,
+      "p95LatencyS": 4.9,
+      "fallbacks": 0
+    }
+  ]
+}

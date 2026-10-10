@@ -3,6 +3,8 @@
 **Date:** 2026-10-10/11 · **Read with:** [`audit.md`](./audit.md) (what was wrong), [`design.md`](./design.md) (design and expected precision, written before spending), `out/*.json` (machine-readable summaries)
 **Data:** `data/runs/20261011_v2A_{sol,opus,fable}.jsonl` (Study A, 30 tournaments, 1,224 hands), `data/runs/20261011_v2B_luna.jsonl` (Study B, 30 tournaments, 1,414 hands), `data/runs/20261011_v2_sanity_cheap.jsonl` + `20261011_v2_probe.jsonl` (Phase 3). Numbers come from `bench/v2report.ts` and `bench/v2allin.ts`.
 
+> **Data-quality audit (2026-10-12, [`data_quality.md`](./data_quality.md)):** I checked every v2 decision for truncation, fallbacks, timeouts, billing errors and engine errors. None of them was truncated: the highest output was 1,139 of the 8000-token cap, every reasoning string is complete, and there were 0 fallbacks and 0 timeouts. Fifteen live re-checks all finished with `finishReason: 'stop'`. Chips were conserved in every hand, and the Study A pairing checks out. **No rerun was needed, and every number below stands as written.** From now on, decisions also log `finishReason`, reasoning tokens and dropped table talk.
+
 ## What changed between v1 and v2
 
 Seats now get what a human at the table has, and nothing derived:
@@ -95,7 +97,24 @@ Intervals are over the 5 complete matches (t for prize, bootstrap for bb/100). L
 
 **What it says:** the personas changed how Luna played, and none of them changed how well it did. Tight played 25% of hands and aggressive 50%; the talker spoke on 64% of decisions and the reader cited history in 69%. But **no persona beat the no-persona control**: every lead interval spans zero, and the point estimates all sit within a few prize points of the 16.7% fair share. The loose-aggressive seat won the most tournaments (8 of 30) at the same average prize share, i.e. more volatile, not better. The all-in adjustment shuffles the bb/100 order (math-first ran +123 bb above its equity, the control −109), which is more evidence that what's left is noise.
 
-**Did a stronger model change B4's answer?** B4 (Luna at effort `none`, no memory) found strategy cards indistinguishable from the control. v2 Luna is stronger (effort `low`, memory, payouts) and the answer is the same: within one model, an "approach" written as style guidance moves the style a lot and the result not at all, at least at 30 tournaments. The one persona built to use the new information, the reader, led on bb/100 (+13 vs the control) but not on prize share. This is consistent with Study A, where the history the models cited didn't translate into a measurable edge either. Whether a frontier model (Opus, Sol) responds differently to personas is untested: that's ~$100+ per study at these prices.
+**Did a stronger model change B4's answer?** B4 (Luna at effort `none`, no memory) found strategy cards indistinguishable from the control. v2 Luna is stronger (effort `low`, memory, payouts) and the answer is the same: within one model, an "approach" written as style guidance moves the style a lot and the result not at all, at least at 30 tournaments. The one persona built to use the new information, the reader, led on bb/100 (+13 vs the control) but not on prize share. This is consistent with Study A, where the history the models cited didn't translate into a measurable edge either. Whether a frontier model responds differently was tested on Sol afterwards (next section): it doesn't, at 3 matches.
+
+## Study B with Sol (2026-10-12): personas on the best model
+
+Kyle asked for the persona tournament to run on "the best model". Study A had Sol tied with Opus at the top, and Sol is the cheaper of the two, so this is the same persona table with **GPT-6 Sol at reasoning `low`**. It uses the same personas, aliases, structure and deck seeds as the Luna table, which makes m01–m03 the same decks Luna played. That's **3 complete duplicate matches: 18 tournaments, 822 hands and 5,830 decisions, for $42.3**. Data: `data/runs/20261012_v2B_sol.jsonl`, `out/personas_sol.json` and `out/personas_sol_raw.json`. Quality: 0 fallbacks, every decision finished with `finishReason: 'stop'`, the highest output was 533 tokens (reasoning p99 238), 0 lines of talk were dropped, and chips were conserved.
+
+| Persona | Prize share | vs control (prize pts) | bb/100 | vs control (bb/100) | Wins | VPIP / PFR | Talks | Cites history |
+|---|---|---|---|---|---|---|---|---|
+| Loose and aggressive | **22.2%** [14, 31] | +1.1 [−26, +28] | +26 [+7, +58] | +15 [−7, +36] | 5 | **50 / 39** | 33% | 2.6% |
+| No persona (control) | 21.1% [3, 40] | — | +12 [−3, +35] | — | **6** | 35 / 24 | 12% | 1.5% |
+| Tight and patient | 15.6% [−4, 35] | −5.6 [−42, +31] | −17 [−50, 0] | −30 [−149, +89] | 1 | **23** / 17 | 8% | 0.9% |
+| Math-first | 14.4% [3, 26] | −6.7 [−18, +4] | −16 [−20, −11] | −27 [−83, +28] | 1 | 33 / 21 | 5% | 0.5% |
+| Deceptive talker | 13.9% [2, 26] | −7.2 [−37, +22] | +8 [−20, +30] | −4 [−116, +109] | 3 | 32 / 21 | **89%** | 1.3% |
+| Opponent reader | 12.8% [−2, 27] | −8.3 [−27, +11] | −14 [−20, −2] | −25 [−88, +39] | 2 | 31 / 21 | 16% | **64%** |
+
+The intervals are t-intervals over 3 matches (t = 4.30 at 2 degrees of freedom), so they're very wide. **This is underpowered:** it can detect only a persona effect bigger than about 25 prize points, and the Luna table's 5 matches were tighter.
+
+**What it says:** the stronger model gives the same answer as Luna. **No persona beat the no-persona control on prize share.** Every lead interval spans zero, and four of the five point estimates sit *below* the control. The personas clearly changed Sol's style: tight played 23% of hands and aggressive 50%, the talker spoke on 89% of decisions, and the reader cited past hands in 64%. Sol followed the style text about as faithfully as Luna did. Loose-aggressive comes out on top on both tables (Luna won 8 of 30 with it, Sol leads on prize share and bb/100 here), but neither table separates it from the control. Taken together, these results support the B4/v2 conclusion, which now holds for a frontier model too: style guidance moves the style a lot, and the result not detectably. Opus is still untested.
 
 ## Spend
 
@@ -108,5 +127,7 @@ Key `holdem-ai-50`: **$35.86 → $72.57**, so this work spent **$36.72** of the 
 | Study A, Opus table (2 seeds) | $6.91 | |
 | Study A, Fable table (2 seeds) | $14.82 | |
 | Study B, Luna personas (5 matches) | $4.21 | |
+
+**Follow-up (2026-10-12):** key **$73.62 → $116.17 = $42.55** metered. That's the live check (`bench/v2verify.ts`, ≈ $0.33) plus the Sol persona table ($42.32 run-computed; the metered-to-run ratio was ≈ 1.0 this time). An interrupted match-3 start replayed free from the cache.
 
 Not done for budget: a third seed for Study A (≈ $31) and Gemini 3.1 Pro (optional).

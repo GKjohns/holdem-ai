@@ -1,0 +1,209 @@
+{
+  "base": "openai/gpt-6-sol (reasoning low)",
+  "design": "6-max, 5 personas + 1 no-persona control under neutral aliases, 3 duplicate matches (18 tournaments, 822 hands, 5,830 decisions), same personas, seeds (20261111) and structure as the Luna table; payouts 50/30/20; intervals are t-intervals over 3 matches (t=4.30), so wide",
+  "verdict": "Same answer as Luna: no persona beat the no-persona control on prize share; every lead interval spans zero. Personas changed how Sol played (VPIP 22-50, talk 5-89%, history cited 64% for the reader) but not how well. Underpowered: 3 matches.",
+  "personas": [
+    {
+      "id": "aggressive",
+      "label": "Loose and aggressive",
+      "prizeShare": {
+        "value": 22.2,
+        "lo": 13.6,
+        "hi": 30.8,
+        "n": 3
+      },
+      "bb100": {
+        "value": 26,
+        "lo": 6.9,
+        "hi": 57.7,
+        "n": 3
+      },
+      "avgFinish": 3.3,
+      "wins": 5,
+      "vpip": 49.9,
+      "pfr": 38.7,
+      "talkRatePct": 33.2,
+      "reasoningCitesHistoryPct": 2.6,
+      "vsControl": {
+        "bb100": {
+          "value": 14.6,
+          "lo": -6.5,
+          "hi": 35.6,
+          "n": 3
+        },
+        "prizePts": {
+          "value": 1.1,
+          "lo": -25.8,
+          "hi": 28,
+          "n": 3
+        }
+      }
+    },
+    {
+      "id": "control",
+      "label": "No persona (control)",
+      "prizeShare": {
+        "value": 21.1,
+        "lo": 2.5,
+        "hi": 39.8,
+        "n": 3
+      },
+      "bb100": {
+        "value": 11.8,
+        "lo": -2.7,
+        "hi": 34.7,
+        "n": 3
+      },
+      "avgFinish": 3.3,
+      "wins": 6,
+      "vpip": 34.9,
+      "pfr": 24,
+      "talkRatePct": 12.4,
+      "reasoningCitesHistoryPct": 1.5
+    },
+    {
+      "id": "tight",
+      "label": "Tight and patient",
+      "prizeShare": {
+        "value": 15.6,
+        "lo": -3.6,
+        "hi": 34.7,
+        "n": 3
+      },
+      "bb100": {
+        "value": -16.8,
+        "lo": -50.3,
+        "hi": 0.4,
+        "n": 3
+      },
+      "avgFinish": 3.4,
+      "wins": 1,
+      "vpip": 22.5,
+      "pfr": 16.9,
+      "talkRatePct": 8.2,
+      "reasoningCitesHistoryPct": 0.9,
+      "vsControl": {
+        "bb100": {
+          "value": -30,
+          "lo": -149.1,
+          "hi": 89.2,
+          "n": 3
+        },
+        "prizePts": {
+          "value": -5.6,
+          "lo": -41.7,
+          "hi": 30.6,
+          "n": 3
+        }
+      }
+    },
+    {
+      "id": "math",
+      "label": "Math-first",
+      "prizeShare": {
+        "value": 14.4,
+        "lo": 2.5,
+        "hi": 26.4,
+        "n": 3
+      },
+      "bb100": {
+        "value": -16.2,
+        "lo": -19.5,
+        "hi": -11,
+        "n": 3
+      },
+      "avgFinish": 3.6,
+      "wins": 1,
+      "vpip": 33.4,
+      "pfr": 20.9,
+      "talkRatePct": 5.1,
+      "reasoningCitesHistoryPct": 0.5,
+      "vsControl": {
+        "bb100": {
+          "value": -27.2,
+          "lo": -82.7,
+          "hi": 28.2,
+          "n": 3
+        },
+        "prizePts": {
+          "value": -6.7,
+          "lo": -17.6,
+          "hi": 4.3,
+          "n": 3
+        }
+      }
+    },
+    {
+      "id": "talker",
+      "label": "Deceptive talker",
+      "prizeShare": {
+        "value": 13.9,
+        "lo": 1.9,
+        "hi": 25.8,
+        "n": 3
+      },
+      "bb100": {
+        "value": 7.6,
+        "lo": -19.8,
+        "hi": 29.8,
+        "n": 3
+      },
+      "avgFinish": 3.7,
+      "wins": 3,
+      "vpip": 32.1,
+      "pfr": 21.1,
+      "talkRatePct": 88.6,
+      "reasoningCitesHistoryPct": 1.3,
+      "vsControl": {
+        "bb100": {
+          "value": -3.5,
+          "lo": -116.2,
+          "hi": 109.3,
+          "n": 3
+        },
+        "prizePts": {
+          "value": -7.2,
+          "lo": -36.6,
+          "hi": 22.1,
+          "n": 3
+        }
+      }
+    },
+    {
+      "id": "reader",
+      "label": "Opponent reader",
+      "prizeShare": {
+        "value": 12.8,
+        "lo": -1.8,
+        "hi": 27.3,
+        "n": 3
+      },
+      "bb100": {
+        "value": -13.6,
+        "lo": -19.9,
+        "hi": -2.3,
+        "n": 3
+      },
+      "avgFinish": 3.8,
+      "wins": 2,
+      "vpip": 31.1,
+      "pfr": 21.1,
+      "talkRatePct": 15.9,
+      "reasoningCitesHistoryPct": 63.6,
+      "vsControl": {
+        "bb100": {
+          "value": -24.5,
+          "lo": -88.2,
+          "hi": 39.2,
+          "n": 3
+        },
+        "prizePts": {
+          "value": -8.3,
+          "lo": -27.3,
+          "hi": 10.6,
+          "n": 3
+        }
+      }
+    }
+  ]
+}
