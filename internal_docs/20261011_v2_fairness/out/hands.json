@@ -1,0 +1,35 @@
+{
+  "source": "v2 Study A run files; hand ids are <table slug> <tournamentId> #<handNo>",
+  "hands": [
+    {
+      "id": "20261011_v2A_opus m01-r1 #15",
+      "who": "Claude Opus 5.5",
+      "what": "Isolation raise with Qs Ts over two limpers, a third-pot c-bet into five players on Qh 3h 2c, then a shove on the Td turn with top two pair, called by Luna (Ah 6h) and Haiku (Jc 9h). Opus +65 bb, and two players busted on one hand."
+    },
+    {
+      "id": "20261011_v2A_opus m01-r2 #26",
+      "who": "Claude Opus 5.5",
+      "what": "Payout awareness with a slip. Three-handed, with Luna all-in for 6 chips, Opus 4-bets 6h 6s 'because busting her locks us into the money', but three places were already paid. Haiku had Jh Js, and Opus lost 16 bb."
+    },
+    {
+      "id": "20261011_v2A_fable m01-r0 #24",
+      "who": "Claude Fable 5.1",
+      "what": "Fable opens Qc Qd, Luna 3-bets, Fable shoves 12 bb and is called by Ah Kh. The ace on the turn busts Fable in 4th. It's the standard play; the same deal also busted Opus at its table."
+    },
+    {
+      "id": "20261011_v2A_fable m01-r2 #34",
+      "who": "Claude Fable 5.1",
+      "what": "Memory in use: 'a half-size bet has worked repeatedly against Haiku's limps'. Fable stabs with 2h 7d, Haiku calls with 9s 8h and takes it away on the turn. The read was real; this time it didn't work."
+    },
+    {
+      "id": "20261011_v2A_sol m01-r2 #33",
+      "who": "GPT-6 Sol",
+      "what": "Three left and all three paid: Sol folds 7h 2s to Luna's shove 'now that the payouts are secured'. Luna's Kc Js beats Haiku's Ks 4h. Sol reads the format correctly."
+    },
+    {
+      "id": "20261011_v2A_opus m02-r3 #12",
+      "who": "Claude Haiku 5.5",
+      "what": "Haiku holds Qd Qc on As 2c Jh and reasons 'I have a set of queens'. It's an underpair to the ace. The misread survived the cards being spelled out in words."
+    }
+  ]
+}

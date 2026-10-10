@@ -41,6 +41,25 @@ export function tInterval(xs: number[]): { value: number | null, lo: number | nu
 }
 const iv = (x: ReturnType<typeof tInterval>) => ({ value: r1(x.value), lo: r1(x.lo), hi: r1(x.hi), n: x.n })
 
+/**
+ * bb/100 over groups of units: the pooled rate (Σ bb / Σ hands), with a percentile bootstrap over the
+ * groups (seeded). A mean of per-tournament rates would let a 12-hand tournament swing it.
+ */
+function ratioBoot(groups: { bb: number, hands: number }[], iters = 4000): { value: number | null, lo: number | null, hi: number | null, n: number } {
+  const g = groups.filter(x => x.hands > 0)
+  const n = g.length
+  if (!n) return { value: null, lo: null, hi: null, n }
+  const rate = (xs: typeof g) => 100 * xs.reduce((a, x) => a + x.bb, 0) / xs.reduce((a, x) => a + x.hands, 0)
+  if (n < 2) return { value: rate(g), lo: null, hi: null, n }
+  let seed = 12345
+  const rnd = () => ((seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0) / 2 ** 32)
+  const draws: number[] = []
+  for (let i = 0; i < iters; i++) draws.push(rate(Array.from({ length: n }, () => g[Math.floor(rnd() * n)]!)))
+  draws.sort((a, b) => a - b)
+  return { value: rate(g), lo: draws[Math.floor(0.025 * iters)]!, hi: draws[Math.floor(0.975 * iters)]!, n }
+}
+const grp = (us: Unit[], p: string) => ({ bb: us.reduce((a, u) => a + (u.bb[p] ?? 0), 0), hands: us.reduce((a, u) => a + (u.hands[p] ?? 0), 0) })
+
 // ── per-unit results ────────────────────────────────────────────────────────────────────────────
 interface Unit { key: string, bb: Record<string, number>, hands: Record<string, number>, chips: Record<string, number>, prize: Record<string, number>, place: Record<string, number> }
 
@@ -93,7 +112,7 @@ function standings(run: ParsedRun) {
       player: p,
       label: run.start!.players?.find(x => x.id === p)?.cardId ?? label(p),
       hands: us.reduce((a, u) => a + (u.hands[p] ?? 0), 0),
-      bb100: iv(tInterval(perUnit.map(g => bb100(g, p)).filter(Number.isFinite))),
+      bb100: iv(ratioBoot(perUnit.map(g => grp(g, p)))),
       bb100Pooled: r1(bb100(us, p)),
       prize: iv(tInterval(perUnit.map(g => g.reduce((a, u) => a + (u.prize[p] ?? 0), 0) / g.length))),
       avgFinish: r1(us.reduce((a, u) => a + (u.place[p] ?? 0), 0) / us.length),
@@ -250,9 +269,18 @@ for (let i = 0; i < tableStandings.length; i++) {
     const A = tableStandings[i]!, B = tableStandings[j]!
     const ua = rot(A), ub = rot(B)
     const keys = [...ua.keys()].filter(k => ub.has(k))
-    const dBb = keys.map(k => bb100([ua.get(k)!], A.guest) - bb100([ub.get(k)!], B.guest))
+    // Paired bootstrap over rotations: the same resampled rotations on both tables, pooled rates.
+    const pairBoot = (() => {
+      const n = keys.length
+      if (n < 2) return { value: null, lo: null, hi: null, n }
+      const diff = (ks: string[]) => bb100(ks.map(k => ua.get(k)!), A.guest) - bb100(ks.map(k => ub.get(k)!), B.guest)
+      let seed = 777
+      const rnd = () => ((seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0) / 2 ** 32)
+      const draws = Array.from({ length: 4000 }, () => diff(Array.from({ length: n }, () => keys[Math.floor(rnd() * n)]!))).sort((x, y) => x - y)
+      return { value: diff(keys), lo: draws[100]!, hi: draws[3899]!, n }
+    })()
     const dPrize = keys.map(k => (ua.get(k)!.prize[A.guest] ?? 0) - (ub.get(k)!.prize[B.guest] ?? 0))
-    const row = { a: label(A.guest), b: label(B.guest), pairedTournaments: keys.length, bb100: iv(tInterval(dBb)), prize: iv(tInterval(dPrize)) }
+    const row = { a: label(A.guest), b: label(B.guest), pairedTournaments: keys.length, bb100: iv(pairBoot), prize: iv(tInterval(dPrize)) }
     guestPairs.push(row)
     say(`  guest ${row.a} − ${row.b}: bb/100 ${row.bb100.value} [${row.bb100.lo}, ${row.bb100.hi}], prize ${row.prize.value} pts [${row.prize.lo}, ${row.prize.hi}] over ${keys.length} paired tournaments`)
   }
@@ -262,7 +290,7 @@ const field = ['anthropic/claude-haiku-5.5', 'openai/gpt-6-luna', 'openai/gpt-6-
 const allUnits = tableStandings.flatMap(t => t.units)
 const fieldRows = [...tables.map(t => t.guest), ...field].map((p) => {
   const us = allUnits.filter(u => u.hands[p])
-  return { player: p, label: label(p), tournaments: us.length, prize: iv(tInterval(us.map(u => u.prize[p] ?? 0))), bb100: iv(tInterval(us.map(u => bb100([u], p)))), bb100Pooled: r1(bb100(us, p)), avgFinish: r1(us.reduce((a, u) => a + (u.place[p] ?? 0), 0) / Math.max(us.length, 1)), wins: us.filter(u => u.place[p] === 1).length }
+  return { player: p, label: label(p), tournaments: us.length, prize: iv(tInterval(us.map(u => u.prize[p] ?? 0))), bb100: iv(ratioBoot(us.map(u => grp([u], p)))), bb100Pooled: r1(bb100(us, p)), avgFinish: r1(us.reduce((a, u) => a + (u.place[p] ?? 0), 0) / Math.max(us.length, 1)), wins: us.filter(u => u.place[p] === 1).length }
 }).sort((a, b) => (b.prize.value ?? 0) - (a.prize.value ?? 0))
 say('\n## Study A pooled (guests: their own table; field: all tables)')
 for (const r of fieldRows) say(`  ${r.label.padEnd(22)} prize ${r.prize.value}% [${r.prize.lo}, ${r.prize.hi}]  bb/100 ${r.bb100.value} [${r.bb100.lo}, ${r.bb100.hi}] (pooled ${r.bb100Pooled})  finish ${r.avgFinish}  wins ${r.wins}/${r.tournaments}`)

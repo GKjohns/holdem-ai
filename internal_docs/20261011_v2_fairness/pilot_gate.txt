@@ -1,0 +1,8 @@
+Study A pilot gate (20261011_v2A_sol, --budget 4), 2026-10-10
+- tournaments finished: 3 of 5 (m01-r1 56 hands, m01-r3 43, m01-r4 43), all to a natural finish; halted cleanly at $4.009
+- fallbacks: 0 of 2,001 decisions; engine errors 0; chips conserved in every hand        PASS
+- cost: run-computed $4.009, key metered $4.23 (37.859 -> 42.089) = 1.06x; Sol $0.0088/decision
+  vs $0.007-0.011 estimated; Sol table projected ~$5.5 vs design $6                    PASS (within 1.3x)
+- prompts: memory window, eliminations, payouts, side pots present; no odds/hand names;
+  Sol reasoning cites board and opponents' lines                                         PASS
+Decision: scale (resume Sol table; run Opus and Fable tables).

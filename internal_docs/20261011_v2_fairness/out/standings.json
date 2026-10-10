@@ -1,0 +1,626 @@
+{
+  "generated": "2026-10-10T22:26:46.586Z",
+  "design": "guest-seat duplicate: three 5-max tables [guest, Haiku, Luna, Luna Decisions, Jev], one shared seed (20261010, = v1 m01 decks), 5 rotations each; prize share uses payouts 50/30/20; intervals are t-intervals over tournaments (n=5 per table) or matches",
+  "perTable": [
+    {
+      "guest": "GPT-6 Sol",
+      "slug": "20261011_v2A_sol",
+      "tournaments": 10,
+      "unit": "tournament",
+      "rows": [
+        {
+          "player": "openai/gpt-6-sol",
+          "label": "GPT-6 Sol",
+          "hands": 368,
+          "bb100": {
+            "value": 62.8,
+            "lo": -3.9,
+            "hi": 130.4,
+            "n": 10
+          },
+          "bb100Pooled": 62.8,
+          "prize": {
+            "value": 31,
+            "lo": 16.9,
+            "hi": 45.1,
+            "n": 10
+          },
+          "avgFinish": 2.2,
+          "wins": 4,
+          "chipsPerTournament": 1500
+        },
+        {
+          "player": "anthropic/claude-haiku-5.5",
+          "label": "Claude Haiku 5.5",
+          "hands": 344,
+          "bb100": {
+            "value": 10.4,
+            "lo": -102.7,
+            "hi": 87.6,
+            "n": 10
+          },
+          "bb100Pooled": 10.4,
+          "prize": {
+            "value": 25,
+            "lo": 10.2,
+            "hi": 39.8,
+            "n": 10
+          },
+          "avgFinish": 2.8,
+          "wins": 3,
+          "chipsPerTournament": 750
+        },
+        {
+          "player": "openai/gpt-6-luna",
+          "label": "GPT-6 Luna",
+          "hands": 341,
+          "bb100": {
+            "value": 26.5,
+            "lo": -52.3,
+            "hi": 90.9,
+            "n": 10
+          },
+          "bb100Pooled": 26.5,
+          "prize": {
+            "value": 22,
+            "lo": 8.6,
+            "hi": 35.4,
+            "n": 10
+          },
+          "avgFinish": 2.9,
+          "wins": 2,
+          "chipsPerTournament": 0
+        },
+        {
+          "player": "openai/gpt-6-luna-decisions",
+          "label": "GPT-6 Luna Decisions",
+          "hands": 359,
+          "bb100": {
+            "value": -8.5,
+            "lo": -61.7,
+            "hi": 52.4,
+            "n": 10
+          },
+          "bb100Pooled": -8.5,
+          "prize": {
+            "value": 17,
+            "lo": 4.8,
+            "hi": 29.2,
+            "n": 10
+          },
+          "avgFinish": 3,
+          "wins": 1,
+          "chipsPerTournament": -750
+        },
+        {
+          "player": "typesafe-ai/jev",
+          "label": "Jev",
+          "hands": 263,
+          "bb100": {
+            "value": -124.3,
+            "lo": -192.2,
+            "hi": -71.9,
+            "n": 10
+          },
+          "bb100Pooled": -124.3,
+          "prize": {
+            "value": 5,
+            "lo": -2.7,
+            "hi": 12.7,
+            "n": 10
+          },
+          "avgFinish": 4.1,
+          "wins": 0,
+          "chipsPerTournament": -1500
+        }
+      ]
+    },
+    {
+      "guest": "Claude Opus 5.5",
+      "slug": "20261011_v2A_opus",
+      "tournaments": 10,
+      "unit": "tournament",
+      "rows": [
+        {
+          "player": "anthropic/claude-opus-5.5",
+          "label": "Claude Opus 5.5",
+          "hands": 308,
+          "bb100": {
+            "value": 220.5,
+            "lo": 36,
+            "hi": 471.3,
+            "n": 10
+          },
+          "bb100Pooled": 220.5,
+          "prize": {
+            "value": 31,
+            "lo": 14.7,
+            "hi": 47.3,
+            "n": 10
+          },
+          "avgFinish": 2.1,
+          "wins": 5,
+          "chipsPerTournament": 2250
+        },
+        {
+          "player": "openai/gpt-6-luna",
+          "label": "GPT-6 Luna",
+          "hands": 306,
+          "bb100": {
+            "value": 66.5,
+            "lo": -91.2,
+            "hi": 182.1,
+            "n": 10
+          },
+          "bb100Pooled": 66.5,
+          "prize": {
+            "value": 28,
+            "lo": 12.3,
+            "hi": 43.7,
+            "n": 10
+          },
+          "avgFinish": 2.4,
+          "wins": 4,
+          "chipsPerTournament": 1500
+        },
+        {
+          "player": "openai/gpt-6-luna-decisions",
+          "label": "GPT-6 Luna Decisions",
+          "hands": 333,
+          "bb100": {
+            "value": -6.9,
+            "lo": -92.9,
+            "hi": 82.4,
+            "n": 10
+          },
+          "bb100Pooled": -6.9,
+          "prize": {
+            "value": 21,
+            "lo": 14.7,
+            "hi": 27.3,
+            "n": 10
+          },
+          "avgFinish": 2.9,
+          "wins": 0,
+          "chipsPerTournament": -1500
+        },
+        {
+          "player": "anthropic/claude-haiku-5.5",
+          "label": "Claude Haiku 5.5",
+          "hands": 165,
+          "bb100": {
+            "value": -285.2,
+            "lo": -602.9,
+            "hi": -96.7,
+            "n": 10
+          },
+          "bb100Pooled": -285.2,
+          "prize": {
+            "value": 10,
+            "lo": -2.6,
+            "hi": 22.6,
+            "n": 10
+          },
+          "avgFinish": 4,
+          "wins": 1,
+          "chipsPerTournament": -750
+        },
+        {
+          "player": "typesafe-ai/jev",
+          "label": "Jev",
+          "hands": 262,
+          "bb100": {
+            "value": -148.5,
+            "lo": -287.1,
+            "hi": -74.5,
+            "n": 10
+          },
+          "bb100Pooled": -148.5,
+          "prize": {
+            "value": 10,
+            "lo": 0.5,
+            "hi": 19.5,
+            "n": 10
+          },
+          "avgFinish": 3.6,
+          "wins": 0,
+          "chipsPerTournament": -1500
+        }
+      ]
+    },
+    {
+      "guest": "Claude Fable 5.1",
+      "slug": "20261011_v2A_fable",
+      "tournaments": 10,
+      "unit": "tournament",
+      "rows": [
+        {
+          "player": "openai/gpt-6-luna",
+          "label": "GPT-6 Luna",
+          "hands": 370,
+          "bb100": {
+            "value": 57.8,
+            "lo": -25.2,
+            "hi": 136.1,
+            "n": 10
+          },
+          "bb100Pooled": 57.8,
+          "prize": {
+            "value": 36,
+            "lo": 23.8,
+            "hi": 48.2,
+            "n": 10
+          },
+          "avgFinish": 1.9,
+          "wins": 5,
+          "chipsPerTournament": 2250
+        },
+        {
+          "player": "anthropic/claude-haiku-5.5",
+          "label": "Claude Haiku 5.5",
+          "hands": 292,
+          "bb100": {
+            "value": 145.9,
+            "lo": -36.6,
+            "hi": 274.7,
+            "n": 10
+          },
+          "bb100Pooled": 145.9,
+          "prize": {
+            "value": 31,
+            "lo": 14.7,
+            "hi": 47.3,
+            "n": 10
+          },
+          "avgFinish": 2.4,
+          "wins": 5,
+          "chipsPerTournament": 2250
+        },
+        {
+          "player": "anthropic/claude-fable-5.1",
+          "label": "Claude Fable 5.1",
+          "hands": 298,
+          "bb100": {
+            "value": -47.6,
+            "lo": -120.9,
+            "hi": 2.1,
+            "n": 10
+          },
+          "bb100Pooled": -47.6,
+          "prize": {
+            "value": 14,
+            "lo": 5,
+            "hi": 23,
+            "n": 10
+          },
+          "avgFinish": 3.3,
+          "wins": 0,
+          "chipsPerTournament": -1500
+        },
+        {
+          "player": "openai/gpt-6-luna-decisions",
+          "label": "GPT-6 Luna Decisions",
+          "hands": 344,
+          "bb100": {
+            "value": -24.8,
+            "lo": -96.1,
+            "hi": 40.5,
+            "n": 10
+          },
+          "bb100Pooled": -24.8,
+          "prize": {
+            "value": 14,
+            "lo": 5,
+            "hi": 23,
+            "n": 10
+          },
+          "avgFinish": 3.2,
+          "wins": 0,
+          "chipsPerTournament": -1500
+        },
+        {
+          "player": "typesafe-ai/jev",
+          "label": "Jev",
+          "hands": 248,
+          "bb100": {
+            "value": -166.4,
+            "lo": -286,
+            "hi": -93.5,
+            "n": 10
+          },
+          "bb100Pooled": -166.4,
+          "prize": {
+            "value": 5,
+            "lo": -2.7,
+            "hi": 12.7,
+            "n": 10
+          },
+          "avgFinish": 4.2,
+          "wins": 0,
+          "chipsPerTournament": -1500
+        }
+      ]
+    }
+  ],
+  "pooled": [
+    {
+      "player": "openai/gpt-6-sol",
+      "label": "GPT-6 Sol",
+      "tournaments": 10,
+      "prize": {
+        "value": 31,
+        "lo": 16.9,
+        "hi": 45.1,
+        "n": 10
+      },
+      "bb100": {
+        "value": 62.8,
+        "lo": -3.9,
+        "hi": 130.4,
+        "n": 10
+      },
+      "bb100Pooled": 62.8,
+      "avgFinish": 2.2,
+      "wins": 4
+    },
+    {
+      "player": "anthropic/claude-opus-5.5",
+      "label": "Claude Opus 5.5",
+      "tournaments": 10,
+      "prize": {
+        "value": 31,
+        "lo": 14.7,
+        "hi": 47.3,
+        "n": 10
+      },
+      "bb100": {
+        "value": 220.5,
+        "lo": 36,
+        "hi": 471.3,
+        "n": 10
+      },
+      "bb100Pooled": 220.5,
+      "avgFinish": 2.1,
+      "wins": 5
+    },
+    {
+      "player": "openai/gpt-6-luna",
+      "label": "GPT-6 Luna",
+      "tournaments": 30,
+      "prize": {
+        "value": 28.7,
+        "lo": 21.3,
+        "hi": 36,
+        "n": 30
+      },
+      "bb100": {
+        "value": 49.9,
+        "lo": -5.7,
+        "hi": 101.3,
+        "n": 30
+      },
+      "bb100Pooled": 49.9,
+      "avgFinish": 2.4,
+      "wins": 11
+    },
+    {
+      "player": "anthropic/claude-haiku-5.5",
+      "label": "Claude Haiku 5.5",
+      "tournaments": 30,
+      "prize": {
+        "value": 22,
+        "lo": 13.9,
+        "hi": 30.1,
+        "n": 30
+      },
+      "bb100": {
+        "value": -1.1,
+        "lo": -105.5,
+        "hi": 83.3,
+        "n": 30
+      },
+      "bb100Pooled": -1.1,
+      "avgFinish": 3.1,
+      "wins": 9
+    },
+    {
+      "player": "openai/gpt-6-luna-decisions",
+      "label": "GPT-6 Luna Decisions",
+      "tournaments": 30,
+      "prize": {
+        "value": 17.3,
+        "lo": 12.4,
+        "hi": 22.2,
+        "n": 30
+      },
+      "bb100": {
+        "value": -13.4,
+        "lo": -55.9,
+        "hi": 28.7,
+        "n": 30
+      },
+      "bb100Pooled": -13.4,
+      "avgFinish": 3,
+      "wins": 1
+    },
+    {
+      "player": "anthropic/claude-fable-5.1",
+      "label": "Claude Fable 5.1",
+      "tournaments": 10,
+      "prize": {
+        "value": 14,
+        "lo": 5,
+        "hi": 23,
+        "n": 10
+      },
+      "bb100": {
+        "value": -47.6,
+        "lo": -120.9,
+        "hi": 2.1,
+        "n": 10
+      },
+      "bb100Pooled": -47.6,
+      "avgFinish": 3.3,
+      "wins": 0
+    },
+    {
+      "player": "typesafe-ai/jev",
+      "label": "Jev",
+      "tournaments": 30,
+      "prize": {
+        "value": 6.7,
+        "lo": 2.3,
+        "hi": 11,
+        "n": 30
+      },
+      "bb100": {
+        "value": -146,
+        "lo": -204.1,
+        "hi": -103.3,
+        "n": 30
+      },
+      "bb100Pooled": -146,
+      "avgFinish": 4,
+      "wins": 0
+    }
+  ],
+  "guestPairs": [
+    {
+      "a": "GPT-6 Sol",
+      "b": "Claude Opus 5.5",
+      "pairedTournaments": 10,
+      "bb100": {
+        "value": -157.7,
+        "lo": -347.8,
+        "hi": 5.7,
+        "n": 10
+      },
+      "prize": {
+        "value": 0,
+        "lo": -25.9,
+        "hi": 25.9,
+        "n": 10
+      }
+    },
+    {
+      "a": "GPT-6 Sol",
+      "b": "Claude Fable 5.1",
+      "pairedTournaments": 10,
+      "bb100": {
+        "value": 110.4,
+        "lo": 25.4,
+        "hi": 200.8,
+        "n": 10
+      },
+      "prize": {
+        "value": 17,
+        "lo": -1.2,
+        "hi": 35.2,
+        "n": 10
+      }
+    },
+    {
+      "a": "Claude Opus 5.5",
+      "b": "Claude Fable 5.1",
+      "pairedTournaments": 10,
+      "bb100": {
+        "value": 268.1,
+        "lo": 113.2,
+        "hi": 489.5,
+        "n": 10
+      },
+      "prize": {
+        "value": 17,
+        "lo": 1.9,
+        "hi": 32.1,
+        "n": 10
+      }
+    }
+  ],
+  "sameDecks": {
+    "note": "v1 B3 match m01 vs v2 Sol table m01: identical decks, lineup and seat order; v1 capped at 50 hands",
+    "v1": [
+      {
+        "label": "GPT-6 Sol",
+        "bb100": 89.7,
+        "avgFinish": 1.8,
+        "wins": 3
+      },
+      {
+        "label": "GPT-6 Luna Decisions",
+        "bb100": -0.9,
+        "avgFinish": 2.8,
+        "wins": 0
+      },
+      {
+        "label": "GPT-6 Luna",
+        "bb100": 0,
+        "avgFinish": 3.2,
+        "wins": 0
+      },
+      {
+        "label": "Jev",
+        "bb100": -20.3,
+        "avgFinish": 3.4,
+        "wins": 1
+      },
+      {
+        "label": "Claude Haiku 5.5",
+        "bb100": -141.9,
+        "avgFinish": 3.8,
+        "wins": 1
+      }
+    ],
+    "v2": [
+      {
+        "label": "GPT-6 Sol",
+        "bb100": 62.8,
+        "avgFinish": 2.2,
+        "wins": 4
+      },
+      {
+        "label": "Claude Haiku 5.5",
+        "bb100": 10.4,
+        "avgFinish": 2.8,
+        "wins": 3
+      },
+      {
+        "label": "GPT-6 Luna",
+        "bb100": 26.5,
+        "avgFinish": 2.9,
+        "wins": 2
+      },
+      {
+        "label": "GPT-6 Luna Decisions",
+        "bb100": -8.5,
+        "avgFinish": 3,
+        "wins": 1
+      },
+      {
+        "label": "Jev",
+        "bb100": -124.3,
+        "avgFinish": 4.1,
+        "wins": 0
+      }
+    ],
+    "v1Hands": [
+      36,
+      50,
+      44,
+      50,
+      50
+    ],
+    "v2Hands": [
+      43,
+      56,
+      42,
+      43,
+      43,
+      31,
+      39,
+      48,
+      43,
+      45
+    ]
+  }
+}

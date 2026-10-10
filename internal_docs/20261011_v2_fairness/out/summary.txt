@@ -1,0 +1,68 @@
+
+## 20261011_v2A_sol (10 tournaments, interval unit: tournament)
+  GPT-6 Sol              prize 31% [16.9, 45.1]  bb/100 62.8 [-3.9, 130.4] (pooled 62.8)  finish 2.2  wins 4  hands 368
+  Claude Haiku 5.5       prize 25% [10.2, 39.8]  bb/100 10.4 [-102.7, 87.6] (pooled 10.4)  finish 2.8  wins 3  hands 344
+  GPT-6 Luna             prize 22% [8.6, 35.4]  bb/100 26.5 [-52.3, 90.9] (pooled 26.5)  finish 2.9  wins 2  hands 341
+  GPT-6 Luna Decisions   prize 17% [4.8, 29.2]  bb/100 -8.5 [-61.7, 52.4] (pooled -8.5)  finish 3  wins 1  hands 359
+  Jev                    prize 5% [-2.7, 12.7]  bb/100 -124.3 [-192.2, -71.9] (pooled -124.3)  finish 4.1  wins 0  hands 263
+
+## 20261011_v2A_opus (10 tournaments, interval unit: tournament)
+  Claude Opus 5.5        prize 31% [14.7, 47.3]  bb/100 220.5 [36, 471.3] (pooled 220.5)  finish 2.1  wins 5  hands 308
+  GPT-6 Luna             prize 28% [12.3, 43.7]  bb/100 66.5 [-91.2, 182.1] (pooled 66.5)  finish 2.4  wins 4  hands 306
+  GPT-6 Luna Decisions   prize 21% [14.7, 27.3]  bb/100 -6.9 [-92.9, 82.4] (pooled -6.9)  finish 2.9  wins 0  hands 333
+  Claude Haiku 5.5       prize 10% [-2.6, 22.6]  bb/100 -285.2 [-602.9, -96.7] (pooled -285.2)  finish 4  wins 1  hands 165
+  Jev                    prize 10% [0.5, 19.5]  bb/100 -148.5 [-287.1, -74.5] (pooled -148.5)  finish 3.6  wins 0  hands 262
+
+## 20261011_v2A_fable (10 tournaments, interval unit: tournament)
+  GPT-6 Luna             prize 36% [23.8, 48.2]  bb/100 57.8 [-25.2, 136.1] (pooled 57.8)  finish 1.9  wins 5  hands 370
+  Claude Haiku 5.5       prize 31% [14.7, 47.3]  bb/100 145.9 [-36.6, 274.7] (pooled 145.9)  finish 2.4  wins 5  hands 292
+  Claude Fable 5.1       prize 14% [5, 23]  bb/100 -47.6 [-120.9, 2.1] (pooled -47.6)  finish 3.3  wins 0  hands 298
+  GPT-6 Luna Decisions   prize 14% [5, 23]  bb/100 -24.8 [-96.1, 40.5] (pooled -24.8)  finish 3.2  wins 0  hands 344
+  Jev                    prize 5% [-2.7, 12.7]  bb/100 -166.4 [-286, -93.5] (pooled -166.4)  finish 4.2  wins 0  hands 248
+  guest GPT-6 Sol − Claude Opus 5.5: bb/100 -157.7 [-347.8, 5.7], prize 0 pts [-25.9, 25.9] over 10 paired tournaments
+  guest GPT-6 Sol − Claude Fable 5.1: bb/100 110.4 [25.4, 200.8], prize 17 pts [-1.2, 35.2] over 10 paired tournaments
+  guest Claude Opus 5.5 − Claude Fable 5.1: bb/100 268.1 [113.2, 489.5], prize 17 pts [1.9, 32.1] over 10 paired tournaments
+
+## Study A pooled (guests: their own table; field: all tables)
+  GPT-6 Sol              prize 31% [16.9, 45.1]  bb/100 62.8 [-3.9, 130.4] (pooled 62.8)  finish 2.2  wins 4/10
+  Claude Opus 5.5        prize 31% [14.7, 47.3]  bb/100 220.5 [36, 471.3] (pooled 220.5)  finish 2.1  wins 5/10
+  GPT-6 Luna             prize 28.7% [21.3, 36]  bb/100 49.9 [-5.7, 101.3] (pooled 49.9)  finish 2.4  wins 11/30
+  Claude Haiku 5.5       prize 22% [13.9, 30.1]  bb/100 -1.1 [-105.5, 83.3] (pooled -1.1)  finish 3.1  wins 9/30
+  GPT-6 Luna Decisions   prize 17.3% [12.4, 22.2]  bb/100 -13.4 [-55.9, 28.7] (pooled -13.4)  finish 3  wins 1/30
+  Claude Fable 5.1       prize 14% [5, 23]  bb/100 -47.6 [-120.9, 2.1] (pooled -47.6)  finish 3.3  wins 0/10
+  Jev                    prize 6.7% [2.3, 11]  bb/100 -146 [-204.1, -103.3] (pooled -146)  finish 4  wins 0/30
+
+## v1 → v2 behaviour (same definitions)
+  v1 GPT-6 Sol              VPIP 55.2 PFR 35.7 short-shove 32.3% (220) foldRiverBet 43.8% riverFoldWinner 1/15 sets 0/13 talk 32.6% rTalk 0.1% rHist 0.1% rPay 0% overbet 0.2% raise_to 0% $0.00316/dec 3.1s p95 5s fb 0
+  v2 GPT-6 Sol              VPIP 48.1 PFR 29.6 short-shove 33.3% (57) foldRiverBet 77.8% riverFoldWinner 0/4 sets 0/2 talk 9.1% rTalk 0.1% rHist 0.9% rPay 2.3% overbet 0% raise_to 2% $0.00884/dec 2.9s p95 4.6s fb 0
+  v1 Claude Haiku 5.5       VPIP 66.7 PFR 24.2 short-shove 0% (196) foldRiverBet 33.3% riverFoldWinner 5/22 sets 49/77 talk 91.7% rTalk 0.4% rHist 4.6% rPay 0% overbet 0% raise_to 0% $0.0003/dec 2.5s p95 5.4s fb 0
+  v2 Claude Haiku 5.5       VPIP 70.4 PFR 28 short-shove 0% (99) foldRiverBet 34.6% riverFoldWinner 3/13 sets 40/50 talk 83.5% rTalk 0.1% rHist 15.8% rPay 0% overbet 0% raise_to 0.1% $0.00029/dec 2.4s p95 5s fb 0
+  v1 GPT-6 Luna             VPIP 43.9 PFR 13.1 short-shove 0.7% (534) foldRiverBet 73.8% riverFoldWinner 23/50 sets 1/23 talk 26.4% rTalk 0% rHist 0.5% rPay 0% overbet 0% raise_to 0% $0.00013/dec 2s p95 2.8s fb 0
+  v2 GPT-6 Luna             VPIP 49 PFR 26.6 short-shove 14.6% (144) foldRiverBet 47.6% riverFoldWinner 5/13 sets 0/7 talk 19.7% rTalk 0% rHist 0.4% rPay 0.4% overbet 0% raise_to 3.5% $0.00048/dec 3.8s p95 6.4s fb 0
+  v1 GPT-6 Luna Decisions   VPIP 31 PFR 6.4 short-shove 2.4% (507) foldRiverBet 60.3% riverFoldWinner 6/23 sets 0/0 talk 0% rTalk null% rHist null% rPay null% overbet 0% raise_to 0% $0.00006/dec 0.2s p95 0.4s fb 0
+  v2 GPT-6 Luna Decisions   VPIP 46.7 PFR 20.4 short-shove 5.5% (311) foldRiverBet 54.1% riverFoldWinner 6/19 sets 0/0 talk 0% rTalk null% rHist null% rPay null% overbet 0% raise_to 0% $0.00024/dec 0.3s p95 0.5s fb 0
+  v1 Jev                    VPIP 47.6 PFR 19.1 short-shove 0.8% (379) foldRiverBet 31.9% riverFoldWinner 6/27 sets 0/0 talk 0% rTalk null% rHist null% rPay null% overbet 0% raise_to 0% $0.00004/dec 0.3s p95 0.4s fb 0
+  v2 Jev                    VPIP 55.2 PFR 5.7 short-shove 5.6% (251) foldRiverBet 43.8% riverFoldWinner 5/19 sets 0/0 talk 0% rTalk null% rHist null% rPay null% overbet 0% raise_to 0% $0.00013/dec 0.3s p95 0.4s fb 0
+  v2 Claude Opus 5.5        VPIP 67.2 PFR 45.8 short-shove 37.1% (35) foldRiverBet 71.4% riverFoldWinner 0/4 sets 2/3 talk 89.4% rTalk 0.6% rHist 4.4% rPay 9.3% overbet 0% raise_to 13.2% $0.00886/dec 3.6s p95 6.3s fb 0
+  v2 Claude Fable 5.1       VPIP 47.7 PFR 29.5 short-shove 23.5% (51) foldRiverBet 85.7% riverFoldWinner 0/3 sets 0/0 talk 95.2% rTalk 0.8% rHist 14.1% rPay 0.6% overbet 0% raise_to 3.2% $0.0222/dec 4.8s p95 6.8s fb 0
+
+## same decks (v1 m01 vs v2 Sol table): {"note":"v1 B3 match m01 vs v2 Sol table m01: identical decks, lineup and seat order; v1 capped at 50 hands","v1":[{"label":"GPT-6 Sol","bb100":89.7,"avgFinish":1.8,"wins":3},{"label":"GPT-6 Luna Decisions","bb100":-0.9,"avgFinish":2.8,"wins":0},{"label":"GPT-6 Luna","bb100":0,"avgFinish":3.2,"wins":0},{"label":"Jev","bb100":-20.3,"avgFinish":3.4,"wins":1},{"label":"Claude Haiku 5.5","bb100":-141.9,"avgFinish":3.8,"wins":1}],"v2":[{"label":"GPT-6 Sol","bb100":62.8,"avgFinish":2.2,"wins":4},{"label":"Claude Haiku 5.5","bb100":10.4,"avgFinish":2.8,"wins":3},{"label":"GPT-6 Luna","bb100":26.5,"avgFinish":2.9,"wins":2},{"label":"GPT-6 Luna Decisions","bb100":-8.5,"avgFinish":3,"wins":1},{"label":"Jev","bb100":-124.3,"avgFinish":4.1,"wins":0}],"v1Hands":[36,50,44,50,50],"v2Hands":[43,56,42,43,43,31,39,48,43,45]}
+
+## personas 20261011_v2B_luna (30 tournaments, 5 complete matches)
+  control      prize 18.7% [12.2, 25.1]  bb/100 0.9 [-15, 16.6]  finish 3.3 wins 4
+  reader       prize 17.3% [12.1, 22.5]  bb/100 14.6 [-3.3, 31.5]  finish 3.5 wins 4
+  aggressive   prize 17% [9.9, 24.1]  bb/100 9.6 [-17.3, 36.4]  finish 3.5 wins 8
+  talker       prize 17% [13.6, 20.4]  bb/100 0.8 [-21.3, 25.7]  finish 3.4 wins 5
+  tight        prize 15.7% [1, 30.4]  bb/100 -12.5 [-35.9, 7.2]  finish 3.7 wins 5
+  math         prize 14.3% [10.3, 18.4]  bb/100 -13.7 [-33.8, 4.5]  finish 3.6 wins 4
+  tight        vs control: bb/100 -16.1 [-45, 12.7], prize -3 [-22.1, 16.1]
+  aggressive   vs control: bb/100 8.4 [-35.8, 52.6], prize -1.7 [-9.4, 6.1]
+  talker       vs control: bb/100 0.3 [-58.9, 59.5], prize -1.7 [-10, 6.6]
+  reader       vs control: bb/100 13.2 [-25, 51.3], prize -1.3 [-9.4, 6.7]
+  math         vs control: bb/100 -15.7 [-68.7, 37.3], prize -4.3 [-11.7, 3.1]
+  tight        VPIP 25.2 PFR 18.1 shove 16.3% foldRiver 35.7% talk 9.5% rHist 0.2% overbet 0% $0.00038
+  aggressive   VPIP 49.7 PFR 40.1 shove 18.1% foldRiver 43.5% talk 35.3% rHist 0.7% overbet 0% $0.00041
+  talker       VPIP 36.3 PFR 23 shove 14.6% foldRiver 33.3% talk 63.7% rHist 0.8% overbet 0% $0.00041
+  reader       VPIP 37.8 PFR 24.5 shove 15.4% foldRiver 50% talk 22% rHist 69.2% overbet 0% $0.00043
+  math         VPIP 33.4 PFR 21.8 shove 16.7% foldRiver 34.8% talk 11.9% rHist 0.3% overbet 0% $0.0004
+  control      VPIP 37.2 PFR 22.5 shove 14.3% foldRiver 21.1% talk 16.6% rHist 0.7% overbet 0% $0.00038
