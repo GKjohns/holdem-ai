@@ -6,7 +6,7 @@ import { HAND_CAP } from '~/composables/useTable'
 
 const route = useRoute()
 const lineup = useLineup()
-const { meta, leaveRequests } = useTableHeader()
+const { meta, leaveRequests, costCap } = useTableHeader()
 
 // Debug params (no setup screen needed):
 //   ?stacks=100,500,1000,1000,1000  starting stacks per seat (side-pot screenshots)
@@ -34,11 +34,21 @@ function resolveLineup(): Lineup | null {
   return null
 }
 
-const resolved = resolveLineup()
+// A reload (or HMR) resumes the saved session silently: setup clears the snapshot before a new table, and a
+// debug URL resumes only a session with the same mode and seats. /play is client-only (routeRules in
+// nuxt.config), so localStorage is readable here.
+const requested = resolveLineup()
+const saved = loadSnapshot()
+const snapshot = saved && (!requested || (requested.mode === saved.lineup.mode && requested.seats.join() === saved.lineup.seats.join())) ? saved : null
+if (snapshot) {
+  lineup.value = snapshot.lineup
+  if (snapshot.cap > 0) costCap.value = snapshot.cap
+}
+const resolved = snapshot?.lineup ?? requested
 if (!resolved) await navigateTo('/')
 
-const table = useTable(resolved ?? { mode: 'play', seats: DEFAULT_LINEUP, stack: 1000, smallBlind: 5, bigBlind: 10 }, { stacks: debugStacks })
-const { state, hasHuman, thinking, decisions, actionLabels, blindsNote, human, humanLegal, humanMenu, canDeal, finished, toActSeat, pace, history, startingStacks } = table
+const table = useTable(resolved ?? { mode: 'play', seats: DEFAULT_LINEUP, stack: 1000, smallBlind: 5, bigBlind: 10 }, { stacks: debugStacks, cap: costCap, restore: snapshot ?? undefined })
+const { state, hasHuman, thinking, decisions, actionLabels, blindsNote, human, humanLegal, humanMenu, canDeal, finished, toActSeat, pace, history, startingStacks, spent, capped } = table
 
 const complete = computed(() => state.value.street === 'complete')
 const waitingOn = computed(() => toActSeat.value && toActSeat.value.modelId ? toActSeat.value.name : null)
@@ -59,7 +69,9 @@ const reveal = computed(() => canRevealReasoning({ hasHuman, street: state.value
 const handDecisions = computed(() => reveal.value ? decisions.value.filter(d => d.handNo === state.value.handNo) : [])
 
 watchEffect(() => {
-  meta.value = state.value.handNo ? { handNo: state.value.handNo, smallBlind: state.value.smallBlind, bigBlind: state.value.bigBlind } : null
+  meta.value = state.value.handNo
+    ? { handNo: state.value.handNo, smallBlind: state.value.smallBlind, bigBlind: state.value.bigBlind, costUsd: spent.value, capped: capped.value }
+    : null
 })
 // Session summary: on "Leave table", or by itself when the session can't go on.
 const summaryOpen = ref(false)
@@ -76,6 +88,7 @@ function openSummary(reason: string | null) {
     pace.value = 'pause'
   }
   summaryOpen.value = true
+  table.endSession(reason)
 }
 watch(summaryOpen, (open) => {
   if (!open && pausedFor) {
@@ -107,7 +120,8 @@ function newTable() {
   navigateTo('/')
 }
 
-onMounted(() => table.deal())
+// Restored: pick up where it stopped (re-requests an in-flight AI turn; Watch deals on). Fresh: deal hand 1.
+onMounted(() => snapshot && state.value.handNo > 0 ? table.resume() : table.deal())
 onBeforeUnmount(() => {
   meta.value = null
 })
@@ -144,6 +158,8 @@ onBeforeUnmount(() => {
           :hand-cap="HAND_CAP"
           :seat-count="state.seats.length"
           :finished="finished"
+          :cap="costCap"
+          :capped="capped"
         />
       </section>
       <aside class="min-w-0">
@@ -158,6 +174,7 @@ onBeforeUnmount(() => {
           :watching="!hasHuman"
           :history="history"
           :starting-stacks="startingStacks"
+          :all-decisions="decisions"
         />
       </aside>
     </div>

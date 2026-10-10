@@ -11,7 +11,9 @@ useHead({
   }
 })
 
-const { meta: tableMeta, leaveRequests } = useTableHeader()
+const { meta: tableMeta, leaveRequests, costCap } = useTableHeader()
+/** Decision models cost fractions of a cent; keep three decimals so the meter visibly moves. */
+const costLabel = computed(() => tableMeta.value ? `$${tableMeta.value.costUsd.toFixed(tableMeta.value.costUsd < 10 ? 3 : 2)}` : '')
 
 const title = 'Hold\'em AI'
 const description = 'Play no-limit Texas Hold\'em against a table of AI models, then see how each one reasoned once the hand is over.'
@@ -48,6 +50,39 @@ useSeoMeta({
               color="neutral"
               variant="outline"
             />
+            <UPopover :content="{ align: 'end' }">
+              <UButton
+                color="neutral"
+                :variant="tableMeta.capped ? 'soft' : 'outline'"
+                size="sm"
+                :class="tableMeta.capped && 'text-warning'"
+                :aria-label="`Session cost ${costLabel}, cap $${costCap.toFixed(2)}`"
+                data-testid="cost-meter"
+              >
+                <span class="num text-[13px]">{{ costLabel }}</span>
+                <span class="max-sm:hidden text-muted">this session</span>
+              </UButton>
+              <template #content>
+                <div class="p-3.5 w-64">
+                  <div class="stat-label">
+                    Session cap
+                  </div>
+                  <UInputNumber
+                    v-model="costCap"
+                    :min="0.01"
+                    :step="0.5"
+                    :step-snapping="false"
+                    :format-options="{ style: 'currency', currency: 'USD', minimumFractionDigits: 2 }"
+                    size="sm"
+                    class="mt-1.5 w-full"
+                    data-testid="cost-cap"
+                  />
+                  <p class="mt-2 text-xs text-muted">
+                    {{ costLabel }} spent so far (pricing.ts × tokens). At the cap, Watch pauses and Play holds AI turns until you raise it.
+                  </p>
+                </div>
+              </template>
+            </UPopover>
             <UButton
               icon="i-lucide-log-out"
               color="neutral"

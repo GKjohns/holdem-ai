@@ -72,7 +72,7 @@
   <p class="meta">Plan <code>20261009_holdem_vs_models</code> · Sprints 1–4 complete · report built 2026-10-10 from the plan, <code>samples/</code> and <code>screenshots/</code> (no new model calls)</p>
   <p><span class="pill ok">Sprints 1–4 complete</span><span class="pill ok">39 tests green</span><span class="pill ok">0 fallbacks in 20-hand self-play</span><span class="pill warn">Bonus B1–B4 not started</span></p>
   <nav class="toc">
-    <a href="#built">What was built</a><a href="#s1">Sprint 1</a><a href="#s2">Sprint 2</a><a href="#s3">Sprint 3</a><a href="#s4">Sprint 4</a><a href="#golden">Golden path</a><a href="#spend">Spend</a>
+    <a href="#built">What was built</a><a href="#s1">Sprint 1</a><a href="#s2">Sprint 2</a><a href="#s3">Sprint 3</a><a href="#s4">Sprint 4</a><a href="#golden">Golden path</a><a href="#b1">Bonus B1</a><a href="#spend">Spend</a>
   </nav>
 </header>
 
@@ -350,6 +350,39 @@
   </ol>
 </section>
 
+<!-- ───────────── Bonus B1 ───────────── -->
+<section id="b1">
+  <h2>Bonus B1: Stats tab, cost meter, durable sessions</h2>
+  <p><span class="pill ok">Complete</span> B1.5 Stats tab (<code>shared/utils/stats.ts</code> → <code>UTable</code>), B1.6 header cost meter with a session cap, and B1.7 durability, which Kyle added mid-sprint after an HMR reload wiped a session: a JSONL log per session on disk and resume after reload. 42 tests (+3 stats on a hand-built fixture); typecheck and lint are green.</p>
+
+  <figure>
+    <img src="screenshots/b1_stats_tab_watch.webp" alt="Stats tab in Watch mode" style="max-width:100%">
+    <figcaption><b>The Stats tab matches storyboard frame 6 and fits the 360 px panel.</b> After 13 Watch hands (Jev, Luna Decisions, Luna, Haiku) it shows, per seat, hands, VPIP, PFR, AF, WTSD, W$SD, average decision time and cost. Recomputing <code>seatStats()</code> from the on-disk JSONL gives the same VPIP/PFR/AF/WTSD/W$SD. This session survived a full reload and an HMR remount, and every hand conserves 4,000 chips. Haiku busted on hand 6, so its row reads 6 hands.</figcaption>
+  </figure>
+  <figure>
+    <img src="screenshots/b1_cost_meter_cap.webp" alt="Cost meter and cap popover" style="max-width:100%">
+    <figcaption><b>The header cost meter opens the cap setting.</b> "$0.000 this session" comes from <code>pricing.ts</code> × token usage, and clicking it opens the session cap input (default $2, here lowered to the $0.01 minimum to force a cap hit). The Watch bar echoes the cap.</figcaption>
+  </figure>
+  <figure>
+    <img src="screenshots/b1_cap_paused.webp" alt="Session cap reached" style="max-width:100%">
+    <figcaption><b>The cap stops spending.</b> At $0.010 of $0.01 Watch mode switched itself to Pause, the bar and meter turned warning, and a persistent toast offered "Raise cap to $1.02 and resume". Clicking it went back to Max. In Play mode the same gate stops before the next AI turn.</figcaption>
+  </figure>
+  <figure>
+    <img src="screenshots/b1_resume_after_reload.webp" alt="Table restored after reload" style="max-width:100%">
+    <figcaption><b>A reload no longer loses the session.</b> We played 3 Play-mode hands, dealt hand 4, and reloaded while an AI was on turn. The table came back on hand 4 with the same session id, Hands (3), the chip chart and the $0.002 meter. The in-flight AI turn was re-requested, and AI hole cards stay hidden in Play. On disk, <code>data/sessions/&lt;id&gt;.jsonl</code> had <code>session_start</code> + 3 <code>hand</code> lines (every hand 4,000 chips; 25 decisions with reasoning), and Leave added a <code>session_end</code> and cleared the snapshot.</figcaption>
+  </figure>
+
+  <h3>Deviations and known issues</h3>
+  <ul class="issues">
+    <li><strong>Scope addition B1.7:</strong> <code>server/api/log.post.ts</code> (zod, append-only, <code>data/</code> gitignored) and <code>app/utils/persist.ts</code> (try/catch localStorage snapshot, fire-and-forget posts with one retry). Every line is tagged <code>source: 'casual'</code>. The schema is in <code>AGENTS.md</code> § Session logs.</li>
+    <li><code>/play</code> is now client-only (<code>routeRules</code>). SSR can't read the snapshot and used to redirect to <code>/</code> once the in-memory lineup was gone.</li>
+    <li>Found during verification: a reload mid-AI-turn logged a "Client fallback: Failed to fetch" fold (once, session <code>783c392d…</code> hand 6). <code>beforeunload</code> now aborts the request, and a re-test showed no new fallback.</li>
+    <li>Nuxt UI toast gotchas: re-adding a toast with a just-removed id loses it, so each cap hit uses a fresh id. <code>duration: Infinity</code> needs <code>progress: false</code>.</li>
+    <li>Stats count finished hands only. Avg ms and cost include the hand in play, matching the meter. No stat reaches <code>/api/decide</code>.</li>
+    <li><strong>Open:</strong> a reload in the instant between a hand completing and its log post can drop that one line. A closed tab writes no <code>session_end</code>. Spend can overshoot the cap by one decision.</li>
+  </ul>
+</section>
+
 <!-- ───────────── Spend ───────────── -->
 <section id="spend">
   <h2>Spend to date</h2>
@@ -366,11 +399,12 @@
         <tr><td><strong>Sprint 2 total</strong></td><td class="num"><strong>≈ $0.03</strong></td><td>plan</td></tr>
         <tr><td>Sprint 3: about 25 hands, cheap seats (mostly the Watch run)</td><td class="num">not recorded</td><td>plan gives hands, not dollars</td></tr>
         <tr><td>Sprint 4: about 24 hands (Watch table $0.020, Sol table $0.019, side-pot table and checks &lt; $0.01)</td><td class="num">≈ $0.05</td><td>plan</td></tr>
-        <tr><th>Total</th><td class="num"><strong>≈ $0.11</strong></td><td>key-level figure; Sprint 3 is about $0.03 by difference</td></tr>
+        <tr><td>Bonus B1: about 35 cheap-seat hands (Watch + Play, cap and reload tests)</td><td class="num">≈ $0.06</td><td>in-app meter / JSONL usage</td></tr>
+        <tr><th>Total (Sprints 1–4)</th><td class="num"><strong>≈ $0.11</strong></td><td>key-level figure; Sprint 3 is about $0.03 by difference</td></tr>
       </tbody>
     </table>
   </div>
-  <p class="meta">Remaining soft allocations: B1 + B2 $5, B3 $15, B4 $25, reserve $2. None of the bonus sprints have started.</p>
+  <p class="meta">Remaining soft allocations: B1 + B2 $5, B3 $15, B4 $25, reserve $2. B1 is complete. The key read <strong>$2.01</strong> spent after B1 (it was $0.71 before). Most of that jump came from a premium Watch table in another browser tab (Astra, Opus 5.5, Gemini 3.1 Pro, Jev), not from B1 verification.</p>
 </section>
 
 </main>

@@ -18,13 +18,16 @@ const props = defineProps<{
   watching?: boolean
   history: HandRecord[]
   startingStacks: Record<string, number>
+  /** Every AI decision this session, for the Stats tab's latency and cost columns. */
+  allDecisions: DecisionRecord[]
 }>()
 
-const tab = ref<'talk' | 'hands' | 'chips'>('talk')
+const tab = ref<'talk' | 'hands' | 'chips' | 'stats'>('talk')
 const tabs = computed(() => [
   { label: 'Table talk', value: 'talk' },
   { label: 'Hands', value: 'hands', badge: props.history.length ? { label: String(props.history.length), color: 'neutral' as const, variant: 'soft' as const } : undefined },
-  { label: 'Chips', value: 'chips' }
+  { label: 'Chips', value: 'chips' },
+  { label: 'Stats', value: 'stats' }
 ])
 
 const STREET_LABEL: Record<string, string> = { preflop: 'Preflop', flop: 'Flop', turn: 'Turn', river: 'River', complete: 'Done' }
@@ -120,10 +123,16 @@ const held = computed(() => {
         :has-human="!watching"
       />
       <ChipChart
-        v-else
+        v-else-if="tab === 'chips'"
         :seats="state.seats"
         :hands="history"
         :starting-stacks="startingStacks"
+      />
+      <SeatStatsTable
+        v-else
+        :seats="state.seats"
+        :hands="history"
+        :decisions="allDecisions"
       />
     </div>
 
@@ -135,6 +144,13 @@ const held = computed(() => {
             class="size-[13px] shrink-0"
           />
           {{ decisions.length }} AI {{ decisions.length === 1 ? 'decision' : 'decisions' }} · ${{ handCost.toFixed(3) }} this hand. The full action log is under Hands.
+        </template>
+        <template v-else-if="tab === 'stats'">
+          <UIcon
+            name="i-lucide-sigma"
+            class="size-[13px] shrink-0"
+          />
+          {{ history.length }} finished {{ history.length === 1 ? 'hand' : 'hands' }}. Computed in stats.ts from the action log; no seated model ever sees these numbers.
         </template>
         <template v-else-if="tab !== 'talk'">
           <UIcon

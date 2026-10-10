@@ -1,7 +1,7 @@
 # Hold'em AI — Implementation Plan
 
 **Created:** October 9, 2026
-**Status:** Complete (Sprints 1–4); bonus B1–B4 not started
+**Status:** Complete (Sprints 1–4); bonus B1 complete (2026-10-10), B2–B5 not started
 **Context:** Kyle wants a no-limit Texas Hold'em game where the human sits at a table of AI opponents, each seat a different model: general LLMs (GPT-6, Claude, Gemini) and the new **decision models** (OpenAI's `gpt-6-luna-decisions` and TypeSafe AI's `jev`), which answer typed questions with probabilities instead of writing prose. It's a sibling of `2048-ai`: same stack, same taste, same "watch models think" hook.
 
 **Goal:** `npm run dev` → pick 1–5 AI opponents → play hands of no-limit hold'em against them in a clean UI, see each model's reasoning (or probability spread) revealed after every hand, and get a session leaderboard when you leave or bust.

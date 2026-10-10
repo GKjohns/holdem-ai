@@ -15,9 +15,14 @@ export function useLineup() {
   return useState<Lineup | null>('lineup', () => null)
 }
 
-/** Hand # + blinds for the app header while a table is open, and a "leave" signal back to the page. */
+/** Default session spend cap, USD. */
+export const DEFAULT_COST_CAP = 2
+
+/** Hand #, blinds and session spend for the app header while a table is open, and a "leave" signal back to the page. */
 export function useTableHeader() {
-  const meta = useState<{ handNo: number, smallBlind: number, bigBlind: number } | null>('table-header', () => null)
+  const meta = useState<{ handNo: number, smallBlind: number, bigBlind: number, costUsd: number, capped: boolean } | null>('table-header', () => null)
   const leaveRequests = useState('table-leave', () => 0)
-  return { meta, leaveRequests }
+  /** Session spend cap in USD (default $2); kept across tables until refresh. */
+  const costCap = useState('table-cost-cap', () => DEFAULT_COST_CAP)
+  return { meta, leaveRequests, costCap }
 }

@@ -44,6 +44,8 @@ function addSeat() {
 function deal() {
   const [sb, big] = blinds.value.split('/').map(Number)
   lineup.value = { mode: mode.value, seats: seats.value.slice(), stack: stack.value, smallBlind: sb!, bigBlind: big! }
+  // A new table from setup replaces any session /play would otherwise resume.
+  clearSnapshot()
   navigateTo('/play')
 }
 </script>

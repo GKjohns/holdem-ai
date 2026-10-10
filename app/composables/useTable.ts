@@ -1,8 +1,10 @@
 import type { ActionEvent, Card, Decision, HandResult, MenuId, PlayerAction, SeatView, Street, TableState } from '~~/shared/utils/types'
 import { activeSeatCount, applyAction, legalActions, newTable, seatView, startHand, withTableTalk } from '~~/shared/utils/table'
 import { buildMenu } from '~~/shared/utils/menu'
+import { seatStats, sessionCost } from '~~/shared/utils/stats'
+import { clearSnapshot, postLog, saveSnapshot, type TableSnapshot } from '~/utils/persist'
 import { findModel } from '~~/shared/utils/models'
-import type { Lineup } from './useLineup'
+import { DEFAULT_COST_CAP, type Lineup } from './useLineup'
 
 export const HUMAN_ID = 'you'
 export const HAND_CAP = 100
@@ -46,7 +48,8 @@ export interface HandRecord {
 /** Lines a seat already said this session, newest last (deduped), so the LLM can vary its banter. */
 const PRIOR_TALK_MAX = 6
 
-export function useTable(lineup: Lineup, opts: { stacks?: number[], seed?: number } = {}) {
+export function useTable(lineup: Lineup, opts: { stacks?: number[], seed?: number, cap?: Ref<number>, restore?: TableSnapshot } = {}) {
+  const snap = opts.restore
   const hasHuman = lineup.mode === 'play'
   const ais = lineup.seats.map((modelId, i) => {
     const label = findModel(modelId)?.label ?? modelId
@@ -59,23 +62,35 @@ export function useTable(lineup: Lineup, opts: { stacks?: number[], seed?: numbe
     { players, stacks, smallBlind: lineup.smallBlind, bigBlind: lineup.bigBlind },
     seed
   )
-  const state = shallowRef<TableState>(freshTable(opts.seed))
+  const state = shallowRef<TableState>(snap?.state ?? freshTable(opts.seed))
   /** Stacks when the session started (net chips and the chart's hand 0). */
-  const startingStacks = Object.fromEntries(state.value.seats.map(s => [s.id, s.stack])) as Record<string, number>
-  const history = ref<HandRecord[]>([])
-  const startedAt = ref(Date.now())
+  const startingStacks = snap?.startingStacks ?? Object.fromEntries(state.value.seats.map(s => [s.id, s.stack])) as Record<string, number>
+  const history = ref<HandRecord[]>(snap?.history ?? [])
+  const startedAt = ref(snap?.startedAt ?? Date.now())
+  /** Names the on-disk log (data/sessions/<id>.jsonl); a reset starts a new one. */
+  let sessionId = snap?.sessionId ?? crypto.randomUUID()
 
   /** Seat id currently waiting on /api/decide. */
   const thinking = ref<string | null>(null)
   /** Every AI decision this session; the hand review (and Watch mode's live panel) reads it. */
-  const decisions = ref<DecisionRecord[]>([])
+  const decisions = ref<DecisionRecord[]>(snap?.decisions ?? [])
   /** Engine `lastAction` text per log index for the current hand ("calls 40, all-in"). */
-  const actionLabels = ref<string[]>([])
+  const actionLabels = ref<string[]>(snap?.actionLabels ?? [])
   /** "You post 5 · GPT-6 Sol posts 10" for the current hand (blinds aren't log events). */
-  const blindsNote = ref('')
-  const pace = ref<Pace>('1x')
+  const blindsNote = ref(snap?.blindsNote ?? '')
+  const pace = ref<Pace>(snap?.pace ?? '1x')
+  /** Session spend cap in USD; AI turns stop once spend reaches it. */
+  const cap = opts.cap ?? ref(DEFAULT_COST_CAP)
+  /** Gateway cost of this session's decisions (pricing.ts × usage). */
+  const spent = computed(() => sessionCost(decisions.value))
+  /** True while the cap is holding AI turns back. */
+  const capped = ref(false)
+  /** Watch mode: the pace to go back to when the cap is lifted from the toast. */
+  let paceBeforeCap: Exclude<Pace, 'pause'> = '1x'
 
   const toast = useToast()
+  /** Each cap hit gets a fresh toast id: Nuxt UI removes by id after a delay, which would eat a re-added toast. */
+  let capToastId: string | null = null
   let runId = 0
   let controller: AbortController | null = null
 
@@ -138,7 +153,44 @@ export function useTable(lineup: Lineup, opts: { stacks?: number[], seed?: numbe
       blindsNote: blindsNote.value,
       decisions: decisions.value.filter(d => d.handNo === s.handNo)
     })
+    const h = history.value.at(-1)!
+    postLog({
+      type: 'hand', sessionId, mode: lineup.mode, seats: players, seed: s.seed,
+      handNo: h.handNo, button: h.button, holes: h.holes, board: h.board, blinds: h.blindsNote,
+      log: h.log, actionLabels: h.actionLabels, decisions: h.decisions,
+      result: { pots: h.pots, shown: h.shown, deltas: h.deltas }, stacksAfter: h.stacksAfter
+    })
   }
+
+  function logSessionStart() {
+    postLog({
+      type: 'session_start', sessionId, mode: lineup.mode, seats: players,
+      config: { stacks: startingStacks, smallBlind: lineup.smallBlind, bigBlind: lineup.bigBlind, seed: state.value.seed }
+    })
+  }
+
+  /** Session over (leave, bust, cap, new table): write the summary line and drop the resume snapshot. */
+  function endSession(reason: string | null) {
+    postLog({
+      type: 'session_end', sessionId, mode: lineup.mode, hands: history.value.length, reason,
+      costUsd: spent.value, stacks: Object.fromEntries(state.value.seats.map(x => [x.id, x.stack])),
+      stats: seatStats(players.map(p => p.id), history.value, decisions.value)
+    })
+    clearSnapshot()
+  }
+
+  function persist() {
+    saveSnapshot({
+      v: 1, sessionId, lineup: { ...lineup, seats: lineup.seats.slice() }, startingStacks, startedAt: startedAt.value,
+      state: state.value, history: history.value, decisions: decisions.value,
+      actionLabels: actionLabels.value, blindsNote: blindsNote.value, pace: pace.value, costUsd: spent.value, cap: cap.value
+    })
+  }
+  // After every applied action (state), decision, finished hand or pace change. Only once a hand is dealt.
+  watch([state, () => decisions.value.length, () => history.value.length, pace, cap], () => {
+    if (state.value.handNo > 0) persist()
+  })
+  if (!snap && import.meta.client) logSessionStart()
 
   function priorTalk(seatId: string): string[] {
     const lines: string[] = []
@@ -197,6 +249,48 @@ export function useTable(lineup: Lineup, opts: { stacks?: number[], seed?: numbe
     })
   }
 
+  const nextCap = () => Math.ceil((Math.max(cap.value, spent.value) + 1) * 100) / 100
+
+  function liftCap() {
+    capped.value = false
+    if (capToastId) toast.remove(capToastId)
+    capToastId = null
+    if (!hasHuman) pace.value = paceBeforeCap
+    else if (toActSeat.value?.modelId) runAI()
+  }
+
+  /** The toast's resume: raise the cap by $1 (the watcher below does the rest). */
+  function raiseCapAndResume() {
+    cap.value = nextCap()
+  }
+
+  /** Stop AI turns at the cap: Watch pauses, Play stops before the next AI decision. */
+  function hitCap() {
+    capped.value = true
+    if (!hasHuman && pace.value !== 'pause') {
+      paceBeforeCap = pace.value
+      pace.value = 'pause'
+    }
+    const next = nextCap()
+    if (capToastId) toast.remove(capToastId)
+    capToastId = `session-cap-${Date.now()}`
+    toast.add({
+      id: capToastId,
+      title: `Session cap reached: $${spent.value.toFixed(3)} of $${cap.value.toFixed(2)}`,
+      description: hasHuman ? 'AI turns are on hold.' : 'The table is paused.',
+      color: 'warning',
+      icon: 'i-lucide-circle-dollar-sign',
+      duration: Infinity,
+      progress: false,
+      actions: [{ label: `Raise cap to $${next.toFixed(2)} and resume`, color: 'neutral', variant: 'outline', onClick: raiseCapAndResume }]
+    })
+  }
+
+  // Raising the cap (toast button or the header input) lifts the hold and resumes where the cap stopped.
+  watch(cap, (v) => {
+    if (capped.value && spent.value < v) liftCap()
+  })
+
   /** Drive AI seats until it's the human's turn or the hand ends; in Watch mode, keep dealing. */
   async function runAI() {
     const id = ++runId
@@ -221,6 +315,13 @@ export function useTable(lineup: Lineup, opts: { stacks?: number[], seed?: numbe
         continue
       }
       if (!seat.modelId) break
+      if (spent.value >= cap.value) {
+        hitCap()
+        // Watch mode loops back into the pause wait; Play mode ends the loop until resumed.
+        if (hasHuman) break
+        continue
+      }
+      capped.value = false
 
       const handNo = state.value.handNo
       const logIndex = state.value.log.length
@@ -277,6 +378,11 @@ export function useTable(lineup: Lineup, opts: { stacks?: number[], seed?: numbe
     actionLabels.value = []
     blindsNote.value = ''
     startedAt.value = Date.now()
+    capped.value = false
+    if (capToastId) toast.remove(capToastId)
+    capToastId = null
+    sessionId = crypto.randomUUID()
+    logSessionStart()
     deal()
   }
 
@@ -287,13 +393,20 @@ export function useTable(lineup: Lineup, opts: { stacks?: number[], seed?: numbe
     thinking.value = null
   }
 
-  onBeforeUnmount(stop)
+  // A reload kills the in-flight /api/decide; abort first so it isn't recorded as a fallback fold.
+  // The snapshot keeps the AI on turn, and the restored table re-requests it.
+  if (import.meta.client) window.addEventListener('beforeunload', stop)
+  onBeforeUnmount(() => {
+    if (import.meta.client) window.removeEventListener('beforeunload', stop)
+    stop()
+    if (capToastId) toast.remove(capToastId)
+  })
 
   return {
-    state, hasHuman, thinking, decisions, actionLabels, blindsNote, pace,
+    state, hasHuman, thinking, decisions, actionLabels, blindsNote, pace, cap, spent, capped, raiseCapAndResume,
     history, startingStacks, startedAt, lineup,
     toActSeat, isHumanTurn, human, humanLegal, humanMenu, canDeal, finished,
-    deal, act, stop, reset, resume: runAI
+    deal, act, stop, reset, resume: runAI, endSession
   }
 }
 

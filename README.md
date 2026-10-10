@@ -33,7 +33,9 @@ A model error, timeout (30 s) or illegal pick falls back to check-if-free-else-f
 
 - **Play**: you plus 1–5 AIs. Reasoning and probabilities stay sealed until the hand ends, then a per-seat hand review opens.
 - **Watch**: 2–6 AIs and no human, so every card and every thought is live. Pace: Pause, 1×, 4×, Max.
-- The side panel has three tabs: **Table talk** (live log, or the hand review), **Hands** (every finished hand: winner, board, chip swings, and the full log with reasoning), and **Chips** (stack-over-hands chart and current stacks).
+- The side panel has four tabs: **Table talk** (live log, or the hand review), **Hands** (every finished hand: winner, board, chip swings, and the full log with reasoning), **Chips** (stack-over-hands chart and current stacks), and **Stats** (per seat: VPIP, PFR, aggression factor, went-to-showdown and won-at-showdown %, average decision time, cost). Stats are for you to read; no seated model ever sees them.
+- The header shows what the session has cost so far ("$0.042 this session", from `pricing.ts` × tokens). Click it to set a session cap (default $2). At the cap, Watch pauses and Play holds AI turns, with a toast to raise the cap and resume.
+- A reload resumes the table where it was. Every finished hand is also appended to `data/sessions/<sessionId>.jsonl` (gitignored; schema in `AGENTS.md`).
 - **Leave table**, or busting, opens a session summary: net chips, hands won, average decision time and gateway cost per seat.
 - Debug URLs: `/play?stacks=100,500,1000,1000,1000` sets starting stacks, `?seats=jev,gpt-6-luna` picks opponents by id or id suffix, `?mode=watch` skips straight to an all-AI table.
 
@@ -43,9 +45,11 @@ A model error, timeout (30 s) or illegal pick falls back to check-if-free-else-f
 - `shared/utils/handRank.ts`, `cards.ts`, `menu.ts`, `types.ts`, `models.ts`, `pricing.ts`, `rng.ts` — hand ranking, deck, the shared action menu, contracts, roster, prices, seeded RNG.
 - `server/utils/decide.ts` — both decider paths, prompts, timeouts, fallbacks. `server/api/decide.post.ts` validates the request and calls it.
 - `app/composables/useTable.ts` — the client game loop, decision log and hand history. `app/pages/play.vue` and `app/components/` are the table UI.
-- `app/utils/reveal.ts` — the one gate for what the UI may show mid-hand. `app/utils/session.ts` — summary and chart numbers.
+- `app/utils/reveal.ts` — the one gate for what the UI may show mid-hand. `app/utils/session.ts` — summary and chart numbers. `app/utils/persist.ts` — the resume snapshot and session log posts.
+- `shared/utils/stats.ts` — per-seat VPIP, PFR, AF, WTSD, W$SD, latency and cost from hand history.
+- `server/api/log.post.ts` — appends session log lines to `data/sessions/`.
 - `bench/selfplay.ts` — all-AI self-play through the engine and `decide()` directly; `bench/latency.ts` — latency probe.
-- `tests/` — engine, menu, prompt, reveal and session tests.
+- `tests/` — engine, menu, prompt, reveal, session and stats tests.
 
 ## Setup
 

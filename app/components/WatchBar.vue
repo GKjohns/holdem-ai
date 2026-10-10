@@ -7,6 +7,9 @@ defineProps<{
   seatCount: number
   /** Why the table stopped, once it has. */
   finished: string | null
+  /** Session spend cap, USD. */
+  cap: number
+  capped: boolean
 }>()
 
 const pace = defineModel<Pace>('pace', { required: true })
@@ -35,6 +38,10 @@ const PACES: { value: Pace, label: string }[] = [
         {{ finished ?? 'Every hole card is visible to you; each model still sees only its own.' }}
       </div>
     </div>
+    <span
+      class="text-[12.5px]"
+      :class="capped ? 'text-warning font-medium' : 'text-muted'"
+    >{{ capped ? `Paused at the $${cap.toFixed(2)} cap` : `Session cap $${cap.toFixed(2)}` }}</span>
     <UFieldGroup
       size="sm"
       aria-label="Pace"

@@ -15,6 +15,11 @@ export default defineNuxtConfig({
     aiGatewayApiKey: process.env.AI_GATEWAY_API_KEY
   },
 
+  // The table resumes from a localStorage snapshot, which only the client can read.
+  routeRules: {
+    '/play': { ssr: false }
+  },
+
   compatibilityDate: '2026-06-30',
 
   eslint: {

@@ -1,7 +1,7 @@
 # Hold'em AI — Bonus Sprints: Spectator, Narrator, Tournaments, Strategy Lab
 
 **Created:** October 9, 2026
-**Status:** Not Started · optional · runs only after Sprints 1–4 of [`implementation_plan.md`](./implementation_plan.md) are done
+**Status:** B1 complete (2026-10-10); B2–B5 not started · optional · runs only after Sprints 1–4 of [`implementation_plan.md`](./implementation_plan.md) are done
 **Context:** Kyle: "let them just watch the models play against each other… track their performance… an AI narrator… tournaments, a bunch of times, see the trends… then have a really powerful model like Fable plan strategies, personalities, approaches and explore: work the explore-exploit, test a few at the same time, and learn empirically what wins. Don't rely on what you think will win."
 
 **Goal:** four optional sprints that build on each other. Each one is useful on its own, so we can stop after any of them:
@@ -22,13 +22,13 @@ Storyboard: frames **6–7** in [`storyboard.html`](./storyboard.html) (Spectato
 - **No new infra.** Still local-only, no DB. Batch results are **plaintext JSONL** under `data/` (gitignored), matching Kyle's plaintext-over-databases rule. Pages read them through a small `server/api/results.get.ts`.
 - **The engine stays pure, and so do the stats.** Every number (VPIP, aggression, bb/100, CIs) is computed in `shared/utils/stats.ts` from `ActionEvent` logs. LLMs (narrator, Fable) only *interpret* numbers they're handed; they never compute them.
 - **Information hygiene still holds.** Seated models only ever see `seatView`. The narrator and Fable get god-view hand histories, but **only for completed hands**, and they never sit at the table.
-- **Budget is the real constraint.** The `holdem-ai-50` gateway key has a $50/month quota shared with the main plan; allocations and the **pilot-before-scale gate** are in `implementation_plan.md` § Budget (B3 ≤ $15, B4 ≤ $25). Every batch command takes `--budget <usd>`, prints a dry-run cost estimate first (from `pricing.ts` × measured avg tokens per decision), and halts cleanly when spend crosses the cap. 
+- **Budget is the real constraint.** The `holdem-ai-50` gateway key has a $50/month quota shared with the main plan; allocations and the **pilot-before-scale gate** are in `implementation_plan.md` § Budget (B3 ≤ $15, B4 ≤ $22, B5 follow-up experiments ≤ $3). Every batch command takes `--budget <usd>`, prints a dry-run cost estimate first (from `pricing.ts` × measured avg tokens per decision), and halts cleanly when spend crosses the cap. 
 - **Fable's model id:** `anthropic/claude-fable-5.1` (confirmed in gateway `/v1/models` 2026-10-09; $10 / $50 per 1M input/output tokens — the priciest model here, so planner calls only). Add it to `models.ts` as `role: 'planner'` (it's never seated).
 - **Table-information rule (Kyle, 2026-10-09) applies to strategy cards too:** a card may hold style/guidance text, but no seat — carded or not — receives computed odds, equity, or hand-strength helpers. `stats.ts` numbers go only to the narrator and Fable, never to seated players.
 
 ---
 
-## Sprint B1: Spectator mode `[Not Started]`
+## Sprint B1: Spectator mode `[Complete]`
 **Goal:** pick 2–6 models, hit "Watch", and the hand plays itself, readable at human speed.
 **Estimated effort:** 3 hours
 
@@ -42,10 +42,30 @@ Storyboard: frames **6–7** in [`storyboard.html`](./storyboard.html) (Spectato
 - B1.5 Live stats tab: `shared/utils/stats.ts` → per seat: hands, VPIP, PFR, aggression factor, went-to-showdown %, won-at-showdown %, avg decision ms, cost so far. `UTable`.
 - B1.6 Cost meter in the header ("$0.42 this session") with a session cap input (default $2); pause automatically at the cap.
 
-#### Verification (Playwright via subagent)
-- [ ] Watch mode with 4 cheap seats (Jev, Luna Decisions, Luna, Haiku) plays 10 hands unattended; chips conserved; no console errors
-- [ ] Pause / 1× / Max change pacing; the session cap pauses the table
-- [ ] Every seat's hole cards are visible; reasoning shows mid-hand in Watch mode and stays locked in Play mode (regression check)
+- B1.7 **Durability (Kyle, 2026-10-10, added mid-sprint after an HMR reload wiped a session):** on-disk JSONL log per session + resume after reload. See Notes.
+
+#### Verification (Playwright, main loop)
+- [x] Watch mode with 4 cheap seats (Jev, Luna Decisions, Luna, Haiku) played 13 hands unattended at Max, across one full reload and one HMR; 4,000 chips after every hand (snapshot and JSONL); no console errors after the toast fix below — `b1_stats_tab_watch.webp`
+- [x] Stats tab numbers recomputed by `seatStats()` from the on-disk JSONL match the UI exactly (VPIP/PFR/AF/WTSD/W$SD); avg ms differs by a few ms because the UI includes the hand in progress
+- [x] Pause / 1× / Max unchanged (Sprint 3); the session cap pauses Watch at $0.010 of $0.01 with a toast, and "Raise cap to $1.02 and resume" goes back to Max — `b1_cap_paused.webp`, `b1_cost_meter_cap.webp`
+- [x] Play 3 hands, deal hand 4, reload mid-AI-turn: same session id, hand 4, Hands (3) / Chips / cost meter rebuilt, the in-flight AI turn re-requested (25 → 27 decisions), no AI hole cards shown in Play — `b1_resume_after_reload.webp`. `data/sessions/<id>.jsonl` had 4 lines (start + 3 hands), then a 5th `session_end` on Leave, and the snapshot was cleared
+- [x] Every seat's hole cards visible in Watch; Play mode still sealed (`tests/reveal.test.ts`, unchanged code path)
+- [x] `npm test` (42, +3 stats), `npm run typecheck`, `npm run lint` green
+
+#### Notes & deviations (2026-10-10)
+- **Stats (B1.5):** `shared/utils/stats.ts` (`seatStats`, `sessionCost`) is pure and tested on a hand-built 4-hand fixture (`tests/stats.test.ts`), covering limps, a 3-bet pot, a short all-in call, a split and a busted seat. Definitions: VPIP counts any voluntary preflop chips (blinds aren't log events, so a BB check doesn't count); PFR = a preflop event with `raiseTo`; AF = postflop (bets + raises) / calls, `∞` when never calling and `—` with no postflop action; WTSD = showdowns / hands that saw the flop; W$SD = showdowns where the seat won any pot. Counts are only over finished hands. Avg ms and cost include the hand in play, matching the header meter; latency is public at a real table, and nothing about reasoning is shown. `SeatStatsTable.vue` is a `UTable` with the storyboard's short labels; hands per seat sit under the name so 8 columns fit 360 px; abbreviations are defined under the table. Stats are never passed to `/api/decide`.
+- **Cost meter (B1.6):** header button "$0.017 this session" (three decimals, since cheap seats cost fractions of a cent); clicking it opens a `UPopover` with the cap `UInputNumber` (default $2, min $0.01, no step snapping). The cap also shows in the Watch bar ("Session cap $2.00", or "Paused at the $X cap" in warning). The gate runs before every AI decision in `useTable.runAI`. Watch sets pace to Pause; Play stops the loop before the AI turn. Both show a persistent toast with "Raise cap to $N and resume" (+$1). Raising the cap in the popover also resumes. Spend can overshoot by one decision, because the check runs before a call, not during it.
+- **Toast gotcha:** `toast.remove(id)` + `toast.add({ id })` with the same id loses the new toast, because Nuxt UI removes by id after a delay. Each cap hit uses a fresh id. `duration: Infinity` needs `progress: false`, or `UProgress` logs a NaN prop error.
+- **B1.7 durability (scope addition):**
+  - `server/api/log.post.ts` appends zod-validated lines to `data/sessions/<sessionId>.jsonl` (`data/` gitignored). Posts are `session_start`, then one `hand` line the moment each hand completes, then `session_end` when the summary opens.
+  - Every line is tagged `source: 'casual'`. The line schema is documented in `AGENTS.md` § Session logs.
+  - `app/utils/persist.ts` wraps localStorage (every access in try/catch) and posts fire-and-forget with one retry.
+  - **`/play` is now client-only** (`routeRules: { '/play': { ssr: false } }`): SSR can't read the snapshot, and on a reload the in-memory lineup is gone, so SSR used to redirect to `/`. This `nuxt.config` change restarted Nuxt inside Kyle's dev server once.
+  - Setup clears the snapshot before a new table. A debug URL resumes only a snapshot with the same mode and seats.
+  - `beforeunload` aborts the in-flight `/api/decide`. Before this fix, a reload mid-turn recorded a "Client fallback: Failed to fetch" fold, which is visible once in session `783c392d…` hand 6.
+  - The cap is saved in the snapshot.
+- **Known gaps:** a reload in the instant between a hand completing and its log post landing can drop that one line, though the snapshot keeps it in the UI. A session that is never left (tab closed) has no `session_end`. HMR of `useTable.ts` still remounts the page, but now resumes instead of resetting.
+- **Spend:** about $0.06 metered across my sessions (four cheap-seat tables, about 35 hands total). The key went from $0.71 to $2.01 during the sprint, but most of that came from a concurrent Watch table in another tab (Astra, Opus 5.5, Gemini 3.1 Pro, Jev; session `6ebfa552…` logged $0.65 in 13 hands after the reload, plus whatever it spent before it).
 
 ---
 
@@ -117,7 +137,23 @@ Storyboard: frames **6–7** in [`storyboard.html`](./storyboard.html) (Spectato
 
 ---
 
-## Open Questions (for Kyle)
+## Sprint B5: Findings report `[Not Started]`
+**Goal (Kyle, 2026-10-10):** a written report that tells the story of what happened: how each model plays, who wins and why, what surprised us. Breadth first, then follow hunches down rabbit holes.
+**Runs after B4.** Done by a dedicated analyst subagent with fresh eyes (not the agent that built B3/B4).
+
+**Data it needs (so B3/B4 must log it):** every hand's god-view history (all hole cards, board, every action with the seat view the model saw), every `Decision` (reasoning, table talk, probabilities, latency, usage, fallback/retried), tournament results, lab cards/predictions/memos. Plaintext JSONL under `data/`.
+
+**Shape of the analysis:**
+- **Breadth:** leaderboard with CIs, style profiles (VPIP/PFR/AF/WTSD), cost vs performance (bb/100 per dollar), latency, fallback/refusal rates, LLMs vs decision models.
+- **Depth (pick 3–5 hunches, chase each to a conclusion):** examples — do decision models get exploited by overbets? Do LLMs' stated reasoning and their actual actions disagree? Does Luna Decisions' choice diverge from its own top probability, and when? Do models play differently against named opponents? Does table talk leak hand strength? Which leaks did the winning strategy cards exploit? Where were Fable's priors most wrong?
+- Small targeted follow-up experiments are allowed to settle a hunch (≤ $3, pilot rule applies).
+- Every claim cites a number or a hand number; charts follow the `dataviz` skill; uncertainty stated honestly (noise is a finding too).
+
+**Deliverable:** `internal_docs/20261009_holdem_vs_models/findings/report.html` (self-contained, charts inline SVG, notable hands rendered as small hand histories) + `findings/notebook/` with the scripts that produced every number. Published as a private Artifact for Kyle to read/share.
+
+**Budget:** report follow-ups ≤ $3, taken from B4 (B4 cap becomes $22).
+
+
 1. ~~Budget for B4~~ **Resolved 2026-10-09:** $50 total key quota; B4 gets ≤ $25. Pilot first (2 generations × 4 cards, ≤ $3), then show Kyle the pilot summary + projected cost before the full run.
 2. **Base model for strategy cards:** one cheap model (cleaner experiment, the default) or the top cards crossed across 2–3 base models (tells us whether strategies transfer)?
 3. **Should B1 spectator sessions feed B3's results?** It's free data, but those sessions aren't duplicate-seeded. Default: store them, tagged `casual`, and exclude them from CIs.
