@@ -1,0 +1,99 @@
+{
+ "allinHands": 202,
+ "skippedMismatch": 0,
+ "models": {
+  "openai/gpt-6-sol": {
+   "hands": 1592,
+   "allinShowdowns": 134,
+   "bb100": 81.24980370603014,
+   "luckBb": 73.90499369444547,
+   "adjustedBb100": 76.60753023276095
+  },
+  "anthropic/claude-haiku-5.5": {
+   "hands": 1048,
+   "allinShowdowns": 75,
+   "bb100": -45.824188931297705,
+   "luckBb": 30.422547901958747,
+   "adjustedBb100": -48.7271038074388
+  },
+  "openai/gpt-6-luna": {
+   "hands": 1669,
+   "allinShowdowns": 73,
+   "bb100": 1.766589275014979,
+   "luckBb": 83.87678852197745,
+   "adjustedBb100": -3.2589822361879834
+  },
+  "openai/gpt-6-luna-decisions": {
+   "hands": 1653,
+   "allinShowdowns": 69,
+   "bb100": -4.421128251663642,
+   "luckBb": -34.6689831329019,
+   "adjustedBb100": -2.323791099037998
+  },
+  "typesafe-ai/jev": {
+   "hands": 1243,
+   "allinShowdowns": 65,
+   "bb100": -61.91975060337891,
+   "luckBb": -153.53534698547983,
+   "adjustedBb100": -49.56775165040387
+  }
+ },
+ "luckByMatch": {
+  "m01": {
+   "anthropic/claude-haiku-5.5": 10.21004696969697,
+   "typesafe-ai/jev": -23.312778598484844,
+   "openai/gpt-6-sol": 47.59205778093435,
+   "openai/gpt-6-luna-decisions": -32.46115427714646,
+   "openai/gpt-6-luna": -2.0281718750000026
+  },
+  "m02": {
+   "anthropic/claude-haiku-5.5": 14.66351957070708,
+   "typesafe-ai/jev": -11.611647758838386,
+   "openai/gpt-6-sol": -14.620703393308078,
+   "openai/gpt-6-luna": 21.145598863636366,
+   "openai/gpt-6-luna-decisions": -9.57676728219697
+  },
+  "m03": {
+   "anthropic/claude-haiku-5.5": -30.107174963086006,
+   "typesafe-ai/jev": -26.80661305239899,
+   "openai/gpt-6-sol": 16.523157907196968,
+   "openai/gpt-6-luna-decisions": -6.368271624572133,
+   "openai/gpt-6-luna": 46.758901732860174
+  },
+  "m04": {
+   "openai/gpt-6-sol": -33.817046291035346,
+   "anthropic/claude-haiku-5.5": 19.842374960542926,
+   "openai/gpt-6-luna": 2.012221874999999,
+   "openai/gpt-6-luna-decisions": -6.014687065972223,
+   "typesafe-ai/jev": 17.977136521464647
+  },
+  "m05": {
+   "anthropic/claude-haiku-5.5": -18.049402367424246,
+   "openai/gpt-6-luna-decisions": -3.187126562500005,
+   "openai/gpt-6-sol": 7.652891500946965,
+   "typesafe-ai/jev": 4.884024147727268,
+   "openai/gpt-6-luna": 8.69961328125
+  },
+  "m06": {
+   "openai/gpt-6-sol": 69.22670570032759,
+   "openai/gpt-6-luna-decisions": -4.169677487866624,
+   "typesafe-ai/jev": -15.891956912878786,
+   "anthropic/claude-haiku-5.5": -33.966808238636375,
+   "openai/gpt-6-luna": -15.198263060945838
+  },
+  "m07": {
+   "anthropic/claude-haiku-5.5": 76.57188680555555,
+   "typesafe-ai/jev": -30.201896906565658,
+   "openai/gpt-6-luna-decisions": 18.901702178030305,
+   "openai/gpt-6-sol": -52.21190940656567,
+   "openai/gpt-6-luna": -13.059782670454547
+  },
+  "m08": {
+   "openai/gpt-6-luna": 35.54667037563131,
+   "typesafe-ai/jev": -68.57161442550506,
+   "openai/gpt-6-sol": 33.55983989594869,
+   "openai/gpt-6-luna-decisions": 8.206998989322209,
+   "anthropic/claude-haiku-5.5": -8.741894835397158
+  }
+ }
+}

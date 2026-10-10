@@ -1,0 +1,792 @@
+{
+ "sources": {
+  "openai/gpt-6-sol": {
+   "hands": 1592,
+   "bb100_showdown": 49.55381909547738,
+   "bb100_no_showdown": 31.695979899497488,
+   "bb100_preflop_ended": 20.41457286432161,
+   "won_uncontested_pct": 28.831658291457288
+  },
+  "openai/gpt-6-luna": {
+   "hands": 1669,
+   "bb100_showdown": 60.849868184541634,
+   "bb100_no_showdown": -59.08328340323547,
+   "bb100_preflop_ended": -7.80407429598562,
+   "won_uncontested_pct": 6.051527860994607
+  },
+  "openai/gpt-6-luna-decisions": {
+   "hands": 1653,
+   "bb100_showdown": 23.396479128856626,
+   "bb100_no_showdown": -27.817604355716878,
+   "bb100_preflop_ended": -8.892921960072595,
+   "won_uncontested_pct": 7.199032062915911
+  },
+  "anthropic/claude-haiku-5.5": {
+   "hands": 1048,
+   "bb100_showdown": -65.3900286259542,
+   "bb100_no_showdown": 19.56583969465649,
+   "bb100_preflop_ended": 6.0353053435114505,
+   "won_uncontested_pct": 26.049618320610687
+  },
+  "typesafe-ai/jev": {
+   "hands": 1243,
+   "bb100_showdown": -51.41141592920354,
+   "bb100_no_showdown": -10.508350764279967,
+   "bb100_preflop_ended": -8.930008045052293,
+   "won_uncontested_pct": 9.895414320193082
+  }
+ },
+ "sol_shoves": {
+  "n": 131,
+  "median_stack_bb": 13.7188,
+  "share_under_15bb": 59.541984732824424,
+  "eqHU_mean": 0.5477664122137405,
+  "won_hand_pct": 77.09923664122137,
+  "bb_per_shove": 1.2295801526717556,
+  "unopened_share": 84.73282442748092
+ },
+ "short_stack_preflop": {
+  "openai/gpt-6-sol": {
+   "n": 236,
+   "shove": 33.05084745762712,
+   "fold": 22.45762711864407,
+   "limp_or_call": 34.32203389830509,
+   "small_raise": 10.169491525423728
+  },
+  "openai/gpt-6-luna": {
+   "n": 472,
+   "shove": 0.847457627118644,
+   "fold": 36.016949152542374,
+   "limp_or_call": 50.42372881355932,
+   "small_raise": 12.711864406779661
+  },
+  "openai/gpt-6-luna-decisions": {
+   "n": 449,
+   "shove": 2.6726057906458798,
+   "fold": 54.12026726057906,
+   "limp_or_call": 38.084632516703785,
+   "small_raise": 5.122494432071269
+  },
+  "anthropic/claude-haiku-5.5": {
+   "n": 186,
+   "shove": 0.0,
+   "fold": 25.268817204301076,
+   "limp_or_call": 56.45161290322581,
+   "small_raise": 18.27956989247312
+  },
+  "typesafe-ai/jev": {
+   "n": 345,
+   "shove": 0.8695652173913043,
+   "fold": 50.14492753623188,
+   "limp_or_call": 35.072463768115945,
+   "small_raise": 13.91304347826087
+  }
+ },
+ "haiku_false_set": {
+  "decisions": 39,
+  "hands": 32,
+  "bb_total": -140.525,
+  "pocket_pair_share": 84.375,
+  "aggressive_share": 74.35897435897436,
+  "examples": [
+   {
+    "tournamentId": "m06-r3",
+    "handNo": 12,
+    "hole": "5h5s",
+    "board": "7d3sAh",
+    "deltaBb": -40.375
+   },
+   {
+    "tournamentId": "m05-r1",
+    "handNo": 6,
+    "hole": "3h3c",
+    "board": "4s9hQh",
+    "deltaBb": -39.75
+   },
+   {
+    "tournamentId": "m01-r0",
+    "handNo": 10,
+    "hole": "4h4c",
+    "board": "2c9dAh",
+    "deltaBb": -32.0
+   },
+   {
+    "tournamentId": "m06-r4",
+    "handNo": 13,
+    "hole": "9s9h",
+    "board": "JdJhKh",
+    "deltaBb": -31.125
+   },
+   {
+    "tournamentId": "m04-r1",
+    "handNo": 4,
+    "hole": "6cAc",
+    "board": "8hQdJs2sAs",
+    "deltaBb": -30.25
+   },
+   {
+    "tournamentId": "m08-r3",
+    "handNo": 6,
+    "hole": "7h7c",
+    "board": "5cQs8s",
+    "deltaBb": -26.0
+   }
+  ]
+ },
+ "haiku_busts": [
+  {
+   "tournamentId": "m05-r0",
+   "handNo": 6.0,
+   "hole": "KhJs",
+   "board": "4s9hQh4cKs",
+   "deltaBb": -25.25,
+   "level": 0.0
+  },
+  {
+   "tournamentId": "m05-r2",
+   "handNo": 8.0,
+   "hole": "Qh4c",
+   "board": "6h7hJd8dAd",
+   "deltaBb": -5.5,
+   "level": 0.0
+  },
+  {
+   "tournamentId": "m07-r3",
+   "handNo": 8.0,
+   "hole": "4d9c",
+   "board": "8sTh5cKsAh",
+   "deltaBb": -2.5,
+   "level": 0.0
+  },
+  {
+   "tournamentId": "m02-r0",
+   "handNo": 11.0,
+   "hole": "JsJd",
+   "board": "2h2c3sAd6c",
+   "deltaBb": -16.5,
+   "level": 1.0
+  },
+  {
+   "tournamentId": "m08-r0",
+   "handNo": 11.0,
+   "hole": "Qs9h",
+   "board": "6c3d2d7hAc",
+   "deltaBb": -9.25,
+   "level": 1.0
+  },
+  {
+   "tournamentId": "m08-r3",
+   "handNo": 11.0,
+   "hole": "KsTs",
+   "board": "6c3d2d7hAc",
+   "deltaBb": -7.25,
+   "level": 1.0
+  },
+  {
+   "tournamentId": "m01-r4",
+   "handNo": 13.0,
+   "hole": "5s4h",
+   "board": "JsTc2hQsJd",
+   "deltaBb": -0.75,
+   "level": 1.0
+  },
+  {
+   "tournamentId": "m08-r4",
+   "handNo": 13.0,
+   "hole": "Kd4d",
+   "board": "3sTd8d7hQc",
+   "deltaBb": -16.75,
+   "level": 1.0
+  },
+  {
+   "tournamentId": "m02-r4",
+   "handNo": 14.0,
+   "hole": "4h4c",
+   "board": "8hAsQhAc5s",
+   "deltaBb": -17.75,
+   "level": 1.0
+  },
+  {
+   "tournamentId": "m03-r1",
+   "handNo": 14.0,
+   "hole": "8s6d",
+   "board": "7dKs5dAdJs",
+   "deltaBb": -22.375,
+   "level": 1.0
+  },
+  {
+   "tournamentId": "m03-r4",
+   "handNo": 14.0,
+   "hole": "3h3d",
+   "board": "7dKs5dAdJs",
+   "deltaBb": -10.15,
+   "level": 1.0
+  },
+  {
+   "tournamentId": "m08-r1",
+   "handNo": 14.0,
+   "hole": "TdAc",
+   "board": "AsJd6h2d3s",
+   "deltaBb": -19.25,
+   "level": 1.0
+  }
+ ],
+ "biggest_pots": [
+  {
+   "tournamentId": "m04-r4",
+   "handNo": 4.0,
+   "bb": 20.0,
+   "board": "8hQdJs2sAs",
+   "seats": {
+    "Jev": {
+     "hole": "6cAc",
+     "deltaBb": -80.75
+    },
+    "Sol": {
+     "hole": "AdQs",
+     "deltaBb": 102.75
+    },
+    "Haiku": {
+     "hole": "7d9s",
+     "deltaBb": -10.75
+    },
+    "Luna": {
+     "hole": "AhTd",
+     "deltaBb": -10.75
+    },
+    "Luna Decisions": {
+     "hole": "2h3d",
+     "deltaBb": -0.5
+    }
+   }
+  },
+  {
+   "tournamentId": "m06-r0",
+   "handNo": 17.0,
+   "bb": 40.0,
+   "board": "7sKh9dJdQc",
+   "seats": {
+    "Sol": {
+     "hole": "Td8d",
+     "deltaBb": 89.375
+    },
+    "Haiku": {
+     "hole": "As9h",
+     "deltaBb": -14.625
+    },
+    "Luna": {
+     "hole": "Js9s",
+     "deltaBb": -17.625
+    },
+    "Luna Decisions": {
+     "hole": "3hKc",
+     "deltaBb": -1.0
+    },
+    "Jev": {
+     "hole": "3dKd",
+     "deltaBb": -56.125
+    }
+   }
+  },
+  {
+   "tournamentId": "m03-r2",
+   "handNo": 4.0,
+   "bb": 20.0,
+   "board": "9cThKhAh4s",
+   "seats": {
+    "Luna": {
+     "hole": "7c6d",
+     "deltaBb": -2.0
+    },
+    "Jev": {
+     "hole": "Ks9d",
+     "deltaBb": -73.5
+    },
+    "Sol": {
+     "hole": "QsJd",
+     "deltaBb": 77.5
+    },
+    "Haiku": {
+     "hole": "3hQd",
+     "deltaBb": -2.0
+    }
+   }
+  },
+  {
+   "tournamentId": "m03-r3",
+   "handNo": 4.0,
+   "bb": 20.0,
+   "board": "9cThKhAh4s",
+   "seats": {
+    "Luna Decisions": {
+     "hole": "7c6d",
+     "deltaBb": -2.0
+    },
+    "Jev": {
+     "hole": "5cAs",
+     "deltaBb": -74.5
+    },
+    "Haiku": {
+     "hole": "QsJd",
+     "deltaBb": 77.0
+    },
+    "Luna": {
+     "hole": "3hQd",
+     "deltaBb": -0.5
+    }
+   }
+  },
+  {
+   "tournamentId": "m07-r3",
+   "handNo": 4.0,
+   "bb": 20.0,
+   "board": "Js6s9c8d8h",
+   "seats": {
+    "Luna Decisions": {
+     "hole": "3hKc",
+     "deltaBb": -1.0
+    },
+    "Jev": {
+     "hole": "QdQc",
+     "deltaBb": 73.25
+    },
+    "Haiku": {
+     "hole": "TdJh",
+     "deltaBb": -63.25
+    },
+    "Luna": {
+     "hole": "AsKd",
+     "deltaBb": -9.0
+    }
+   }
+  },
+  {
+   "tournamentId": "m02-r2",
+   "handNo": 6.0,
+   "bb": 20.0,
+   "board": "Th8s9c5d7d",
+   "seats": {
+    "Luna Decisions": {
+     "hole": "2h6h",
+     "deltaBb": -0.5
+    },
+    "Jev": {
+     "hole": "6c5s",
+     "deltaBb": -1.0
+    },
+    "Sol": {
+     "hole": "KdAs",
+     "deltaBb": -69.0
+    },
+    "Haiku": {
+     "hole": "AhTc",
+     "deltaBb": 70.5
+    }
+   }
+  },
+  {
+   "tournamentId": "m05-r3",
+   "handNo": 6.0,
+   "bb": 20.0,
+   "board": "4s9hQh4cKs",
+   "seats": {
+    "Jev": {
+     "hole": "KhJs",
+     "deltaBb": -60.0
+    },
+    "Sol": {
+     "hole": "TsJc",
+     "deltaBb": -6.0
+    },
+    "Haiku": {
+     "hole": "KcKd",
+     "deltaBb": 68.0
+    },
+    "Luna": {
+     "hole": "Ad8s",
+     "deltaBb": -2.0
+    }
+   }
+  },
+  {
+   "tournamentId": "m04-r1",
+   "handNo": 4.0,
+   "bb": 20.0,
+   "board": "8hQdJs2sAs",
+   "seats": {
+    "Haiku": {
+     "hole": "6cAc",
+     "deltaBb": -30.25
+    },
+    "Luna": {
+     "hole": "AdQs",
+     "deltaBb": 61.0
+    },
+    "Jev": {
+     "hole": "AhTd",
+     "deltaBb": -30.25
+    },
+    "Sol": {
+     "hole": "2h3d",
+     "deltaBb": -0.5
+    }
+   }
+  },
+  {
+   "tournamentId": "m03-r4",
+   "handNo": 4.0,
+   "bb": 20.0,
+   "board": "9cThKhAh4s",
+   "seats": {
+    "Jev": {
+     "hole": "7c6d",
+     "deltaBb": -2.0
+    },
+    "Haiku": {
+     "hole": "Ks9d",
+     "deltaBb": -58.25
+    },
+    "Luna": {
+     "hole": "QsJd",
+     "deltaBb": 60.75
+    },
+    "Luna Decisions": {
+     "hole": "3hQd",
+     "deltaBb": -0.5
+    }
+   }
+  },
+  {
+   "tournamentId": "m04-r1",
+   "handNo": 5.0,
+   "bb": 20.0,
+   "board": "8sKhJsThQs",
+   "seats": {
+    "Haiku": {
+     "hole": "Ah7s",
+     "deltaBb": 59.0
+    },
+    "Luna": {
+     "hole": "Ks2d",
+     "deltaBb": -16.0
+    },
+    "Jev": {
+     "hole": "8hTs",
+     "deltaBb": -41.0
+    },
+    "Sol": {
+     "hole": "8d7h",
+     "deltaBb": -2.0
+    }
+   }
+  }
+ ],
+ "pilot": {
+  "leaderboard": [
+   {
+    "modelId": "openai/gpt-6-sol",
+    "hands": 90,
+    "tournaments": 6,
+    "bb100": {
+     "value": 230.52777777777774,
+     "lo": null,
+     "hi": null
+    },
+    "avgFinish": {
+     "value": 2.5,
+     "lo": null,
+     "hi": null
+    }
+   },
+   {
+    "modelId": "google/gemini-3.1-pro-preview",
+    "hands": 90,
+    "tournaments": 6,
+    "bb100": {
+     "value": 184.86111111111111,
+     "lo": null,
+     "hi": null
+    },
+    "avgFinish": {
+     "value": 2.6666666666666665,
+     "lo": null,
+     "hi": null
+    }
+   },
+   {
+    "modelId": "anthropic/claude-haiku-5.5",
+    "hands": 58,
+    "tournaments": 6,
+    "bb100": {
+     "value": -440.3448275862069,
+     "lo": null,
+     "hi": null
+    },
+    "avgFinish": {
+     "value": 4.833333333333333,
+     "lo": null,
+     "hi": null
+    }
+   },
+   {
+    "modelId": "openai/gpt-6-luna",
+    "hands": 90,
+    "tournaments": 6,
+    "bb100": {
+     "value": 41.25,
+     "lo": null,
+     "hi": null
+    },
+    "avgFinish": {
+     "value": 3,
+     "lo": null,
+     "hi": null
+    }
+   },
+   {
+    "modelId": "openai/gpt-6-luna-decisions",
+    "hands": 90,
+    "tournaments": 6,
+    "bb100": {
+     "value": 135.61111111111111,
+     "lo": null,
+     "hi": null
+    },
+    "avgFinish": {
+     "value": 3.3333333333333335,
+     "lo": null,
+     "hi": null
+    }
+   },
+   {
+    "modelId": "typesafe-ai/jev",
+    "hands": 57,
+    "tournaments": 6,
+    "bb100": {
+     "value": -487.06140350877195,
+     "lo": null,
+     "hi": null
+    },
+    "avgFinish": {
+     "value": 4.666666666666667,
+     "lo": null,
+     "hi": null
+    }
+   }
+  ],
+  "style": [
+   {
+    "modelId": "openai/gpt-6-sol",
+    "hands": 90,
+    "vpip": 37.77777777777778,
+    "pfr": 24.444444444444443,
+    "af": 1.3125,
+    "wtsd": 45.45454545454545,
+    "wsd": 73.33333333333333,
+    "avgMs": 2702,
+    "costUsd": 0.5590080000000002,
+    "decisions": 181
+   },
+   {
+    "modelId": "google/gemini-3.1-pro-preview",
+    "hands": 90,
+    "vpip": 23.333333333333332,
+    "pfr": 14.444444444444443,
+    "af": 3.1666666666666665,
+    "wtsd": 40.909090909090914,
+    "wsd": 33.33333333333333,
+    "avgMs": 5390,
+    "costUsd": 0.6747400000000003,
+    "decisions": 145
+   },
+   {
+    "modelId": "anthropic/claude-haiku-5.5",
+    "hands": 58,
+    "vpip": 77.58620689655173,
+    "pfr": 25.862068965517242,
+    "af": 1.6666666666666667,
+    "wtsd": 52.38095238095239,
+    "wsd": 22.727272727272727,
+    "avgMs": 2784,
+    "costUsd": 0.06205720000000002,
+    "decisions": 188
+   },
+   {
+    "modelId": "openai/gpt-6-luna",
+    "hands": 90,
+    "vpip": 36.666666666666664,
+    "pfr": 14.444444444444443,
+    "af": 0.8333333333333334,
+    "wtsd": 46.666666666666664,
+    "wsd": 78.57142857142857,
+    "avgMs": 2446,
+    "costUsd": 0.025658699999999982,
+    "decisions": 186
+   },
+   {
+    "modelId": "openai/gpt-6-luna-decisions",
+    "hands": 90,
+    "vpip": 28.888888888888886,
+    "pfr": 8.88888888888889,
+    "af": 1.3,
+    "wtsd": 45.83333333333333,
+    "wsd": 45.45454545454545,
+    "avgMs": 224,
+    "costUsd": 0.010183799999999995,
+    "decisions": 157
+   },
+   {
+    "modelId": "typesafe-ai/jev",
+    "hands": 57,
+    "vpip": 50.877192982456144,
+    "pfr": 28.07017543859649,
+    "af": 0.8076923076923077,
+    "wtsd": 59.25925925925925,
+    "wsd": 37.5,
+    "avgMs": 245,
+    "costUsd": 0.006901271999999999,
+    "decisions": 148
+   }
+  ],
+  "ops": [
+   {
+    "modelId": "openai/gpt-6-sol",
+    "decisions": 181,
+    "fallbacks": 0,
+    "retried": 0,
+    "avgMs": 2702,
+    "p95Ms": 4415,
+    "costUsd": 0.5590080000000002,
+    "hands": 90
+   },
+   {
+    "modelId": "google/gemini-3.1-pro-preview",
+    "decisions": 145,
+    "fallbacks": 1,
+    "retried": 0,
+    "avgMs": 5219,
+    "p95Ms": 7647,
+    "costUsd": 0.6747400000000003,
+    "hands": 90
+   },
+   {
+    "modelId": "anthropic/claude-haiku-5.5",
+    "decisions": 188,
+    "fallbacks": 0,
+    "retried": 0,
+    "avgMs": 2784,
+    "p95Ms": 5627,
+    "costUsd": 0.06205720000000002,
+    "hands": 58
+   },
+   {
+    "modelId": "openai/gpt-6-luna",
+    "decisions": 186,
+    "fallbacks": 0,
+    "retried": 0,
+    "avgMs": 2446,
+    "p95Ms": 4086,
+    "costUsd": 0.025658699999999982,
+    "hands": 90
+   },
+   {
+    "modelId": "openai/gpt-6-luna-decisions",
+    "decisions": 157,
+    "fallbacks": 0,
+    "retried": 0,
+    "avgMs": 224,
+    "p95Ms": 345,
+    "costUsd": 0.010183799999999995,
+    "hands": 90
+   },
+   {
+    "modelId": "typesafe-ai/jev",
+    "decisions": 148,
+    "fallbacks": 2,
+    "retried": 0,
+    "avgMs": 245,
+    "p95Ms": 409,
+    "costUsd": 0.006901271999999999,
+    "hands": 57
+   }
+  ]
+ },
+ "sessions": [
+  {
+   "file": "6ebfa552-6104-4aa6-b2c3-c719b2c848ae.jsonl",
+   "mode": "watch",
+   "seats": [
+    "GPT-6 Astra",
+    "Claude Opus 5.5",
+    "Gemini 3.1 Pro",
+    "Jev"
+   ],
+   "hands": 15
+  },
+  {
+   "file": "783c392d-530f-4aed-8fe5-94ea6b9b0365.jsonl",
+   "mode": "watch",
+   "seats": [
+    "Jev",
+    "GPT-6 Luna Decisions",
+    "GPT-6 Luna",
+    "Claude Haiku 5.5"
+   ],
+   "hands": 14
+  },
+  {
+   "file": "ae76fe48-3fdd-4d34-a194-93b0551c3838.jsonl",
+   "mode": "watch",
+   "seats": [
+    "Jev",
+    "GPT-6 Luna Decisions",
+    "GPT-6 Luna",
+    "Claude Haiku 5.5"
+   ],
+   "hands": 1
+  },
+  {
+   "file": "c6399a22-db97-4f6a-adb8-a393f028773c.jsonl",
+   "mode": "play",
+   "seats": [
+    "You",
+    "Jev",
+    "GPT-6 Luna Decisions",
+    "GPT-6 Luna"
+   ],
+   "hands": 3
+  },
+  {
+   "file": "d980a8bf-d965-4a23-b181-b8baad93e894.jsonl",
+   "mode": "play",
+   "seats": [
+    "You",
+    "Jev",
+    "GPT-6 Luna"
+   ],
+   "hands": 2
+  },
+  {
+   "file": "db7f125b-0964-4820-bd42-597fbdb89b43.jsonl",
+   "mode": "watch",
+   "seats": [
+    "Jev",
+    "GPT-6 Luna Decisions",
+    "GPT-6 Luna",
+    "Claude Haiku 5.5"
+   ],
+   "hands": 10
+  },
+  {
+   "file": "e4a16b62-1a39-48db-a34b-c4f319718a3a.jsonl",
+   "mode": "watch",
+   "seats": [
+    "Jev",
+    "GPT-6 Luna Decisions",
+    "GPT-6 Luna",
+    "Claude Haiku 5.5"
+   ],
+   "hands": 1
+  }
+ ]
+}

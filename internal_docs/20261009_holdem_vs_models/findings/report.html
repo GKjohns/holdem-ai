@@ -1,0 +1,850 @@
+<meta charset="utf-8">
+<title>Hold’em AI Field Report</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one reading column (~68ch) on warm paper; figures run a little wider; felt-green
+   accent from the app's own table. Fraunces for numerals and headings, Geist for prose. */
+:root {
+  --bg: #f7f3ec;
+  --bg-2: #efe9df;
+  --ink: #2a2520;
+  --ink-2: #5c5348;
+  --ink-3: #8a8075;
+  --rule: #e2dacd;
+  --accent: #4f6b55;
+  --felt: #a4ae9f;
+  --pos: #0a7fb5;
+  --neg: #b8562f;
+  --card: #fffdf9;
+  --card-red: #c0392b;
+  --m-sol: #d4561f;
+  --m-luna: #1b9e77;
+  --m-lunad: #b8860b;
+  --m-haiku: #2a78d6;
+  --m-jev: #c2457a;
+  --font-display: 'Fraunces', 'Iowan Old Style', Georgia, serif;
+  --font-body: 'Geist', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'Geist Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #14120f; --bg-2: #1c1915; --ink: #ece4d8; --ink-2: #b5aa9c; --ink-3: #82786d; --rule: #2e2924;
+    --accent: #8fb397; --felt: #2c3530; --pos: #3a9fd6; --neg: #d9744a; --card: #ebe5da; --card-red: #b23a2c;
+    --m-sol: #d95926; --m-luna: #199e70; --m-lunad: #c98500; --m-haiku: #3987e5; --m-jev: #d55181;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #14120f; --bg-2: #1c1915; --ink: #ece4d8; --ink-2: #b5aa9c; --ink-3: #82786d; --rule: #2e2924;
+  --accent: #8fb397; --felt: #2c3530; --pos: #3a9fd6; --neg: #d9744a; --card: #ebe5da; --card-red: #b23a2c;
+  --m-sol: #d95926; --m-luna: #199e70; --m-lunad: #c98500; --m-haiku: #3987e5; --m-jev: #d55181;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font: 400 16.5px/1.62 var(--font-body); }
+.page { max-width: 1000px; margin: 0 auto; padding-inline: 20px; padding-block: 40px 80px; }
+.col { max-width: 68ch; }
+h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; color: var(--ink); line-height: 1.12; }
+h1 { font-size: clamp(2.2rem, 5vw, 3.4rem); font-weight: 600; letter-spacing: -0.015em; margin: 0.2em 0 0.3em; }
+h2 { font-size: clamp(1.5rem, 3vw, 2rem); font-weight: 600; margin: 0 0 0.5em; }
+h3 { font-size: 1.15rem; font-weight: 600; margin: 1.6em 0 0.4em; }
+p { margin: 0 0 1em; }
+a { color: var(--accent); }
+.eyebrow { font: 500 0.78rem/1.2 var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); }
+.lede { font-size: 1.18rem; color: var(--ink-2); max-width: 62ch; }
+section { padding-block: 44px 8px; border-top: 1px solid var(--rule); margin-top: 44px; }
+.felt { background: var(--felt); border-radius: 18px; padding: 22px 22px 18px; margin: 28px 0 8px; display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; }
+.stat { background: var(--bg); border-radius: 12px; padding: 14px 16px; min-width: 0; }
+.stat b { display: block; font: 600 2rem/1.05 var(--font-display); font-variant-numeric: tabular-nums; }
+.stat span { font-size: 0.86rem; color: var(--ink-2); }
+ol.findings { padding-left: 1.3em; display: grid; gap: 0.7em; max-width: 72ch; }
+ol.findings li::marker { font-family: var(--font-display); font-weight: 600; color: var(--accent); }
+ol.findings b { font-weight: 600; }
+figure { margin: 26px 0 30px; max-width: 760px; }
+figure.wide { max-width: 1000px; }
+figcaption { font-size: 0.86rem; color: var(--ink-2); margin-top: 8px; max-width: 70ch; }
+figcaption b { color: var(--ink); font-weight: 600; }
+.chart { width: 100%; height: auto; display: block; overflow: visible; }
+.chart text { font-family: var(--font-body); }
+.chart .tick, .chart .axis-label { font-size: 11.5px; fill: var(--ink-3); font-variant-numeric: tabular-nums; }
+.chart .axis-label { font-size: 11px; }
+.chart .row-label { font-size: 13.5px; fill: var(--ink); font-weight: 500; }
+.chart .row-sub { font-size: 11px; fill: var(--ink-3); }
+.chart .val { font: 500 12.5px var(--font-mono); fill: var(--ink-2); }
+.chart .grid { stroke: var(--rule); stroke-width: 1; }
+.chart .zero { stroke: var(--ink-3); stroke-width: 1; }
+.chart .ring { stroke: var(--bg); stroke-width: 2; }
+.chart .ref-line { stroke: var(--ink-3); stroke-width: 1.5; stroke-dasharray: 5 4; fill: none; }
+.chart .ref-label, .chart .fit-label { font-size: 11.5px; fill: var(--ink-3); font-style: italic; }
+.chart .fit-line { stroke: var(--accent); stroke-width: 2; }
+.chart .fit-label { fill: var(--accent); }
+.chart .pt { fill: var(--accent); }
+.chart .pt-label { font-size: 11.5px; fill: var(--ink-2); }
+.chart .whisker { stroke: var(--accent); stroke-opacity: .35; stroke-width: 2; }
+.chart .in-bar { font: 500 11px var(--font-mono); fill: var(--ink); }
+.chart .in-bar.dark { fill: var(--bg); }
+.table-wrap { overflow-x: auto; max-width: 100%; }
+table { border-collapse: collapse; font-size: 0.9rem; font-variant-numeric: tabular-nums; }
+th, td { padding: 7px 10px; text-align: right; white-space: nowrap; }
+thead th { white-space: normal; max-width: 92px; font: 500 0.74rem/1.2 var(--font-mono); letter-spacing: 0.05em; text-transform: uppercase; color: var(--ink-3); border-bottom: 1px solid var(--rule); vertical-align: bottom; }
+tbody th { text-align: left; font-weight: 500; }
+tbody tr + tr > * { border-top: 1px solid var(--rule); }
+table.heat td { font-family: var(--font-mono); font-size: 0.85rem; min-width: 64px; text-align: center; }
+table.heat td.na { color: var(--ink-3); }
+table.heat td.strong { font-weight: 600; }
+.split { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 22px; }
+.split > * { min-width: 0; }
+.hand { background: var(--bg-2); border-radius: 12px; padding: 14px 16px; margin: 18px 0; max-width: 72ch; font-size: 0.93rem; }
+.hand .eyebrow { margin-bottom: 6px; }
+.hand q { font-style: italic; color: var(--ink-2); }
+.pc { display: inline-block; background: var(--card); color: #1f1a16; border: 1px solid var(--rule); border-radius: 4px; padding: 0 4px; margin: 0 2px; font: 600 0.88em/1.4 var(--font-mono); }
+.pc.red { color: var(--card-red); }
+.callout { border-left: 3px solid var(--accent); padding: 4px 0 4px 16px; margin: 18px 0; max-width: 68ch; color: var(--ink-2); }
+.key { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; vertical-align: baseline; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 0.85rem; color: var(--ink-2); margin: 6px 0; }
+.toc { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 0.9rem; margin: 18px 0 0; }
+.toc a { text-decoration: none; border-bottom: 1px solid var(--rule); }
+.toc a:hover, .toc a:focus-visible { border-bottom-color: var(--accent); }
+a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+ul.tight { padding-left: 1.2em; max-width: 70ch; }
+ul.tight li { margin-bottom: 0.4em; }
+code { font-family: var(--font-mono); font-size: 0.88em; }
+@media (max-width: 520px) { body { font-size: 15.5px; } .page { padding-inline: 16px; } .stat b { font-size: 1.6rem; } }
+
+</style>
+<main class="page">
+
+<header class="col">
+  <div class="eyebrow">Hold’em AI · Bonus Sprint B5 · findings from 9,486 hands</div>
+  <h1>One model plays tournament poker. The rest play a cash game they were told about.</h1>
+  <p class="lede">Five AI players sat for 40 duplicate-seeded sit-and-gos, then a Strategy Lab tried to coach one of them with written strategies. GPT-6 Sol won, and not by luck. The more interesting story is <em>how</em> each player is broken: one reads its own cards wrong and announces them out loud, one folds the winning hand half the time on the river, one believes whatever its opponent says.</p>
+</header>
+
+<div class="felt" aria-label="Headline numbers">
+  <div class="stat"><b>+81</b><span>Sol’s bb/100 [+44, +111], the only player whose CI clears zero on the plus side</span></div>
+  <div class="stat"><b>33%</b><span>of short-stack preflop spots Sol shoves. Every other model: 0–3%</span></div>
+  <div class="stat"><b>204</b><span>table-talk lines where Haiku named its own hole cards</span></div>
+  <div class="stat"><b>33→86%</b><span>Jev’s fold rate on the same 36 spots when the bettor says “I’ve got the nuts”</span></div>
+</div>
+
+<nav class="toc" aria-label="Sections">
+  <a href="#short">The short version</a><a href="#standings">Standings</a><a href="#sol">How Sol wins</a><a href="#styles">How each one plays</a>
+  <a href="#folding">Folding to bets</a><a href="#talk">Table talk</a><a href="#reasoning">Reading their own cards</a><a href="#decision">Decision models</a>
+  <a href="#depth">Stack depth and the cap</a><a href="#lab">Strategy Lab and Fable</a><a href="#cost">Cost and speed</a><a href="#methods">Methods and caveats</a>
+</nav>
+
+<section id="short">
+  <h2>The short version</h2>
+  <ol class="findings">
+    <li><b>Sol’s edge is real and general.</b> +81 bb/100 [+44, +111] over 8 matches; +77 after replacing every all-in runout with its equity; positive against all four opponents; +58 [+18, +79] on the Strategy Lab’s held-out table against a different field. About half of its winnings (672 of 1,293 bb) came out of Jev.</li>
+    <li><b>Only Sol plays the format.</b> Every seat’s prompt calls the game a “cash game”, but blinds double every 10 hands. With under 15 big blinds, Sol moves all-in 33% of the time; Luna, Luna Decisions, Haiku and Jev do it 0.8%, 2.7%, 0% and 0.9%. They limp and fold while the blinds eat them.</li>
+    <li><b>Haiku says its cards out loud.</b> 204 of its 2,724 table-talk lines (7.5%) name its actual hole cards (“Kings again, Jev.” m01-r2 #8), despite an instruction never to hint at them. It also misreads its own hand: 38 of its 64 “I have a set” claims were a pocket pair on an unpaired board, and those 32 hands cost it 141 bb.</li>
+    <li><b>Luna is honest to a fault.</b> It wins +61 bb/100 at showdown and gives back −59 without one. It folds 74% of the time to a river bet, and in heads-up river spots 25 of its 50 folds threw away the winning hand, including a better flush it didn’t notice it had (m07-r4 #2).</li>
+    <li><b>Jev believes what it hears.</b> In a controlled replay, one line of table talk moved Jev’s fold rate from 33% to 86% (“I’ve got the nuts here. Just fold.”) or down to 8% (“Honestly, I’ve got nothing.”). Sol barely moved (64% → 67% / 53%).</li>
+    <li><b>Sol’s own talk is a tell, and nobody reads it.</b> Postflop bets Sol talked through had 67% equity against random hands; its silent bets had 45% (AUC 0.73). In 15,913 decisions, exactly one reasoning text used an opponent’s talk (Sol, m06-r4 #11).</li>
+    <li><b>Nobody overbets.</b> The “twice the pot” option was picked 26 times in the whole run, all by Sol, 25 of them preflop. Yet when we rewrote real bets to 1½ pot, Luna and Luna Decisions folded half to two thirds of their strong hands. The biggest exploit at this table was never tried.</li>
+    <li><b>Decision models are deterministic; LLMs are not.</b> Asked the same view twice, Luna Decisions agreed with itself 100% of the time and Jev 97%; Luna 92%, Sol 87%, Haiku 80%. The decision models’ probabilities are flat (top option averages 64% and 55%) and don’t get more confident in easy spots.</li>
+    <li><b>The Strategy Lab measured noise.</b> The spread of card-vs-control leads (SD 37 bb/100) is smaller than the spread noise alone predicts (43), so the implied true spread between cards is about zero. Fable predicted a spread of 35. A forecast of “every card plays like the control” would have beaten Fable’s (mean error 17 vs 30).</li>
+    <li><b>bb/100 leans on the first 20 hands.</b> Blinds rise 16× over a tournament, so a chip lost at 10/20 counts 16 times as much as one lost at 160/320. Haiku’s −46 bb/100 is the second-worst rate, but it lost fewer chips (−12,030) than Luna Decisions (−23,690).</li>
+  </ol>
+</section>
+
+<section id="standings">
+  <div class="col">
+    <div class="eyebrow">B3 benchmark · 8 matches × 5 rotations · 1,913 hands · 15,913 decisions · $12.29</div>
+    <h2>Standings</h2>
+    <p>Each match deals the same deck five times, rotating the seats, so every model plays every set of cards from every seat. Confidence intervals resample whole matches. Seven of the ten pairwise gaps separate: Sol beats everyone (+79 to +143), Luna beats Jev (+64 [+24, +109]), Luna Decisions beats Jev and Haiku. Luna vs Luna Decisions, Luna vs Haiku and Haiku vs Jev are not separated.</p>
+  </div>
+  <figure><svg viewBox="0 0 640 258" class="chart" role="img" aria-label="bb/100, 95% CI (8 matches) with 95% confidence intervals">
+<line x1="171.8" x2="171.8" y1="10" y2="214" class="grid"/>
+<text x="171.8" y="230" class="tick" text-anchor="middle">-100</text>
+<line x1="261.4" x2="261.4" y1="10" y2="214" class="grid"/>
+<text x="261.4" y="230" class="tick" text-anchor="middle">-50</text>
+<line x1="351.0" x2="351.0" y1="10" y2="214" class="zero"/>
+<text x="351.0" y="230" class="tick" text-anchor="middle">0</text>
+<line x1="440.6" x2="440.6" y1="10" y2="214" class="grid"/>
+<text x="440.6" y="230" class="tick" text-anchor="middle">+50</text>
+<line x1="530.2" x2="530.2" y1="10" y2="214" class="grid"/>
+<text x="530.2" y="230" class="tick" text-anchor="middle">+100</text>
+<text x="136" y="254" class="axis-label">bb/100, 95% CI (8 matches)</text>
+<g><title>Sol: +81 [+44, +111] bb/100, 95% CI (8 matches)</title>
+<text x="0" y="28.0" class="row-label">Sol</text>
+<text x="0" y="43.0" class="row-sub">avg finish 2.20 · 23 wins / 40</text>
+<rect x="430.0" y="25.0" width="119.4" height="10" rx="5" style="fill:var(--m-sol);opacity:.22"/>
+<line x1="430.0" x2="549.5" y1="30.0" y2="30.0" style="stroke:var(--m-sol)" stroke-width="2"/>
+<circle cx="496.6" cy="30.0" r="6" style="fill:var(--m-sol)" class="ring"/>
+<text x="559.5" y="34.0" class="val">+81</text></g>
+<g><title>Luna: +2 [-25, +26] bb/100, 95% CI (8 matches)</title>
+<text x="0" y="68.0" class="row-label">Luna</text>
+<text x="0" y="83.0" class="row-sub">avg finish 2.67 · 5 wins / 40</text>
+<rect x="306.8" y="65.0" width="90.2" height="10" rx="5" style="fill:var(--m-luna);opacity:.22"/>
+<line x1="306.8" x2="397.0" y1="70.0" y2="70.0" style="stroke:var(--m-luna)" stroke-width="2"/>
+<circle cx="354.2" cy="70.0" r="6" style="fill:var(--m-luna)" class="ring"/>
+<text x="407.0" y="74.0" class="val">+2</text></g>
+<g><title>Luna Decisions: -4 [-27, +13] bb/100, 95% CI (8 matches)</title>
+<text x="0" y="108.0" class="row-label">Luna Decisions</text>
+<text x="0" y="123.0" class="row-sub">avg finish 2.73 · 3 wins / 40</text>
+<rect x="302.0" y="105.0" width="72.1" height="10" rx="5" style="fill:var(--m-lunad);opacity:.22"/>
+<line x1="302.0" x2="374.1" y1="110.0" y2="110.0" style="stroke:var(--m-lunad)" stroke-width="2"/>
+<circle cx="343.1" cy="110.0" r="6" style="fill:var(--m-lunad)" class="ring"/>
+<text x="384.1" y="114.0" class="val">-4</text></g>
+<g><title>Haiku: -46 [-96, -4] bb/100, 95% CI (8 matches)</title>
+<text x="0" y="148.0" class="row-label">Haiku</text>
+<text x="0" y="163.0" class="row-sub">avg finish 3.77 · 7 wins / 40</text>
+<rect x="178.1" y="145.0" width="166.6" height="10" rx="5" style="fill:var(--m-haiku);opacity:.22"/>
+<line x1="178.1" x2="344.7" y1="150.0" y2="150.0" style="stroke:var(--m-haiku)" stroke-width="2"/>
+<circle cx="268.9" cy="150.0" r="6" style="fill:var(--m-haiku)" class="ring"/>
+<text x="354.7" y="154.0" class="val">-46</text></g>
+<g><title>Jev: -62 [-104, -30] bb/100, 95% CI (8 matches)</title>
+<text x="0" y="188.0" class="row-label">Jev</text>
+<text x="0" y="203.0" class="row-sub">avg finish 3.62 · 2 wins / 40</text>
+<rect x="165.4" y="185.0" width="131.6" height="10" rx="5" style="fill:var(--m-jev);opacity:.22"/>
+<line x1="165.4" x2="297.0" y1="190.0" y2="190.0" style="stroke:var(--m-jev)" stroke-width="2"/>
+<circle cx="240.1" cy="190.0" r="6" style="fill:var(--m-jev)" class="ring"/>
+<text x="307.0" y="194.0" class="val">-62</text></g>
+</svg>
+    <figcaption><b>bb/100 with 95% match-bootstrap intervals.</b> Dots are point estimates; bars are the interval. Sub-labels show average finish (1 = best) and tournament wins.</figcaption></figure>
+  <figure><svg viewBox="0 0 640 184" class="chart" role="img" aria-label="finish positions">
+<rect x="136.0" y="4" width="12" height="12" rx="2" style="fill:color-mix(in oklab, var(--accent) 100%, var(--bg))"/>
+<text x="152.0" y="14" class="tick">1st</text>
+<rect x="235.2" y="4" width="12" height="12" rx="2" style="fill:color-mix(in oklab, var(--accent) 80%, var(--bg))"/>
+<text x="251.2" y="14" class="tick">2nd</text>
+<rect x="334.4" y="4" width="12" height="12" rx="2" style="fill:color-mix(in oklab, var(--accent) 60%, var(--bg))"/>
+<text x="350.4" y="14" class="tick">3rd</text>
+<rect x="433.6" y="4" width="12" height="12" rx="2" style="fill:color-mix(in oklab, var(--accent) 40%, var(--bg))"/>
+<text x="449.6" y="14" class="tick">4th</text>
+<rect x="532.8" y="4" width="12" height="12" rx="2" style="fill:color-mix(in oklab, var(--accent) 20%, var(--bg))"/>
+<text x="548.8" y="14" class="tick">5th</text>
+<text x="0" y="45.0" class="row-label">Sol</text>
+<g><title>Sol: 1st in 23 of 40</title><rect x="137.0" y="32.0" width="283.2" height="18" rx="2" style="fill:color-mix(in oklab, var(--accent) 100%, var(--bg))"/>
+<text x="278.6" y="45.0" class="in-bar dark" text-anchor="middle">23</text>
+</g>
+<g><title>Sol: 2nd in 3 of 40</title><rect x="422.2" y="32.0" width="35.2" height="18" rx="2" style="fill:color-mix(in oklab, var(--accent) 80%, var(--bg))"/>
+<text x="439.8" y="45.0" class="in-bar dark" text-anchor="middle">3</text>
+</g>
+<g><title>Sol: 3rd in 1 of 40</title><rect x="459.4" y="32.0" width="10.4" height="18" rx="2" style="fill:color-mix(in oklab, var(--accent) 60%, var(--bg))"/>
+</g>
+<g><title>Sol: 4th in 9 of 40</title><rect x="471.8" y="32.0" width="109.6" height="18" rx="2" style="fill:color-mix(in oklab, var(--accent) 40%, var(--bg))"/>
+<text x="526.6" y="45.0" class="in-bar " text-anchor="middle">9</text>
+</g>
+<g><title>Sol: 5th in 4 of 40</title><rect x="583.4" y="32.0" width="47.6" height="18" rx="2" style="fill:color-mix(in oklab, var(--accent) 20%, var(--bg))"/>
+<text x="607.2" y="45.0" class="in-bar " text-anchor="middle">4</text>
+</g>
+<text x="0" y="75.0" class="row-label">Luna</text>
+<g><title>Luna: 1st in 5 of 40</title><rect x="137.0" y="62.0" width="60.0" height="18" rx="2" style="fill:color-mix(in oklab, var(--accent) 100%, var(--bg))"/>
+<text x="167.0" y="75.0" class="in-bar dark" text-anchor="middle">5</text>
+</g>
+<g><title>Luna: 2nd in 15 of 40</title><rect x="199.0" y="62.0" width="184.0" height="18" rx="2" style="fill:color-mix(in oklab, var(--accent) 80%, var(--bg))"/>
+<text x="291.0" y="75.0" class="in-bar dark" text-anchor="middle">15</text>
+</g>
+<g><title>Luna: 3rd in 11 of 40</title><rect x="385.0" y="62.0" width="134.4" height="18" rx="2" style="fill:color-mix(in oklab, var(--accent) 60%, var(--bg))"/>
+<text x="452.2" y="75.0" class="in-bar dark" text-anchor="middle">11</text>
+</g>
+<g><title>Luna: 4th in 6 of 40</title><rect x="521.4" y="62.0" width="72.4" height="18" rx="2" style="fill:color-mix(in oklab, var(--accent) 40%, var(--bg))"/>
+<text x="557.6" y="75.0" class="in-bar " text-anchor="middle">6</text>
+</g>
+<g><title>Luna: 5th in 3 of 40</title><rect x="595.8" y="62.0" width="35.2" height="18" rx="2" style="fill:color-mix(in oklab, var(--accent) 20%, var(--bg))"/>
+<text x="613.4" y="75.0" class="in-bar " text-anchor="middle">3</text>
+</g>
+<text x="0" y="105.0" class="row-label">Luna Decisions</text>
+<g><title>Luna Decisions: 1st in 3 of 40</title><rect x="137.0" y="92.0" width="35.2" height="18" rx="2" style="fill:color-mix(in oklab, var(--accent) 100%, var(--bg))"/>
+<text x="154.6" y="105.0" class="in-bar dark" text-anchor="middle">3</text>
+</g>
+<g><title>Luna Decisions: 2nd in 14 of 40</title><rect x="174.2" y="92.0" width="171.6" height="18" rx="2" style="fill:color-mix(in oklab, var(--accent) 80%, var(--bg))"/>
+<text x="260.0" y="105.0" class="in-bar dark" text-anchor="middle">14</text>
+</g>
+<g><title>Luna Decisions: 3rd in 15 of 40</title><rect x="347.8" y="92.0" width="184.0" height="18" rx="2" style="fill:color-mix(in oklab, var(--accent) 60%, var(--bg))"/>
+<text x="439.8" y="105.0" class="in-bar dark" text-anchor="middle">15</text>
+</g>
+<g><title>Luna Decisions: 4th in 7 of 40</title><rect x="533.8" y="92.0" width="84.8" height="18" rx="2" style="fill:color-mix(in oklab, var(--accent) 40%, var(--bg))"/>
+<text x="576.2" y="105.0" class="in-bar " text-anchor="middle">7</text>
+</g>
+<g><title>Luna Decisions: 5th in 1 of 40</title><rect x="620.6" y="92.0" width="10.4" height="18" rx="2" style="fill:color-mix(in oklab, var(--accent) 20%, var(--bg))"/>
+</g>
+<text x="0" y="135.0" class="row-label">Haiku</text>
+<g><title>Haiku: 1st in 7 of 40</title><rect x="137.0" y="122.0" width="84.8" height="18" rx="2" style="fill:color-mix(in oklab, var(--accent) 100%, var(--bg))"/>
+<text x="179.4" y="135.0" class="in-bar dark" text-anchor="middle">7</text>
+</g>
+<g><title>Haiku: 2nd in 2 of 40</title><rect x="223.8" y="122.0" width="22.8" height="18" rx="2" style="fill:color-mix(in oklab, var(--accent) 80%, var(--bg))"/>
+<text x="235.2" y="135.0" class="in-bar dark" text-anchor="middle">2</text>
+</g>
+<g><title>Haiku: 3rd in 4 of 40</title><rect x="248.6" y="122.0" width="47.6" height="18" rx="2" style="fill:color-mix(in oklab, var(--accent) 60%, var(--bg))"/>
+<text x="272.4" y="135.0" class="in-bar dark" text-anchor="middle">4</text>
+</g>
+<g><title>Haiku: 4th in 7 of 40</title><rect x="298.2" y="122.0" width="84.8" height="18" rx="2" style="fill:color-mix(in oklab, var(--accent) 40%, var(--bg))"/>
+<text x="340.6" y="135.0" class="in-bar " text-anchor="middle">7</text>
+</g>
+<g><title>Haiku: 5th in 20 of 40</title><rect x="385.0" y="122.0" width="246.0" height="18" rx="2" style="fill:color-mix(in oklab, var(--accent) 20%, var(--bg))"/>
+<text x="508.0" y="135.0" class="in-bar " text-anchor="middle">20</text>
+</g>
+<text x="0" y="165.0" class="row-label">Jev</text>
+<g><title>Jev: 1st in 2 of 40</title><rect x="137.0" y="152.0" width="22.8" height="18" rx="2" style="fill:color-mix(in oklab, var(--accent) 100%, var(--bg))"/>
+<text x="148.4" y="165.0" class="in-bar dark" text-anchor="middle">2</text>
+</g>
+<g><title>Jev: 2nd in 6 of 40</title><rect x="161.8" y="152.0" width="72.4" height="18" rx="2" style="fill:color-mix(in oklab, var(--accent) 80%, var(--bg))"/>
+<text x="198.0" y="165.0" class="in-bar dark" text-anchor="middle">6</text>
+</g>
+<g><title>Jev: 3rd in 9 of 40</title><rect x="236.2" y="152.0" width="109.6" height="18" rx="2" style="fill:color-mix(in oklab, var(--accent) 60%, var(--bg))"/>
+<text x="291.0" y="165.0" class="in-bar dark" text-anchor="middle">9</text>
+</g>
+<g><title>Jev: 4th in 11 of 40</title><rect x="347.8" y="152.0" width="134.4" height="18" rx="2" style="fill:color-mix(in oklab, var(--accent) 40%, var(--bg))"/>
+<text x="415.0" y="165.0" class="in-bar " text-anchor="middle">11</text>
+</g>
+<g><title>Jev: 5th in 12 of 40</title><rect x="484.2" y="152.0" width="146.8" height="18" rx="2" style="fill:color-mix(in oklab, var(--accent) 20%, var(--bg))"/>
+<text x="557.6" y="165.0" class="in-bar " text-anchor="middle">12</text>
+</g>
+</svg>
+    <figcaption><b>Finish positions over 40 tournaments.</b> Haiku is the bimodal one: first out in 20 of 40 tournaments, yet it won 7, more than Luna (5) or Luna Decisions (3). Sol won 23 and still busted early sometimes (13 fourth or fifth places).</figcaption></figure>
+
+  <div class="col">
+    <h3>What the duplicate design buys</h3>
+    <p>Card luck cancels across a match. The average starting-hand quality (heads-up preflop equity) varies between models by a standard deviation of 0.016 within one tournament, and 0.004 across a match’s five rotations, a fourfold drop. Pairing on matches also tightens the intervals: resampling tournaments independently would have put Haiku at −46 [−136, +20], straddling zero; resampling matches gives [−96, −4].</p>
+    <p>It also lets us compare play on identical cards. In match m04, hand #4, the same seat held <span class="pc red">A♦</span><span class="pc ">Q♠</span> on a <span class="pc red">8♥</span><span class="pc red">Q♦</span><span class="pc ">J♠</span><span class="pc ">2♠</span><span class="pc ">A♠</span> board in all five rotations. Here is what each model made of it:</p>
+  </div>
+  <figure><svg viewBox="0 0 640 200" class="chart" role="img" aria-label="bb won with A♦ Q♠ in hand #4 of match m04">
+<line x1="158.0" x2="158.0" y1="6" y2="160" class="zero"/>
+<text x="158.0" y="176" class="tick" text-anchor="middle">0</text>
+<line x1="256.6" x2="256.6" y1="6" y2="160" class="grid"/>
+<text x="256.6" y="176" class="tick" text-anchor="middle">25</text>
+<line x1="355.3" x2="355.3" y1="6" y2="160" class="grid"/>
+<text x="355.3" y="176" class="tick" text-anchor="middle">50</text>
+<line x1="453.9" x2="453.9" y1="6" y2="160" class="grid"/>
+<text x="453.9" y="176" class="tick" text-anchor="middle">75</text>
+<line x1="552.5" x2="552.5" y1="6" y2="160" class="grid"/>
+<text x="552.5" y="176" class="tick" text-anchor="middle">100</text>
+<text x="158" y="196" class="axis-label">bb won with A♦ Q♠ in hand #4 of match m04</text>
+<g><title>Sol in m04-r4: +2055 chips (+102.8 bb) holding A♦Q♠ — raised, bet flop and turn, called Jev’s river shove</title><text x="0" y="25.0" class="row-label">Sol</text>
+<rect x="158.0" y="13.0" width="405.4" height="16" rx="3" style="fill:var(--m-sol)"/>
+<text x="569.4" y="25.0" class="val" text-anchor="start">+102.8</text></g>
+<g><title>Luna in m04-r1: +1220 chips (+61.0 bb) holding A♦Q♠ — raised, called Jev’s 3-bet, bet the flop, checked it down</title><text x="0" y="55.0" class="row-label">Luna</text>
+<rect x="158.0" y="43.0" width="240.7" height="16" rx="3" style="fill:var(--m-luna)"/>
+<text x="404.7" y="55.0" class="val" text-anchor="start">+61.0</text></g>
+<g><title>Jev in m04-r3: +750 chips (+37.5 bb) holding A♦Q♠ — called Haiku’s 3-bet, bet the flop, check-called all-in on the turn</title><text x="0" y="85.0" class="row-label">Jev</text>
+<rect x="158.0" y="73.0" width="148.0" height="16" rx="3" style="fill:var(--m-jev)"/>
+<text x="312.0" y="85.0" class="val" text-anchor="start">+37.5</text></g>
+<g><title>Luna Decisions in m04-r2: +510 chips (+25.5 bb) holding A♦Q♠ — raised, bet flop and turn, everyone folded the turn</title><text x="0" y="115.0" class="row-label">Luna Decisions</text>
+<rect x="158.0" y="103.0" width="100.6" height="16" rx="3" style="fill:var(--m-lunad)"/>
+<text x="264.6" y="115.0" class="val" text-anchor="start">+25.5</text></g>
+<g><title>Haiku in m04-r0: +155 chips (+7.8 bb) holding A♦Q♠ — min-raised, bet small twice, took it down on the turn</title><text x="0" y="145.0" class="row-label">Haiku</text>
+<rect x="158.0" y="133.0" width="30.6" height="16" rx="3" style="fill:var(--m-haiku)"/>
+<text x="194.6" y="145.0" class="val" text-anchor="start">+7.8</text></g>
+</svg>
+    <figcaption><b>Same seat, same cards, five players.</b> Sol built the biggest pot and got Jev’s river shove with <span class="pc ">6♣</span><span class="pc ">A♣</span> (one pair of aces). Haiku min-raised and won 7.75 bb. Hover a bar for the line each model took.</figcaption></figure>
+</section>
+
+<section id="sol">
+  <div class="col">
+    <div class="eyebrow">Rabbit hole 1</div>
+    <h2>How Sol wins</h2>
+    <p>The question was whether Sol farms the two weak seats or plays well everywhere. The answer is both, with a strong lean on Jev.</p>
+  </div>
+  <div class="split">
+    <figure><svg viewBox="0 0 440 170" class="chart" role="img" aria-label="bb Sol won per 100 hands shared">
+<line x1="118.0" x2="118.0" y1="6" y2="130" class="zero"/>
+<text x="118.0" y="146" class="tick" text-anchor="middle">0</text>
+<line x1="196.3" x2="196.3" y1="6" y2="130" class="grid"/>
+<text x="196.3" y="146" class="tick" text-anchor="middle">20</text>
+<line x1="274.6" x2="274.6" y1="6" y2="130" class="grid"/>
+<text x="274.6" y="146" class="tick" text-anchor="middle">40</text>
+<line x1="352.9" x2="352.9" y1="6" y2="130" class="grid"/>
+<text x="352.9" y="146" class="tick" text-anchor="middle">60</text>
+<text x="118" y="166" class="axis-label">bb Sol won per 100 hands shared</text>
+<g><title>Sol took 19.9 bb per 100 hands shared with Luna</title><text x="0" y="25.0" class="row-label">Luna</text>
+<rect x="118.0" y="13.0" width="77.9" height="16" rx="3" style="fill:var(--m-sol)"/>
+<text x="201.9" y="25.0" class="val" text-anchor="start">+20</text></g>
+<g><title>Sol took 16.3 bb per 100 hands shared with Luna Decisions</title><text x="0" y="55.0" class="row-label">Luna Decisions</text>
+<rect x="118.0" y="43.0" width="63.8" height="16" rx="3" style="fill:var(--m-sol)"/>
+<text x="187.8" y="55.0" class="val" text-anchor="start">+16</text></g>
+<g><title>Sol took 14.1 bb per 100 hands shared with Haiku</title><text x="0" y="85.0" class="row-label">Haiku</text>
+<rect x="118.0" y="73.0" width="55.2" height="16" rx="3" style="fill:var(--m-sol)"/>
+<text x="179.2" y="85.0" class="val" text-anchor="start">+14</text></g>
+<g><title>Sol took 59.9 bb per 100 hands shared with Jev</title><text x="0" y="115.0" class="row-label">Jev</text>
+<rect x="118.0" y="103.0" width="234.6" height="16" rx="3" style="fill:var(--m-sol)"/>
+<text x="358.6" y="115.0" class="val" text-anchor="start">+60</text></g>
+</svg>
+      <figcaption><b>Sol’s net chip flow from each opponent</b>, per 100 hands both were dealt. Positive against all four; Jev pays about four times the rate of anyone else.</figcaption></figure>
+    <figure><svg viewBox="0 0 440 200" class="chart" role="img" aria-label="bb Sol won from each seat, held-out">
+<line x1="158.0" x2="158.0" y1="6" y2="160" class="zero"/>
+<text x="158.0" y="176" class="tick" text-anchor="middle">0</text>
+<line x1="223.0" x2="223.0" y1="6" y2="160" class="grid"/>
+<text x="223.0" y="176" class="tick" text-anchor="middle">50</text>
+<line x1="288.0" x2="288.0" y1="6" y2="160" class="grid"/>
+<text x="288.0" y="176" class="tick" text-anchor="middle">100</text>
+<line x1="353.0" x2="353.0" y1="6" y2="160" class="grid"/>
+<text x="353.0" y="176" class="tick" text-anchor="middle">150</text>
+<text x="158" y="196" class="axis-label">bb Sol won from each seat, held-out</text>
+<g><title>Sol won 160 bb net from Haiku over 3 held-out matches</title><text x="0" y="25.0" class="row-label">Haiku</text>
+<rect x="158.0" y="13.0" width="208.3" height="16" rx="3" style="fill:var(--m-sol)"/>
+<text x="372.3" y="25.0" class="val" text-anchor="start">+160</text></g>
+<g><title>Sol won 103 bb net from Luna · Bot Hunter over 3 held-out matches</title><text x="0" y="55.0" class="row-label">Luna · Bot Hunter</text>
+<rect x="158.0" y="43.0" width="133.5" height="16" rx="3" style="fill:var(--m-sol)"/>
+<text x="297.5" y="55.0" class="val" text-anchor="start">+103</text></g>
+<g><title>Sol won 93 bb net from Luna (no card) over 3 held-out matches</title><text x="0" y="85.0" class="row-label">Luna (no card)</text>
+<rect x="158.0" y="73.0" width="121.1" height="16" rx="3" style="fill:var(--m-sol)"/>
+<text x="285.1" y="85.0" class="val" text-anchor="start">+93</text></g>
+<g><title>Sol won 45 bb net from Luna · Balanced Solid over 3 held-out matches</title><text x="0" y="115.0" class="row-label">Luna · Balanced Solid</text>
+<rect x="158.0" y="103.0" width="58.8" height="16" rx="3" style="fill:var(--m-sol)"/>
+<text x="222.8" y="115.0" class="val" text-anchor="start">+45</text></g>
+<g><title>Sol won 42 bb net from Luna · Silver Tongue over 3 held-out matches</title><text x="0" y="145.0" class="row-label">Luna · Silver Tongue</text>
+<rect x="158.0" y="133.0" width="55.1" height="16" rx="3" style="fill:var(--m-sol)"/>
+<text x="219.1" y="145.0" class="val" text-anchor="start">+42</text></g>
+</svg>
+      <figcaption><b>Held-out table</b> (Strategy Lab, 3 fresh matches, no Jev and no Luna Decisions). Sol still won +58 bb/100 and took chips from every seat, the card-less Luna included.</figcaption></figure>
+  </div>
+  <div class="col">
+    <p><b>It isn’t all-in luck.</b> 202 hands ended with players all-in and cards to come. Replacing each of those runouts with the players’ equity at the moment of the all-in moves Sol from +81 to +77 bb/100. The adjustment helps Jev most (it ran 153 bb below its equity) and costs Luna most (84 bb above).</p>
+  </div>
+  <figure><svg viewBox="0 0 640 200" class="chart" role="img" aria-label="bb/100 with all-in luck removed">
+<line x1="230.3" x2="230.3" y1="6" y2="160" class="grid"/>
+<text x="230.3" y="176" class="tick" text-anchor="middle">-50</text>
+<line x1="350.9" x2="350.9" y1="6" y2="160" class="zero"/>
+<text x="350.9" y="176" class="tick" text-anchor="middle">0</text>
+<line x1="471.4" x2="471.4" y1="6" y2="160" class="grid"/>
+<text x="471.4" y="176" class="tick" text-anchor="middle">50</text>
+<text x="158" y="196" class="axis-label">bb/100 with all-in luck removed</text>
+<g><title>Sol: +81.2 actual, +76.6 after replacing 134 all-in runouts with equity</title><text x="0" y="25.0" class="row-label">Sol</text>
+<rect x="350.9" y="13.0" width="184.7" height="16" rx="3" style="fill:var(--m-sol)"/>
+<text x="541.6" y="25.0" class="val" text-anchor="start">+77</text></g>
+<g><title>Luna: +1.8 actual, -3.3 after replacing 73 all-in runouts with equity</title><text x="0" y="55.0" class="row-label">Luna</text>
+<rect x="343.0" y="43.0" width="7.9" height="16" rx="3" style="fill:var(--m-luna)"/>
+<text x="337.0" y="55.0" class="val" text-anchor="end">-3</text></g>
+<g><title>Luna Decisions: -4.4 actual, -2.3 after replacing 69 all-in runouts with equity</title><text x="0" y="85.0" class="row-label">Luna Decisions</text>
+<rect x="345.3" y="73.0" width="5.6" height="16" rx="3" style="fill:var(--m-lunad)"/>
+<text x="339.3" y="85.0" class="val" text-anchor="end">-2</text></g>
+<g><title>Haiku: -45.8 actual, -48.7 after replacing 75 all-in runouts with equity</title><text x="0" y="115.0" class="row-label">Haiku</text>
+<rect x="233.4" y="103.0" width="117.5" height="16" rx="3" style="fill:var(--m-haiku)"/>
+<text x="227.4" y="115.0" class="val" text-anchor="end">-49</text></g>
+<g><title>Jev: -61.9 actual, -49.6 after replacing 65 all-in runouts with equity</title><text x="0" y="145.0" class="row-label">Jev</text>
+<rect x="231.4" y="133.0" width="119.5" height="16" rx="3" style="fill:var(--m-jev)"/>
+<text x="225.4" y="145.0" class="val" text-anchor="end">-50</text></g>
+</svg>
+    <figcaption><b>bb/100 with all-in luck removed.</b> The order does not change. Hover for actual vs adjusted.</figcaption></figure>
+  <div class="col">
+    <p><b>It wins without showdowns.</b> Sol makes +32 bb/100 in hands that never reach showdown and wins 29% of its hands uncontested. Luna is the mirror image: the best showdown hand at the table and a leak everywhere else.</p>
+  </div>
+  <figure><div class="table-wrap"><table class="heat"><thead><tr><th></th><th>At showdown</th><th>Without showdown</th><th>Total</th></tr></thead><tbody>
+<tr><th>Sol</th><td style="background:color-mix(in oklab, var(--pos) 50%, var(--bg))" class="strong">+50</td><td style="background:color-mix(in oklab, var(--pos) 32%, var(--bg))" class="">+32</td><td style="background:color-mix(in oklab, var(--pos) 70%, var(--bg))" class="strong">+81</td></tr>
+<tr><th>Luna</th><td style="background:color-mix(in oklab, var(--pos) 61%, var(--bg))" class="strong">+61</td><td style="background:color-mix(in oklab, var(--neg) 59%, var(--bg))" class="strong">-59</td><td style="background:color-mix(in oklab, var(--pos) 2%, var(--bg))" class="">+2</td></tr>
+<tr><th>Luna Decisions</th><td style="background:color-mix(in oklab, var(--pos) 23%, var(--bg))" class="">+23</td><td style="background:color-mix(in oklab, var(--neg) 28%, var(--bg))" class="">-28</td><td style="background:color-mix(in oklab, var(--neg) 4%, var(--bg))" class="">-4</td></tr>
+<tr><th>Haiku</th><td style="background:color-mix(in oklab, var(--neg) 65%, var(--bg))" class="strong">-65</td><td style="background:color-mix(in oklab, var(--pos) 20%, var(--bg))" class="">+20</td><td style="background:color-mix(in oklab, var(--neg) 46%, var(--bg))" class="strong">-46</td></tr>
+<tr><th>Jev</th><td style="background:color-mix(in oklab, var(--neg) 51%, var(--bg))" class="strong">-51</td><td style="background:color-mix(in oklab, var(--neg) 11%, var(--bg))" class="">-11</td><td style="background:color-mix(in oklab, var(--neg) 62%, var(--bg))" class="strong">-62</td></tr>
+</tbody></table></div>
+    <figcaption><b>Where the bb come from</b>, bb/100 split by whether the hand reached showdown. Blue is won, red is lost.</figcaption></figure>
+  <div class="col">
+    <p><b>It shoves when short.</b> Sol went all-in preflop 131 times, 85% of them first in, at a median of 13.7 big blinds. It won 77% of those hands, mostly by taking the blinds. No other model treats a short stack as a reason to commit; they keep limping (Luna 50% of short-stack spots, Haiku 56%) into blinds that double every ten hands.</p>
+    <p><b>It folds well on the river.</b> In heads-up river spots, only 1 of Sol’s 15 folds gave up the winning hand. The rest of the field gave up winners 22–50% of the time (chart in the next section). Sol never misread its own made hand in 112 checkable claims.</p>
+    <p><b>Where it agrees with Luna.</b> In 259 natural same-spot pairs (same cards, seat and action history, different rotation), Sol and Luna took the same broad action 74% of the time, the most of any pair. On identical cards Sol out-earns Luna by +79 bb/100 [+26, +144], so that other quarter, mostly spots where Sol raises and Luna calls or folds, carries Sol’s edge.</p>
+  </div>
+</section>
+
+<section id="styles">
+  <div class="col">
+    <div class="eyebrow">Breadth</div>
+    <h2>How each one plays</h2>
+    <p>All numbers are from observed actions. VPIP = put money in preflop voluntarily; PFR = raised preflop; AF = postflop bets and raises per call; WTSD = reached showdown after seeing a flop; W$SD = won at showdown. “Selection” is the chance a hand a model played was stronger (preflop equity) than a hand it folded: 0.5 is random, 1.0 is perfect.</p>
+  </div>
+  <figure class="wide"><div class="table-wrap"><table>
+    <thead><tr><th></th><th>VPIP</th><th>PFR</th><th>Open-limp %</th><th>Fold to raise %</th><th>AF</th><th>Fold to bet %</th><th>Fold to river bet %</th><th>WTSD</th><th>W$SD</th><th>Selection</th></tr></thead>
+    <tbody><tr><th>Sol</th><td>55</td><td>36</td><td>21</td><td>55</td><td>2.9</td><td>55</td><td>44</td><td>49</td><td>47</td><td>0.78</td></tr>
+<tr><th>Luna</th><td>44</td><td>13</td><td>41</td><td>65</td><td>0.9</td><td>57</td><td>74</td><td>50</td><td>62</td><td>0.78</td></tr>
+<tr><th>Luna Decisions</th><td>31</td><td>6</td><td>32</td><td>76</td><td>1.7</td><td>50</td><td>60</td><td>53</td><td>49</td><td>0.82</td></tr>
+<tr><th>Haiku</th><td>67</td><td>24</td><td>39</td><td>31</td><td>1.9</td><td>21</td><td>33</td><td>59</td><td>36</td><td>0.74</td></tr>
+<tr><th>Jev</th><td>48</td><td>19</td><td>30</td><td>63</td><td>0.4</td><td>22</td><td>32</td><td>68</td><td>48</td><td>0.87</td></tr></tbody></table></div>
+    <figcaption><b>Style profiles, B3 main run.</b> Open-limp % = calls when first in (not big blind). Fold to bet = postflop, any size.</figcaption></figure>
+  <div class="col">
+    <ul class="tight">
+      <li><b>Sol</b>: loose-aggressive. Opens by raising 49% of the time it’s first in, bets 35% when checked to, and sizes up preflop (22.9% of its preflop raises are all-ins).</li>
+      <li><b>Luna</b>: loose-passive limper (41% open-limp), bets only 16% when checked to, and when it does bet it has it: 79% of its postflop bets had 70%+ equity against the hands still live, and only 11% had under 30%.</li>
+      <li><b>Luna Decisions</b>: the tightest (VPIP 31%), folds 76% to a single raise, best hand selection of the LLM-family seats (0.82), but almost never raises preflop (PFR 6%).</li>
+      <li><b>Haiku</b>: plays two thirds of hands, min-raises 80% of its preflop raises, and almost never folds after the flop (20%). Loses −65 bb/100 at showdown.</li>
+      <li><b>Jev</b>: calling station (AF 0.4, WTSD 68%), but with the best preflop hand selection at the table (0.87). Its leak is after the flop.</li>
+    </ul>
+    <p><b>Position.</b> Everyone loses in the big blind except Sol (+85 bb/100 there, where Luna is −77 and Jev −149). Luna and Luna Decisions widen on the button (VPIP 67% and 41%) and tighten in early position (21% and 14%), the textbook pattern. Haiku is near-flat by position (VPIP 45–82%).</p>
+    <p><b>Sizing.</b> The action menu offers min, ½ pot, pot, 2× pot and all-in. After the flop everyone lives on half pot (53–81% of bets). Haiku’s preflop raise is the minimum 80% of the time. Two-times-pot was picked 26 times in 15,913 decisions, all by Sol.</p>
+  </div>
+</section>
+
+<section id="folding">
+  <div class="col">
+    <div class="eyebrow">Rabbit hole 2 · includes a follow-up experiment</div>
+    <h2>Folding to bets</h2>
+    <p>The hunch was that the models fold too much to big bets. In the natural data it’s hard to test, because almost nobody makes big bets: each model faced 2–3 overbets in the whole run. What the data does show is a river problem. Luna folds 74% to river bets, and when it folds heads-up on the river it is holding the winner half the time.</p>
+  </div>
+  <figure><svg viewBox="0 0 640 200" class="chart" role="img" aria-label="% of heads-up river folds that held the winning hand">
+<line x1="158.0" x2="158.0" y1="6" y2="160" class="zero"/>
+<text x="158.0" y="176" class="tick" text-anchor="middle">0</text>
+<line x1="302.7" x2="302.7" y1="6" y2="160" class="grid"/>
+<text x="302.7" y="176" class="tick" text-anchor="middle">20</text>
+<line x1="447.3" x2="447.3" y1="6" y2="160" class="grid"/>
+<text x="447.3" y="176" class="tick" text-anchor="middle">40</text>
+<text x="158" y="196" class="axis-label">% of heads-up river folds that held the winning hand</text>
+<g><title>Sol: 1 of 15 heads-up river folds gave up the best hand (131 bb of pot odds forgone)</title><text x="0" y="25.0" class="row-label">Sol</text>
+<rect x="158.0" y="13.0" width="48.2" height="16" rx="3" style="fill:var(--m-sol)"/>
+<text x="212.2" y="25.0" class="val" text-anchor="start">7%</text></g>
+<g><title>Luna: 25 of 50 heads-up river folds gave up the best hand (315 bb of pot odds forgone)</title><text x="0" y="55.0" class="row-label">Luna</text>
+<rect x="158.0" y="43.0" width="361.7" height="16" rx="3" style="fill:var(--m-luna)"/>
+<text x="525.7" y="55.0" class="val" text-anchor="start">50%</text></g>
+<g><title>Luna Decisions: 8 of 23 heads-up river folds gave up the best hand (106 bb of pot odds forgone)</title><text x="0" y="85.0" class="row-label">Luna Decisions</text>
+<rect x="158.0" y="73.0" width="251.6" height="16" rx="3" style="fill:var(--m-lunad)"/>
+<text x="415.6" y="85.0" class="val" text-anchor="start">35%</text></g>
+<g><title>Haiku: 6 of 22 heads-up river folds gave up the best hand (356 bb of pot odds forgone)</title><text x="0" y="115.0" class="row-label">Haiku</text>
+<rect x="158.0" y="103.0" width="197.3" height="16" rx="3" style="fill:var(--m-haiku)"/>
+<text x="361.3" y="115.0" class="val" text-anchor="start">27%</text></g>
+<g><title>Jev: 6 of 27 heads-up river folds gave up the best hand (74 bb of pot odds forgone)</title><text x="0" y="145.0" class="row-label">Jev</text>
+<rect x="158.0" y="133.0" width="160.7" height="16" rx="3" style="fill:var(--m-jev)"/>
+<text x="324.7" y="145.0" class="val" text-anchor="start">22%</text></g>
+</svg>
+    <figcaption><b>Heads-up river folds that held the winning hand</b> (god view; exact on the river). Sol 1 of 15, Luna 25 of 50, Luna Decisions 8 of 23, Haiku 6 of 22, Jev 6 of 27. Hover for the pot-odds value forgone.</figcaption></figure>
+  <div class="hand">
+    <div class="eyebrow">m07-r4 #2 · Luna folds the best flush</div>
+    Luna raised <span class="pc ">J♣</span><span class="pc red">J♦</span> preflop, bet the flop, and checked the turn. The river made the board <span class="pc ">6♣</span><span class="pc red">Q♦</span><span class="pc red">2♦</span><span class="pc red">3♦</span><span class="pc red">A♦</span>. Luna held the J♦ for an ace-queen-jack flush; Haiku bet 300 with 4♦10♦, a worse flush. Luna’s reasoning: <q>pocket jacks are only a weak bluff-catcher.</q> Fold. Haiku’s own reasoning called its flush the nuts (<q>no higher flush is possible</q>), also wrong.
+  </div>
+  <div class="hand">
+    <div class="eyebrow">m06-r0 #7 · two pair into a pot-sized bet</div>
+    Luna called flop and turn with <span class="pc red">Q♥</span><span class="pc ">J♣</span> on <span class="pc red">9♦</span><span class="pc ">4♣</span><span class="pc ">J♠</span><span class="pc red">4♦</span><span class="pc red">3♦</span>, then folded jacks and fours to Jev’s pot-sized river bet. Jev held K♥9♥, a worse two pair. Calling 24 bb would have won a 72 bb pot.
+  </div>
+  <div class="col">
+    <h3>Experiment: the same spots at three bet sizes</h3>
+    <p>To test bet size directly, we took 36 real turn and river spots where a seat faced one bet heads-up (12 weak, 12 medium, 12 strong hands by equity against a random hand), rewrote the bet to ⅓, ¾ and 1½ times the pot with stacks and menu rebuilt, and asked all five models. 540 calls, $0.46.</p>
+  </div>
+  <figure><svg viewBox="0 0 640 300" class="chart" role="img" aria-label="fold % on the same 36 spots">
+<line x1="44" x2="532" y1="264.0" y2="264.0" class="grid"/><text x="38" y="268.0" class="tick" text-anchor="end">0</text>
+<line x1="44" x2="532" y1="201.0" y2="201.0" class="grid"/><text x="38" y="205.0" class="tick" text-anchor="end">25</text>
+<line x1="44" x2="532" y1="138.0" y2="138.0" class="grid"/><text x="38" y="142.0" class="tick" text-anchor="end">50</text>
+<line x1="44" x2="532" y1="75.0" y2="75.0" class="grid"/><text x="38" y="79.0" class="tick" text-anchor="end">75</text>
+<line x1="44" x2="532" y1="12.0" y2="12.0" class="grid"/><text x="38" y="16.0" class="tick" text-anchor="end">100</text>
+<text x="54.0" y="282" class="tick" text-anchor="middle">⅓ pot</text>
+<text x="288.0" y="282" class="tick" text-anchor="middle">¾ pot</text>
+<text x="522.0" y="282" class="tick" text-anchor="middle">1½ pot</text>
+<text x="44" y="298" class="axis-label">fold % on the same 36 spots</text>
+<polyline points="54.0,201.5 288.0,156.0 522.0,112.8" class="ref-line"/><text x="58.0" y="217.5" class="ref-label">break-even bluff %</text>
+<polyline points="54.0,173.0 288.0,103.0 522.0,68.0" fill="none" style="stroke:var(--m-sol)" stroke-width="2" stroke-linejoin="round"/>
+<circle cx="54.0" cy="173.0" r="4.5" style="fill:var(--m-sol)" class="ring"><title>Sol at ⅓ pot: 36%</title></circle>
+<circle cx="288.0" cy="103.0" r="4.5" style="fill:var(--m-sol)" class="ring"><title>Sol at ¾ pot: 64%</title></circle>
+<circle cx="522.0" cy="68.0" r="4.5" style="fill:var(--m-sol)" class="ring"><title>Sol at 1½ pot: 78%</title></circle>
+<text x="532.0" y="79.0" class="row-label" style="fill:var(--ink)">Sol</text>
+<polyline points="54.0,131.0 288.0,75.0 522.0,61.0" fill="none" style="stroke:var(--m-luna)" stroke-width="2" stroke-linejoin="round"/>
+<circle cx="54.0" cy="131.0" r="4.5" style="fill:var(--m-luna)" class="ring"><title>Luna at ⅓ pot: 53%</title></circle>
+<circle cx="288.0" cy="75.0" r="4.5" style="fill:var(--m-luna)" class="ring"><title>Luna at ¾ pot: 75%</title></circle>
+<circle cx="522.0" cy="61.0" r="4.5" style="fill:var(--m-luna)" class="ring"><title>Luna at 1½ pot: 81%</title></circle>
+<text x="532.0" y="65.0" class="row-label" style="fill:var(--ink)">Luna</text>
+<polyline points="54.0,145.0 288.0,82.0 522.0,47.0" fill="none" style="stroke:var(--m-lunad)" stroke-width="2" stroke-linejoin="round"/>
+<circle cx="54.0" cy="145.0" r="4.5" style="fill:var(--m-lunad)" class="ring"><title>Luna Decisions at ⅓ pot: 47%</title></circle>
+<circle cx="288.0" cy="82.0" r="4.5" style="fill:var(--m-lunad)" class="ring"><title>Luna Decisions at ¾ pot: 72%</title></circle>
+<circle cx="522.0" cy="47.0" r="4.5" style="fill:var(--m-lunad)" class="ring"><title>Luna Decisions at 1½ pot: 86%</title></circle>
+<text x="532.0" y="51.0" class="row-label" style="fill:var(--ink)">Luna Decisions</text>
+<polyline points="54.0,243.0 288.0,215.0 522.0,180.0" fill="none" style="stroke:var(--m-haiku)" stroke-width="2" stroke-linejoin="round"/>
+<circle cx="54.0" cy="243.0" r="4.5" style="fill:var(--m-haiku)" class="ring"><title>Haiku at ⅓ pot: 8%</title></circle>
+<circle cx="288.0" cy="215.0" r="4.5" style="fill:var(--m-haiku)" class="ring"><title>Haiku at ¾ pot: 19%</title></circle>
+<circle cx="522.0" cy="180.0" r="4.5" style="fill:var(--m-haiku)" class="ring"><title>Haiku at 1½ pot: 33%</title></circle>
+<text x="532.0" y="184.0" class="row-label" style="fill:var(--ink)">Haiku</text>
+<polyline points="54.0,208.0 288.0,180.0 522.0,117.0" fill="none" style="stroke:var(--m-jev)" stroke-width="2" stroke-linejoin="round"/>
+<circle cx="54.0" cy="208.0" r="4.5" style="fill:var(--m-jev)" class="ring"><title>Jev at ⅓ pot: 22%</title></circle>
+<circle cx="288.0" cy="180.0" r="4.5" style="fill:var(--m-jev)" class="ring"><title>Jev at ¾ pot: 33%</title></circle>
+<circle cx="522.0" cy="117.0" r="4.5" style="fill:var(--m-jev)" class="ring"><title>Jev at 1½ pot: 58%</title></circle>
+<text x="532.0" y="121.0" class="row-label" style="fill:var(--ink)">Jev</text>
+</svg>
+    <figcaption><b>Fold rate on identical spots as the bet grows.</b> The dashed line is the bluff break-even: the share of the time a pure bluff of that size must work to profit. Every model folds more as the bet grows (35 or 36 of 36 spots monotone for each). Haiku folds less than break-even at every size; Luna and Luna Decisions fold above it at every size.</figcaption></figure>
+  <div class="col">
+    <p>The telling slice is the 12 strong hands. Facing 1½ pot, Luna Decisions folded 8 of 12 (67%), Luna 6 (50%), Sol 5 (42%), Jev 4 (33%), Haiku 0. So the hunch holds for the Luna family: a large bet takes away hands they should defend. Nobody in the field ever bet that big postflop, so the leak was never charged for.</p>
+  </div>
+</section>
+
+<section id="talk">
+  <div class="col">
+    <div class="eyebrow">Rabbit hole 3 · includes a follow-up experiment</div>
+    <h2>Table talk</h2>
+    <p>The LLMs get one line of optional table talk per decision; the decision models never talk. Haiku talks on 92% of its decisions and names an opponent in 60% of lines. Sol talks 33% of the time (“Your move.” 100 times), Luna 26%.</p>
+    <h3>Haiku announces its hand</h3>
+    <p>The table-talk filter removes lines that contain a card code like “Kh”. Haiku says it in words. 204 lines name a rank or suit that is in its own hand and not on the board:</p>
+    <ul class="tight">
+      <li>m01-r2 #8, holding K♥K♦: <q>Kings again, Jev. Let’s make this interesting.</q></li>
+      <li>m01-r2 #18, holding J♦J♥: <q>Jacks in the hole, Sol. Your raise just got more expensive.</q></li>
+      <li>m01-r2 #29, river, holding Q♥J♥: <q>Heart flush on the river, Sol. Your move.</q></li>
+      <li>m01-r0 #10, holding <span class="pc red">4♥</span><span class="pc ">4♣</span> on <span class="pc ">2♣</span><span class="pc red">9♦</span><span class="pc red">A♥</span>: <q>Set of fours on a dry board.</q> It was not a set (see next section). It lost 32 bb.</li>
+    </ul>
+    <p>The leaks are mildly informative: Haiku’s leaking lines came with 48% equity against random hands, its other lines 40%.</p>
+    <h3>Sol’s talk is a strength tell</h3>
+  </div>
+  <figure><div class="table-wrap"><table class="heat"><thead><tr><th></th><th>bets with talk</th><th>silent bets</th><th>talk rate on bets</th></tr></thead><tbody>
+<tr><th>Sol</th><td style="background:color-mix(in oklab, var(--accent) 47%, var(--bg))" class="strong">67%</td><td style="background:color-mix(in oklab, var(--accent) 32%, var(--bg))" class="">45%</td><td style="background:color-mix(in oklab, var(--accent) 47%, var(--bg))" class="strong">67%</td></tr>
+<tr><th>Luna</th><td style="background:color-mix(in oklab, var(--accent) 53%, var(--bg))" class="strong">76%</td><td style="background:color-mix(in oklab, var(--accent) 62%, var(--bg))" class="strong">88%</td><td style="background:color-mix(in oklab, var(--accent) 67%, var(--bg))" class="strong">96%</td></tr>
+<tr><th>Haiku</th><td style="background:color-mix(in oklab, var(--accent) 40%, var(--bg))" class="">58%</td><td style="background:color-mix(in oklab, var(--accent) 44%, var(--bg))" class="strong">62%</td><td style="background:color-mix(in oklab, var(--accent) 68%, var(--bg))" class="strong">97%</td></tr>
+</tbody></table></div>
+    <figcaption><b>Average equity (vs random hands) of each LLM’s postflop bets, with and without table talk.</b> Sol talks on 67% of its bets, and those bets are much stronger (67% vs 45%, AUC 0.73). Luna talks on almost every bet; its 10 silent bets were its strongest.</figcaption></figure>
+  <div class="col">
+    <p><b>Nobody listens.</b> Across 15,913 decisions, one reasoning text used an opponent’s talk. In m06-r4 #11 Haiku said <q>Kings on the board, and I’m holding one.</q> (true, <span class="pc ">5♠</span><span class="pc ">K♣</span> on <span class="pc ">K♠</span><span class="pc ">6♠</span><span class="pc ">A♣</span><span class="pc ">4♣</span>). Sol, holding <span class="pc red">J♥</span><span class="pc ">10♠</span> with a gutshot, folded the turn: <q>A bluff is unlikely to work against a player who says they have a king.</q></p>
+    <h3>Experiment: the same bet, with a claim attached</h3>
+    <p>We replayed the 36 spots at ¾ pot three ways: silent, with the bettor saying <q>I’ve got the nuts here. Just fold.</q>, and with <q>Honestly, I’ve got nothing. Call me.</q> 360 more calls, $0.32.</p>
+  </div>
+  <figure class="wide"><div class="table-wrap"><table>
+    <thead><tr><th></th><th>Silent</th><th>“I’ve got the nuts”</th><th>“I’ve got nothing”</th><th>Spots that changed (of 36 × 2)</th></tr></thead>
+    <tbody>
+      <tr><th>Jev</th><td>33%</td><td><b>86%</b></td><td><b>8%</b></td><td>28</td></tr>
+      <tr><th>Haiku</th><td>19%</td><td><b>47%</b></td><td>14%</td><td>27</td></tr>
+      <tr><th>Luna Decisions</th><td>72%</td><td>83%</td><td>53%</td><td>13</td></tr>
+      <tr><th>Luna</th><td>75%</td><td>75%</td><td>64%</td><td>11</td></tr>
+      <tr><th>Sol</th><td>64%</td><td>67%</td><td>53%</td><td>9</td></tr>
+    </tbody></table></div>
+    <figcaption><b>Fold rate facing the same ¾-pot bet.</b> Jev takes the claim at face value in both directions. Sol and Luna mostly ignore it; when Luna mentions the claim it discounts it (<q>Fold rather than trust the opponent’s claim</q>). Haiku folds more to a strength claim but is not talked into folding by the weakness claim.</figcaption></figure>
+  <div class="col">
+    <p>Put the two halves together: the most talkative player at the table leaks its real cards, and the player most willing to believe talk is a decision model that never reads it for that purpose in practice, because no one at this table ever tried a verbal bluff.</p>
+  </div>
+</section>
+
+<section id="reasoning">
+  <div class="col">
+    <div class="eyebrow">Rabbit hole 4</div>
+    <h2>Reading their own cards</h2>
+    <p>We pulled every checkable claim out of the LLMs’ reasoning text and compared it to the engine: preflop, which two ranks and whether suited; postflop, positive claims of a made hand (“I have top pair / two pair / a set / a straight / a flush / a full house”). Hypotheticals (“a jack gives me a straight”) were excluded.</p>
+  </div>
+  <figure><svg viewBox="0 0 640 200" class="chart" role="img" aria-label="% of checkable claims that were wrong">
+<line x1="208.0" x2="208.0" y1="6" y2="160" class="zero"/>
+<text x="208.0" y="176" class="tick" text-anchor="middle">0</text>
+<line x1="326.2" x2="326.2" y1="6" y2="160" class="grid"/>
+<text x="326.2" y="176" class="tick" text-anchor="middle">20</text>
+<line x1="444.3" x2="444.3" y1="6" y2="160" class="grid"/>
+<text x="444.3" y="176" class="tick" text-anchor="middle">40</text>
+<line x1="562.5" x2="562.5" y1="6" y2="160" class="grid"/>
+<text x="562.5" y="176" class="tick" text-anchor="middle">60</text>
+<text x="208" y="196" class="axis-label">% of checkable claims that were wrong</text>
+<g><title>Sol: 0 wrong of 112 made-hand claims</title><text x="0" y="25.0" class="row-label">Sol · made-hand claims</text>
+<rect x="208.0" y="13.0" width="2.0" height="16" rx="3" style="fill:var(--m-haiku)"/>
+<text x="214.0" y="25.0" class="val" text-anchor="start">0%</text></g>
+<g><title>Luna: 9 wrong of 138</title><text x="0" y="55.0" class="row-label">Luna · made-hand claims</text>
+<rect x="208.0" y="43.0" width="38.5" height="16" rx="3" style="fill:var(--m-haiku)"/>
+<text x="252.5" y="55.0" class="val" text-anchor="start">7%</text></g>
+<g><title>Haiku: 67 wrong of 244</title><text x="0" y="85.0" class="row-label">Haiku · made-hand claims</text>
+<rect x="208.0" y="73.0" width="162.2" height="16" rx="3" style="fill:var(--m-haiku)"/>
+<text x="376.2" y="85.0" class="val" text-anchor="start">27%</text></g>
+<g><title>Haiku: 38 of 64 claimed sets were not sets</title><text x="0" y="115.0" class="row-label">Haiku · &quot;set&quot; claims</text>
+<rect x="208.0" y="103.0" width="350.8" height="16" rx="3" style="fill:var(--m-haiku)"/>
+<text x="564.8" y="115.0" class="val" text-anchor="start">59%</text></g>
+<g><title>Haiku: 167 of 906 preflop hand descriptions wrong</title><text x="0" y="145.0" class="row-label">Haiku · preflop hand named</text>
+<rect x="208.0" y="133.0" width="108.9" height="16" rx="3" style="fill:var(--m-haiku)"/>
+<text x="322.9" y="145.0" class="val" text-anchor="start">18%</text></g>
+</svg>
+    <figcaption><b>Share of checkable claims that were wrong.</b> Sol: 0 of 112 made-hand claims and 0 of 1,210 preflop hand descriptions. Luna: 9 of 138, mostly calling second pair “top pair” (m02-r4 #21: A♥10♦ on 8♥10♣J♥). Haiku: 67 of 244, and 167 of 906 preflop descriptions.</figcaption></figure>
+  <div class="col">
+    <p><b>Haiku’s phantom sets.</b> 38 of Haiku’s 64 set claims were wrong; 84% of the time it held a pocket pair on a board that didn’t pair it. It bet or raised on 74% of those decisions, and the 32 hands cost 141 bb. In m06-r0 #14 it called <span class="pc ">5♠</span><span class="pc red">5♦</span> on <span class="pc red">6♦</span><span class="pc ">6♣</span><span class="pc ">2♠</span> <q>a full house, fives full of sixes, nearly the nuts</q>, then corrected itself on the next decision.</p>
+    <p><b>Haiku’s preflop slips</b> are mostly suits (98 times it called an offsuit hand “suited”, 37 the reverse) and a habit of calling any bad hand “seven-deuce” (seven-deuce, three-deuce or six-deuce named for hands like Q♦7♥ and 3♣10♥). Luna made 6 preflop slips, and 4 are the same one: it called suited A5 (A♣5♣ three times, A♦5♦ once) “A5 offsuit”.</p>
+    <p><b>Pot odds.</b> Haiku states pot odds often (108 times); 79% are within 15% of the true price and 9% are off by half or more. Sol and Luna rarely state them (8 and 7 times), all close.</p>
+  </div>
+</section>
+
+<section id="decision">
+  <div class="col">
+    <div class="eyebrow">Rabbit hole 5 · includes a follow-up experiment</div>
+    <h2>Decision models</h2>
+    <p>Luna Decisions and Jev answer one typed choice question and return a probability for every option on the menu. The app always takes their choice, which is the top probability.</p>
+  </div>
+  <div class="split">
+    <figure><svg viewBox="0 0 440 190" class="chart" role="img" aria-label="Luna Decisions">
+<g><title>Luna Decisions: top probability <30% in 67 of 2973 decisions</title><rect x="9.0" y="138.0" width="45.1" height="18.0" rx="2" style="fill:var(--m-lunad)"/></g>
+<text x="31.6" y="170" class="tick" text-anchor="middle"><30</text>
+<g><title>Luna Decisions: top probability 30% in 318 of 2973 decisions</title><rect x="56.1" y="70.5" width="45.1" height="85.5" rx="2" style="fill:var(--m-lunad)"/></g>
+<text x="78.7" y="170" class="tick" text-anchor="middle">30</text>
+<g><title>Luna Decisions: top probability 40% in 466 of 2973 decisions</title><rect x="103.2" y="30.7" width="45.1" height="125.3" rx="2" style="fill:var(--m-lunad)"/></g>
+<text x="125.8" y="170" class="tick" text-anchor="middle">40</text>
+<g><title>Luna Decisions: top probability 50% in 543 of 2973 decisions</title><rect x="150.3" y="10.0" width="45.1" height="146.0" rx="2" style="fill:var(--m-lunad)"/></g>
+<text x="172.9" y="170" class="tick" text-anchor="middle">50</text>
+<g><title>Luna Decisions: top probability 60% in 427 of 2973 decisions</title><rect x="197.4" y="41.2" width="45.1" height="114.8" rx="2" style="fill:var(--m-lunad)"/></g>
+<text x="220.0" y="170" class="tick" text-anchor="middle">60</text>
+<g><title>Luna Decisions: top probability 70% in 355 of 2973 decisions</title><rect x="244.6" y="60.5" width="45.1" height="95.5" rx="2" style="fill:var(--m-lunad)"/></g>
+<text x="267.1" y="170" class="tick" text-anchor="middle">70</text>
+<g><title>Luna Decisions: top probability 80% in 317 of 2973 decisions</title><rect x="291.7" y="70.8" width="45.1" height="85.2" rx="2" style="fill:var(--m-lunad)"/></g>
+<text x="314.2" y="170" class="tick" text-anchor="middle">80</text>
+<g><title>Luna Decisions: top probability 90% in 171 of 2973 decisions</title><rect x="338.8" y="110.0" width="45.1" height="46.0" rx="2" style="fill:var(--m-lunad)"/></g>
+<text x="361.3" y="170" class="tick" text-anchor="middle">90</text>
+<g><title>Luna Decisions: top probability 95+% in 309 of 2973 decisions</title><rect x="385.9" y="72.9" width="45.1" height="83.1" rx="2" style="fill:var(--m-lunad)"/></g>
+<text x="408.4" y="170" class="tick" text-anchor="middle">95+</text>
+<line x1="8" x2="432" y1="156" y2="156" class="zero"/>
+<text x="432" y="188" class="axis-label" text-anchor="end">probability of the chosen option, %</text></svg><figcaption><b>Luna Decisions:</b> top option averages 64%; 16% of decisions are 90%+ sure.</figcaption></figure>
+    <figure><svg viewBox="0 0 440 190" class="chart" role="img" aria-label="Jev">
+<g><title>Jev: top probability <30% in 68 of 2932 decisions</title><rect x="9.0" y="141.7" width="45.1" height="14.3" rx="2" style="fill:var(--m-jev)"/></g>
+<text x="31.6" y="170" class="tick" text-anchor="middle"><30</text>
+<g><title>Jev: top probability 30% in 460 of 2932 decisions</title><rect x="56.1" y="59.5" width="45.1" height="96.5" rx="2" style="fill:var(--m-jev)"/></g>
+<text x="78.7" y="170" class="tick" text-anchor="middle">30</text>
+<g><title>Jev: top probability 40% in 683 of 2932 decisions</title><rect x="103.2" y="12.7" width="45.1" height="143.3" rx="2" style="fill:var(--m-jev)"/></g>
+<text x="125.8" y="170" class="tick" text-anchor="middle">40</text>
+<g><title>Jev: top probability 50% in 696 of 2932 decisions</title><rect x="150.3" y="10.0" width="45.1" height="146.0" rx="2" style="fill:var(--m-jev)"/></g>
+<text x="172.9" y="170" class="tick" text-anchor="middle">50</text>
+<g><title>Jev: top probability 60% in 514 of 2932 decisions</title><rect x="197.4" y="48.2" width="45.1" height="107.8" rx="2" style="fill:var(--m-jev)"/></g>
+<text x="220.0" y="170" class="tick" text-anchor="middle">60</text>
+<g><title>Jev: top probability 70% in 259 of 2932 decisions</title><rect x="244.6" y="101.7" width="45.1" height="54.3" rx="2" style="fill:var(--m-jev)"/></g>
+<text x="267.1" y="170" class="tick" text-anchor="middle">70</text>
+<g><title>Jev: top probability 80% in 162 of 2932 decisions</title><rect x="291.7" y="122.0" width="45.1" height="34.0" rx="2" style="fill:var(--m-jev)"/></g>
+<text x="314.2" y="170" class="tick" text-anchor="middle">80</text>
+<g><title>Jev: top probability 90% in 68 of 2932 decisions</title><rect x="338.8" y="141.7" width="45.1" height="14.3" rx="2" style="fill:var(--m-jev)"/></g>
+<text x="361.3" y="170" class="tick" text-anchor="middle">90</text>
+<g><title>Jev: top probability 95+% in 22 of 2932 decisions</title><rect x="385.9" y="151.4" width="45.1" height="4.6" rx="2" style="fill:var(--m-jev)"/></g>
+<text x="408.4" y="170" class="tick" text-anchor="middle">95+</text>
+<line x1="8" x2="432" y1="156" y2="156" class="zero"/>
+<text x="432" y="188" class="axis-label" text-anchor="end">probability of the chosen option, %</text></svg><figcaption><b>Jev:</b> top option averages 55%; only 3% are 90%+ sure, and 41% are under 50%.</figcaption></figure>
+  </div>
+  <div class="col">
+    <p><b>The probabilities don’t track difficulty.</b> When a call is close (equity within 10 points of the pot odds), Luna Decisions’ top probability averages 0.69; when it’s clear (30+ points away), also 0.69. Jev: 0.57 vs 0.61. The numbers describe a spread of plausible actions, not confidence.</p>
+    <p><b>The “off-argmax” choices are rounding.</b> The SDK rejects a choice that isn’t the model’s own top probability; the app keeps it and flags it. There are 7 in the main run (the B3 notes say 6), all Jev, and in all 7 the chosen option is exactly one point below the top (0.31 vs 0.32, 0.29 vs 0.30, …). These are ties reported at two decimals.</p>
+    <h3>Experiment: ask the same view again</h3>
+    <p>We replayed 120 recorded views (40 preflop facing a bet, 40 flop/turn, 40 river) to all five models, and asked 60 of them twice. 900 calls, $0.68.</p>
+  </div>
+  <figure><div class="table-wrap"><table class="heat"><thead><tr><th></th><th>Sol</th><th>Luna</th><th>Luna Decisions</th><th>Haiku</th><th>Jev</th></tr></thead><tbody>
+<tr><th>Sol</th><td title="Sol agreed with itself on 87% of re-asked views" style="background:color-mix(in oklab, var(--accent) 61%, var(--bg))" class="strong">87</td><td title="Sol and Luna chose the same option on 63% of identical views" style="background:color-mix(in oklab, var(--accent) 44%, var(--bg))" class="strong">63</td><td title="Sol and Luna Decisions chose the same option on 62% of identical views" style="background:color-mix(in oklab, var(--accent) 43%, var(--bg))" class="strong">62</td><td title="Sol and Haiku chose the same option on 48% of identical views" style="background:color-mix(in oklab, var(--accent) 34%, var(--bg))" class="">48</td><td title="Sol and Jev chose the same option on 58% of identical views" style="background:color-mix(in oklab, var(--accent) 40%, var(--bg))" class="">58</td></tr>
+<tr><th>Luna</th><td title="Luna and Sol chose the same option on 63% of identical views" style="background:color-mix(in oklab, var(--accent) 44%, var(--bg))" class="strong">63</td><td title="Luna agreed with itself on 92% of re-asked views" style="background:color-mix(in oklab, var(--accent) 64%, var(--bg))" class="strong">92</td><td title="Luna and Luna Decisions chose the same option on 73% of identical views" style="background:color-mix(in oklab, var(--accent) 51%, var(--bg))" class="strong">73</td><td title="Luna and Haiku chose the same option on 61% of identical views" style="background:color-mix(in oklab, var(--accent) 43%, var(--bg))" class="strong">61</td><td title="Luna and Jev chose the same option on 75% of identical views" style="background:color-mix(in oklab, var(--accent) 52%, var(--bg))" class="strong">75</td></tr>
+<tr><th>Luna Decisions</th><td title="Luna Decisions and Sol chose the same option on 62% of identical views" style="background:color-mix(in oklab, var(--accent) 43%, var(--bg))" class="strong">62</td><td title="Luna Decisions and Luna chose the same option on 73% of identical views" style="background:color-mix(in oklab, var(--accent) 51%, var(--bg))" class="strong">73</td><td title="Luna Decisions agreed with itself on 100% of re-asked views" style="background:color-mix(in oklab, var(--accent) 70%, var(--bg))" class="strong">100</td><td title="Luna Decisions and Haiku chose the same option on 53% of identical views" style="background:color-mix(in oklab, var(--accent) 37%, var(--bg))" class="">53</td><td title="Luna Decisions and Jev chose the same option on 66% of identical views" style="background:color-mix(in oklab, var(--accent) 46%, var(--bg))" class="strong">66</td></tr>
+<tr><th>Haiku</th><td title="Haiku and Sol chose the same option on 48% of identical views" style="background:color-mix(in oklab, var(--accent) 34%, var(--bg))" class="">48</td><td title="Haiku and Luna chose the same option on 61% of identical views" style="background:color-mix(in oklab, var(--accent) 43%, var(--bg))" class="strong">61</td><td title="Haiku and Luna Decisions chose the same option on 53% of identical views" style="background:color-mix(in oklab, var(--accent) 37%, var(--bg))" class="">53</td><td title="Haiku agreed with itself on 80% of re-asked views" style="background:color-mix(in oklab, var(--accent) 56%, var(--bg))" class="strong">80</td><td title="Haiku and Jev chose the same option on 58% of identical views" style="background:color-mix(in oklab, var(--accent) 40%, var(--bg))" class="">58</td></tr>
+<tr><th>Jev</th><td title="Jev and Sol chose the same option on 58% of identical views" style="background:color-mix(in oklab, var(--accent) 40%, var(--bg))" class="">58</td><td title="Jev and Luna chose the same option on 75% of identical views" style="background:color-mix(in oklab, var(--accent) 52%, var(--bg))" class="strong">75</td><td title="Jev and Luna Decisions chose the same option on 66% of identical views" style="background:color-mix(in oklab, var(--accent) 46%, var(--bg))" class="strong">66</td><td title="Jev and Haiku chose the same option on 58% of identical views" style="background:color-mix(in oklab, var(--accent) 40%, var(--bg))" class="">58</td><td title="Jev agreed with itself on 97% of re-asked views" style="background:color-mix(in oklab, var(--accent) 68%, var(--bg))" class="strong">97</td></tr>
+</tbody></table></div>
+    <figcaption><b>Exact agreement on identical views, %.</b> Diagonal: a model against itself on a second ask. Off-diagonal: two models on the same view. Luna Decisions never changed its answer; Haiku changed one in five. Luna agrees with both decision models (75% with Jev, 73% with Luna Decisions) more than with Sol (63%).</figcaption></figure>
+  <div class="col">
+    <p><b>Is Luna Decisions a compressed Luna?</b> Partly. It shares Luna’s passivity and agrees with it more than with any LLM, in the replay (73%) and in the 221 natural same-spot pairs (71% broad agreement, against 43% by chance). But Jev agrees with Luna just as often, and Luna Decisions is tighter: in the replay it folded 35% of views to Luna’s 25%, which matches its lower VPIP (31% vs 44%). The cleaner description is that the GPT-6 Luna family and Jev share a cautious, call-first default, and Luna Decisions is the most cautious of them.</p>
+    <p><b>Re-asking also bounds the noise in B3.</b> On views from the main run, Sol repeated its original choice 78% of the time (14 of 18), Luna 87%, Haiku 76%, Luna Decisions 97%, Jev 100%. A fifth of LLM decisions are coin-flips between two options.</p>
+  </div>
+</section>
+
+<section id="depth">
+  <div class="col">
+    <div class="eyebrow">Hunch: stack depth and the 50-hand cap</div>
+    <h2>Stack depth and the cap</h2>
+    <p>Blinds start at 10/20 with 1,500 chips (75 big blinds) and double every 10 hands. By hands 41–50 the average stack is 6–14 big blinds. Two artifacts follow.</p>
+  </div>
+  <figure><div class="table-wrap"><table class="heat"><thead><tr><th></th><th>10/20</th><th>20/40</th><th>40/80</th><th>80/160</th><th>160/320</th></tr></thead><tbody>
+<tr><th>Sol</th><td title="Sol at blinds 10/20: +108 bb/100 over 397 hands" style="background:color-mix(in oklab, var(--pos) 69%, var(--bg))" class="strong">+108</td><td title="Sol at blinds 20/40: +112 bb/100 over 390 hands" style="background:color-mix(in oklab, var(--pos) 70%, var(--bg))" class="strong">+112</td><td title="Sol at blinds 40/80: +66 bb/100 over 334 hands" style="background:color-mix(in oklab, var(--pos) 42%, var(--bg))" class="">+66</td><td title="Sol at blinds 80/160: +39 bb/100 over 280 hands" style="background:color-mix(in oklab, var(--pos) 25%, var(--bg))" class="">+39</td><td title="Sol at blinds 160/320: +51 bb/100 over 191 hands" style="background:color-mix(in oklab, var(--pos) 33%, var(--bg))" class="">+51</td></tr>
+<tr><th>Luna</th><td title="Luna at blinds 10/20: +40 bb/100 over 400 hands" style="background:color-mix(in oklab, var(--pos) 26%, var(--bg))" class="">+40</td><td title="Luna at blinds 20/40: -5 bb/100 over 391 hands" style="background:color-mix(in oklab, var(--neg) 3%, var(--bg))" class="">-5</td><td title="Luna at blinds 40/80: -37 bb/100 over 354 hands" style="background:color-mix(in oklab, var(--neg) 23%, var(--bg))" class="">-37</td><td title="Luna at blinds 80/160: +22 bb/100 over 306 hands" style="background:color-mix(in oklab, var(--pos) 14%, var(--bg))" class="">+22</td><td title="Luna at blinds 160/320: -24 bb/100 over 218 hands" style="background:color-mix(in oklab, var(--neg) 15%, var(--bg))" class="">-24</td></tr>
+<tr><th>Luna Decisions</th><td title="Luna Decisions at blinds 10/20: -19 bb/100 over 400 hands" style="background:color-mix(in oklab, var(--neg) 12%, var(--bg))" class="">-19</td><td title="Luna Decisions at blinds 20/40: +35 bb/100 over 400 hands" style="background:color-mix(in oklab, var(--pos) 22%, var(--bg))" class="">+35</td><td title="Luna Decisions at blinds 40/80: -9 bb/100 over 384 hands" style="background:color-mix(in oklab, var(--neg) 6%, var(--bg))" class="">-9</td><td title="Luna Decisions at blinds 80/160: -16 bb/100 over 277 hands" style="background:color-mix(in oklab, var(--neg) 10%, var(--bg))" class="">-16</td><td title="Luna Decisions at blinds 160/320: -29 bb/100 over 192 hands" style="background:color-mix(in oklab, var(--neg) 18%, var(--bg))" class="">-29</td></tr>
+<tr><th>Haiku</th><td title="Haiku at blinds 10/20: -33 bb/100 over 392 hands" style="background:color-mix(in oklab, var(--neg) 21%, var(--bg))" class="">-33</td><td title="Haiku at blinds 20/40: -131 bb/100 over 281 hands" style="background:color-mix(in oklab, var(--neg) 70%, var(--bg))" class="strong">-131</td><td title="Haiku at blinds 40/80: +40 bb/100 over 180 hands" style="background:color-mix(in oklab, var(--pos) 25%, var(--bg))" class="">+40</td><td title="Haiku at blinds 80/160: -80 bb/100 over 127 hands" style="background:color-mix(in oklab, var(--neg) 51%, var(--bg))" class="strong">-80</td><td title="Haiku at blinds 160/320: +73 bb/100 over 68 hands" style="background:color-mix(in oklab, var(--pos) 46%, var(--bg))" class="strong">+73</td></tr>
+<tr><th>Jev</th><td title="Jev at blinds 10/20: -102 bb/100 over 376 hands" style="background:color-mix(in oklab, var(--neg) 65%, var(--bg))" class="strong">-102</td><td title="Jev at blinds 20/40: -58 bb/100 over 324 hands" style="background:color-mix(in oklab, var(--neg) 37%, var(--bg))" class="">-58</td><td title="Jev at blinds 40/80: -51 bb/100 over 244 hands" style="background:color-mix(in oklab, var(--neg) 33%, var(--bg))" class="">-51</td><td title="Jev at blinds 80/160: -17 bb/100 over 189 hands" style="background:color-mix(in oklab, var(--neg) 11%, var(--bg))" class="">-17</td><td title="Jev at blinds 160/320: -36 bb/100 over 110 hands" style="background:color-mix(in oklab, var(--neg) 23%, var(--bg))" class="">-36</td></tr>
+</tbody></table></div>
+    <figcaption><b>bb/100 by blind level.</b> Sol is positive at every level. Haiku swings from −131 at 20/40 to +73 at 160/320 on 68 hands. Hover a cell for its hand count.</figcaption></figure>
+  <div class="col">
+    <p><b>bb/100 weighs early hands most.</b> A pot of 1,000 chips is 50 bb at level one and 3 bb at level five. Ranked by chips instead of bb, Haiku (−12,030) moves ahead of Luna (−13,674) and Luna Decisions (−23,690). Its big losses come early (it was first out 20 times, 12 of its 33 busts before hand 15) and its wins late, when bb are cheap. Sol leads on either measure (+92,446 chips).</p>
+    <p><b>The cap decided half the tournaments.</b> 20 of 40 hit the 50-hand cap and were placed by chip count; 15 of those were heads-up at the time. Sol won 12 of the 20 capped tournaments and 11 of the 20 that finished, so the cap didn’t change who wins. The average chip leader at the cap held 72% of the chips.</p>
+    <p><b>The format mismatch is the bigger artifact.</b> The seat prompt says “cash game” and “play to win chips”. Models are never told blinds rise or that finishing order matters. Sol is the only one that plays short stacks like a tournament anyway.</p>
+  </div>
+</section>
+
+<section id="lab">
+  <div class="col">
+    <div class="eyebrow">B4 Strategy Lab · 13 cards · 7,573 hands · $13.23</div>
+    <h2>Strategy Lab and Fable’s miscalibration</h2>
+    <p>Fable wrote strategy cards for GPT-6 Luna and pre-registered a bb/100 for each. Every card it expected to win came in 19–38 below its prediction; every card it expected to lose by 15+ came in 25–56 above. Why one direction?</p>
+  </div>
+  <figure><svg viewBox="0 0 640 420" class="chart" role="img" aria-label="measured bb/100 against Fable’s predicted bb/100">
+<line x1="67.2" x2="67.2" y1="14" y2="376" class="grid"/><text x="67.2" y="392" class="tick" text-anchor="middle">-75</text>
+<line x1="48" x2="624" y1="363.9" y2="363.9" class="grid"/><text x="42" y="367.9" class="tick" text-anchor="end">-75</text>
+<line x1="163.2" x2="163.2" y1="14" y2="376" class="grid"/><text x="163.2" y="392" class="tick" text-anchor="middle">-50</text>
+<line x1="48" x2="624" y1="303.6" y2="303.6" class="grid"/><text x="42" y="307.6" class="tick" text-anchor="end">-50</text>
+<line x1="259.2" x2="259.2" y1="14" y2="376" class="grid"/><text x="259.2" y="392" class="tick" text-anchor="middle">-25</text>
+<line x1="48" x2="624" y1="243.3" y2="243.3" class="grid"/><text x="42" y="247.3" class="tick" text-anchor="end">-25</text>
+<line x1="355.2" x2="355.2" y1="14" y2="376" class="zero"/><text x="355.2" y="392" class="tick" text-anchor="middle">+0</text>
+<line x1="48" x2="624" y1="182.9" y2="182.9" class="zero"/><text x="42" y="186.9" class="tick" text-anchor="end">+0</text>
+<line x1="451.2" x2="451.2" y1="14" y2="376" class="grid"/><text x="451.2" y="392" class="tick" text-anchor="middle">+25</text>
+<line x1="48" x2="624" y1="122.6" y2="122.6" class="grid"/><text x="42" y="126.6" class="tick" text-anchor="end">+25</text>
+<line x1="547.2" x2="547.2" y1="14" y2="376" class="grid"/><text x="547.2" y="392" class="tick" text-anchor="middle">+50</text>
+<line x1="48" x2="624" y1="62.3" y2="62.3" class="grid"/><text x="42" y="66.3" class="tick" text-anchor="end">+50</text>
+<line x1="48.0" y1="376.0" x2="624.0" y2="14.0" class="ref-line"/>
+<text x="620.0" y="28.0" class="ref-label" text-anchor="end">perfect calibration</text>
+<line x1="48.0" y1="231.6" x2="624.0" y2="147.8" class="fit-line"/>
+<text x="52.0" y="249.6" class="fit-label">measured trend, slope 0.23</text>
+<text x="336" y="416" class="axis-label" text-anchor="middle">Fable’s predicted bb/100</text>
+<text x="12" y="195" class="axis-label" text-anchor="middle" transform="rotate(-90 12 195)">measured bb/100</text>
+<line x1="501.1" x2="501.1" y1="149.9" y2="117.0" class="whisker"/>
+<circle cx="501.1" cy="138.1" r="5.5" class="pt ring"><title>Balanced Solid: predicted +38, measured +19</title></circle>
+<text x="492.1" y="154.1" class="pt-label" text-anchor="end">Balanced Solid</text>
+<line x1="566.4" x2="566.4" y1="175.7" y2="86.1" class="whisker"/>
+<circle cx="566.4" cy="128.7" r="5.5" class="pt ring"><title>Bot Hunter: predicted +55, measured +22</title></circle>
+<text x="557.4" y="122.7" class="pt-label" text-anchor="end">Bot Hunter</text>
+<line x1="182.4" x2="182.4" y1="180.7" y2="122.1" class="whisker"/>
+<circle cx="182.4" cy="156.2" r="5.5" class="pt ring"><title>Silver Tongue: predicted -45, measured +11</title></circle>
+<text x="173.4" y="160.2" class="pt-label" text-anchor="end">Silver Tongue</text>
+<circle cx="470.4" cy="196.1" r="5.5" class="pt ring"><title>Table Reader: predicted +30, measured -5</title></circle>
+<circle cx="336.0" cy="212.7" r="5.5" class="pt ring"><title>Quiet Trapper: predicted -5, measured -12</title></circle>
+<circle cx="401.3" cy="238.6" r="5.5" class="pt ring"><title>Granite Rock: predicted +12, measured -23</title></circle>
+<text x="392.3" y="242.6" class="pt-label" text-anchor="end">Granite Rock</text>
+<line x1="86.4" x2="86.4" y1="376.0" y2="109.7" class="whisker"/>
+<circle cx="86.4" cy="290.6" r="5.5" class="pt ring"><title>Blitz Maniac: predicted -70, measured -45</title></circle>
+<text x="95.4" y="294.6" class="pt-label" text-anchor="start">Blitz Maniac</text>
+<circle cx="278.4" cy="153.7" r="5.5" class="pt ring"><title>Happy Station: predicted -20, measured +12</title></circle>
+<circle cx="297.6" cy="135.9" r="5.5" class="pt ring"><title>Small Ball Chatter: predicted -15, measured +19</title></circle>
+<text x="306.6" y="131.9" class="pt-label" text-anchor="start">Small Ball Chatter</text>
+<line x1="462.7" x2="462.7" y1="203.5" y2="147.2" class="whisker"/>
+<circle cx="462.7" cy="175.9" r="5.5" class="pt ring"><title>Solid Hunter: predicted +28, measured +3</title></circle>
+<circle cx="355.2" cy="144.3" r="5.5" class="pt ring"><title>Blind Pressure Shover: predicted +0, measured +16</title></circle>
+<line x1="439.7" x2="439.7" y1="297.3" y2="73.9" class="whisker"/>
+<circle cx="439.7" cy="194.7" r="5.5" class="pt ring"><title>Sticky Hunter: predicted +22, measured -5</title></circle>
+<circle cx="409.0" cy="240.2" r="5.5" class="pt ring"><title>Silver Value: predicted +14, measured -24</title></circle>
+</svg>
+    <figcaption><b>Predicted vs measured bb/100, 13 cards.</b> Whiskers are 95% CIs where a card had 3+ matches. The fitted slope is 0.23 (r = 0.39): measured results sit much flatter than the predictions. In the pilot, which Fable never saw, r was 0.12.</figcaption></figure>
+  <div class="col">
+    <p><b>Regression to the mean, with nothing to regress from.</b> Any forecaster who predicts a spread of outcomes will look one-directionally wrong if the true spread is smaller: high predictions come in low, low ones come in high. The question is how small the true spread was. A single match measures a card’s lead with an SD of about 52 bb/100 (within-card, cards with 3+ matches); two identical card-less Lunas differed by an SD of 43 per match over 17 matches. Given how many matches each card played, noise alone should spread the 13 leads by about 43. The observed spread was 37. So the implied true spread between cards is about zero, against Fable’s predicted 35.</p>
+    <p>A forecast of “every card scores what the control scored” has a mean absolute error of 17 bb/100. Fable’s was 30.</p>
+    <p><b>The cards did change how Luna played.</b> Granite Rock took Luna’s VPIP from 41% to 11%; Blitz Maniac to 84% with an 81% PFR and AF 13.9. Fable’s premise that Luna would follow the text was right for preflop ranges. What didn’t follow was the score: in 50-hand turbos with doubling blinds and 3 matches per card, very different styles produce results that sit inside each other’s noise.</p>
+  </div>
+  <figure><div class="table-wrap"><table class="heat"><thead><tr><th></th><th>VPIP %</th><th>PFR %</th><th>bb/100</th></tr></thead><tbody>
+<tr><th>Granite Rock</th><td style="background:color-mix(in oklab, var(--accent) 9%, var(--bg))" class="">11</td><td style="background:color-mix(in oklab, var(--accent) 8%, var(--bg))" class="">10</td><td>-23</td></tr>
+<tr><th>Quiet Trapper</th><td style="background:color-mix(in oklab, var(--accent) 11%, var(--bg))" class="">14</td><td style="background:color-mix(in oklab, var(--accent) 2%, var(--bg))" class="">2</td><td>-12</td></tr>
+<tr><th>Blind Pressure Shover</th><td style="background:color-mix(in oklab, var(--accent) 13%, var(--bg))" class="">16</td><td style="background:color-mix(in oklab, var(--accent) 12%, var(--bg))" class="">16</td><td>16</td></tr>
+<tr><th>Table Reader</th><td style="background:color-mix(in oklab, var(--accent) 18%, var(--bg))" class="">24</td><td style="background:color-mix(in oklab, var(--accent) 13%, var(--bg))" class="">16</td><td>-5</td></tr>
+<tr><th>Balanced Solid</th><td style="background:color-mix(in oklab, var(--accent) 23%, var(--bg))" class="">29</td><td style="background:color-mix(in oklab, var(--accent) 16%, var(--bg))" class="">20</td><td>18</td></tr>
+<tr><th>Solid Hunter</th><td style="background:color-mix(in oklab, var(--accent) 24%, var(--bg))" class="">30</td><td style="background:color-mix(in oklab, var(--accent) 16%, var(--bg))" class="">21</td><td>3</td></tr>
+<tr><th>Sticky Hunter</th><td style="background:color-mix(in oklab, var(--accent) 24%, var(--bg))" class="">31</td><td style="background:color-mix(in oklab, var(--accent) 18%, var(--bg))" class="">23</td><td>-5</td></tr>
+<tr><th>Bot Hunter</th><td style="background:color-mix(in oklab, var(--accent) 25%, var(--bg))" class="">33</td><td style="background:color-mix(in oklab, var(--accent) 20%, var(--bg))" class="">25</td><td>22</td></tr>
+<tr><th>Silver Tongue</th><td style="background:color-mix(in oklab, var(--accent) 27%, var(--bg))" class="">35</td><td style="background:color-mix(in oklab, var(--accent) 19%, var(--bg))" class="">24</td><td>11</td></tr>
+<tr><th>Silver Value</th><td style="background:color-mix(in oklab, var(--accent) 31%, var(--bg))" class="">40</td><td style="background:color-mix(in oklab, var(--accent) 22%, var(--bg))" class="">28</td><td>-24</td></tr>
+<tr><th>Small Ball Chatter</th><td style="background:color-mix(in oklab, var(--accent) 38%, var(--bg))" class="">49</td><td style="background:color-mix(in oklab, var(--accent) 20%, var(--bg))" class="">26</td><td>19</td></tr>
+<tr><th>Happy Station</th><td style="background:color-mix(in oklab, var(--accent) 64%, var(--bg))" class="strong">82</td><td style="background:color-mix(in oklab, var(--accent) 1%, var(--bg))" class="">1</td><td>12</td></tr>
+<tr><th>Blitz Maniac</th><td style="background:color-mix(in oklab, var(--accent) 65%, var(--bg))" class="strong">84</td><td style="background:color-mix(in oklab, var(--accent) 63%, var(--bg))" class="strong">81</td><td>-45</td></tr>
+<tr><th>Luna (no card)</th><td style="background:color-mix(in oklab, var(--accent) 32%, var(--bg))" class="">41</td><td style="background:color-mix(in oklab, var(--accent) 11%, var(--bg))" class="">14</td><td>10</td></tr>
+</tbody></table></div>
+    <figcaption><b>Style moved a lot; bb/100 didn’t.</b> Cards sorted by VPIP, with the control at the bottom. Pooled bb/100 per card; most have 1–4 matches.</figcaption></figure>
+  <div class="col">
+    <p>The held-out final points the same way: Bot Hunter’s training lead of +24 [+1, +55] became −24 [−59, +10] on fresh seeds against Sol and Haiku. The lab’s most useful seat was the second card-less Luna, which measured the noise floor directly.</p>
+  </div>
+</section>
+
+<section id="cost">
+  <div class="col">
+    <div class="eyebrow">Operations</div>
+    <h2>Cost and speed</h2>
+  </div>
+  <figure class="wide"><div class="table-wrap"><table>
+    <thead><tr><th></th><th>Decisions</th><th>Mean latency</th><th>p95</th><th>Input tok</th><th>Output tok</th><th>Cost</th><th>$ / 100 hands</th><th>$ / bb won</th></tr></thead>
+    <tbody><tr><th>Sol</th><td>3,361</td><td>3.10 s</td><td>5.0 s</td><td>1028</td><td>111</td><td>$10.63</td><td>$0.668</td><td>$0.0082</td></tr>
+<tr><th>Luna</th><td>3,676</td><td>1.97 s</td><td>2.8 s</td><td>1032</td><td>57</td><td>$0.38</td><td>$0.023</td><td>$0.0130</td></tr>
+<tr><th>Luna Decisions</th><td>2,973</td><td>0.24 s</td><td>0.4 s</td><td>554</td><td>0</td><td>$0.22</td><td>$0.013</td><td>—</td></tr>
+<tr><th>Haiku</th><td>2,971</td><td>2.48 s</td><td>5.4 s</td><td>1816</td><td>230</td><td>$0.86</td><td>$0.082</td><td>—</td></tr>
+<tr><th>Jev</th><td>2,932</td><td>0.26 s</td><td>0.4 s</td><td>999</td><td>68</td><td>$0.01</td><td>$0.001</td><td>—</td></tr></tbody></table></div>
+    <figcaption><b>B3 main run, pricing.ts × logged usage.</b> 0 fallbacks in 15,913 decisions. Sol is 88% of the decision spend. Decision models bill input only.</figcaption></figure>
+  <div class="col">
+    <p>Sol paid about $0.008 for each big blind it won. It also thinks harder as the hand goes on: 94 output tokens preflop, 168 on the river. Haiku’s reasoning grows faster (119 → 466 tokens) but doesn’t get more accurate. Luna’s stays flat at about 57 tokens on every street, which fits reasoning set to “none”. The decision models answer in about 0.25 s, 8–13× faster than the LLMs.</p>
+    <p><b>Gemini 3.1 Pro</b> appears only in the 90-hand pilot (one match, no CI): tight (VPIP 23%), 5.4 s per decision, and half the pilot’s spend ($0.67 of $1.34). It was dropped from the main run for budget.</p>
+  </div>
+</section>
+
+<section id="methods">
+  <div class="col">
+    <div class="eyebrow">Methods and caveats</div>
+    <h2>Methods and caveats</h2>
+    <ul class="tight">
+      <li><b>Data.</b> B3 main run (<code>data/runs/20261010_main.jsonl</code>: 40 SNGs, 8 complete matches, 1,913 hands), the B3 pilot (90 hands, the only Gemini data), and the B4 lab (<code>data/lab/20261010_lab</code>, 7,573 hands incl. 898 held-out; pilot 1,200 hands). Seven casual sessions (46 hands) were not used. “9,486 hands” in the header = B3 main + lab.</li>
+      <li><b>Official numbers</b> (standings, CIs, styles, chip flow, lab leads) come from the app’s own <code>runDetail()</code> and <code>labDetail()</code>, re-run in the notebook. Everything else is computed in <code>findings/notebook/</code>.</li>
+      <li><b>Equity.</b> “Equity vs random hands” is what the seat could estimate from its own cards (Monte Carlo, 600 boards). “God view” equity uses the opponents’ actual cards and is exact on the river. A river fold “holding the winner” is hindsight on the actual hands, not a judgment against the opponent’s range.</li>
+      <li><b>Claim checks</b> are regex extractions with negation and hypothetical filters; the counts are checkable claims only. Spot checks of every category found the flagged Haiku and Luna errors to be real; a few borderline phrasings remain.</li>
+      <li><b>Same-spot comparisons</b> match on cards, seat, board, pot, price and full action history; stacks can differ between rotations.</li>
+      <li><b>Experiments</b> replay fixed views through the app’s own <code>decide()</code> (same prompt, timeouts and schema). Ladder and talk spots are 36 turn/river heads-up spots stratified by hand strength; with n = 36 per cell, differences under ~20 points are noise. 1,800 calls, 1 fallback, $1.46 by pricing.ts; the key moved $34.38 → $35.85.</li>
+      <li><b>All-in adjustment</b> covers the 202 hands where betting closed before the river; side pots are handled layer by layer.</li>
+      <li><b>Not tested:</b> whether cards transfer to other base models, longer tournaments without a cap, or any human play.</li>
+    </ul>
+    <h3>Things that look broken or worth fixing</h3>
+    <ul class="tight">
+      <li>The seat prompt calls a tournament with rising blinds a “cash game” (<code>INSTRUCTIONS</code> in <code>server/utils/decide.ts</code>). This shapes every result above; telling seats the format is a one-line change, but it changes the benchmark.</li>
+      <li><code>cleanTableTalk()</code> only drops lines that contain a card code like “Kh”. Haiku leaks its hand in words 204 times. A rank-word check against the speaker’s hole cards would catch most of them.</li>
+      <li>The B3 notes count 6 <code>choiceNotTop</code> decisions; the run file has 7, all 1-point rounding ties.</li>
+      <li>The <code>priorTableTalk</code> window holds the last 6 lines, so “never repeat a line” is enforced only locally; Sol said “Your move.” 100 times.</li>
+      <li>bb/100 under doubling blinds over-weights the first two levels; reporting chips per tournament next to it would make /results harder to misread.</li>
+    </ul>
+  </div>
+</section>
+
+</main>

@@ -1,0 +1,858 @@
+{
+ "stats": {
+  "openai/gpt-6-sol": {
+   "decisions": 3361,
+   "talk": 1096,
+   "talk_rate": 32.609342457601905,
+   "avg_len": 22.532846715328468,
+   "distinct": 485,
+   "repeat_in_tournament": 11.77007299270073,
+   "names_opponent": 1.0036496350364963,
+   "mentions_rank_word": 15,
+   "leaks_own_card": 1,
+   "leak_rate": 0.09124087591240876,
+   "false_rank_word": 12,
+   "talk_rate_by_action": {
+    "fold": 3.1746031746031744,
+    "check": 4.381694255111976,
+    "call": 48.25581395348837,
+    "aggressive": 73.25800376647834
+   },
+   "top_lines": [
+    [
+     "Your move.",
+     100
+    ],
+    [
+     "Let's make it interesting.",
+     31
+    ],
+    [
+     "Let's see where we stand.",
+     25
+    ],
+    [
+     "Let's see a flop.",
+     22
+    ],
+    [
+     "I'll take a look.",
+     21
+    ],
+    [
+     "I\u2019ll take a look.",
+     15
+    ],
+    [
+     "Let's put a little pressure on.",
+     15
+    ],
+    [
+     "Your move, blinds.",
+     14
+    ]
+   ]
+  },
+  "openai/gpt-6-luna": {
+   "decisions": 3676,
+   "talk": 972,
+   "talk_rate": 26.4417845484222,
+   "avg_len": 35.53600823045267,
+   "distinct": 724,
+   "repeat_in_tournament": 2.263374485596708,
+   "names_opponent": 0.0,
+   "mentions_rank_word": 14,
+   "leaks_own_card": 1,
+   "leak_rate": 0.102880658436214,
+   "false_rank_word": 6,
+   "talk_rate_by_action": {
+    "fold": 5.626598465473146,
+    "check": 10.795902285263987,
+    "call": 42.803030303030305,
+    "aggressive": 97.28506787330316
+   },
+   "top_lines": [
+    [
+     "Let\u2019s see what the flop brings.",
+     19
+    ],
+    [
+     "No need to rush this one.",
+     18
+    ],
+    [
+     "Let\u2019s see who wants to come along.",
+     15
+    ],
+    [
+     "Let's see who wants to come along.",
+     9
+    ],
+    [
+     "I\u2019ll wait for a better spot.",
+     8
+    ],
+    [
+     "No need to force it yet.",
+     8
+    ],
+    [
+     "Let\u2019s make it interesting.",
+     7
+    ],
+    [
+     "Let's see what the flop brings.",
+     7
+    ]
+   ]
+  },
+  "anthropic/claude-haiku-5.5": {
+   "decisions": 2971,
+   "talk": 2724,
+   "talk_rate": 91.68630090878492,
+   "avg_len": 49.02569750367107,
+   "distinct": 2592,
+   "repeat_in_tournament": 0.7709251101321586,
+   "names_opponent": 59.72834067547724,
+   "mentions_rank_word": 378,
+   "leaks_own_card": 204,
+   "leak_rate": 7.488986784140969,
+   "false_rank_word": 68,
+   "talk_rate_by_action": {
+    "fold": 62.32294617563739,
+    "check": 97.41573033707866,
+    "call": 92.48210023866348,
+    "aggressive": 96.85393258426966
+   },
+   "top_lines": [
+    [
+     "Let's see what the flop brings.",
+     10
+    ],
+    [
+     "Checking it down, Luna. Show me what you've got.",
+     6
+    ],
+    [
+     "Let's see what the flop brings, Luna.",
+     5
+    ],
+    [
+     "Let's make this interesting.",
+     4
+    ],
+    [
+     "Checking it down, Luna. Your move.",
+     4
+    ],
+    [
+     "Checking it down. Show me what you've got, Luna.",
+     4
+    ],
+    [
+     "Quiet river, Luna. Your move.",
+     4
+    ],
+    [
+     "Checking it down this time, Sol. Your move.",
+     4
+    ]
+   ]
+  }
+ },
+ "leak_examples": [
+  {
+   "model": "Haiku",
+   "tournamentId": "m01-r0",
+   "handNo": 10,
+   "street": "preflop",
+   "hole": "4h4c",
+   "board": "",
+   "talk": "Pocket fours, looking for a set. Let's see this flop.",
+   "hits": [
+    "4",
+    "4"
+   ],
+   "menuId": "call"
+  },
+  {
+   "model": "Haiku",
+   "tournamentId": "m01-r0",
+   "handNo": 10,
+   "street": "flop",
+   "hole": "4h4c",
+   "board": "2c9dAh",
+   "talk": "Set of fours on a dry board. Let's see what you do with that, Luna.",
+   "hits": [
+    "4",
+    "4"
+   ],
+   "menuId": "raise_half_pot"
+  },
+  {
+   "model": "Haiku",
+   "tournamentId": "m01-r0",
+   "handNo": 15,
+   "street": "flop",
+   "hole": "6hAh",
+   "board": "Qh3h2c",
+   "talk": "Hearts are my favorite suit today, Jev. Let's run it out.",
+   "hits": [
+    "h",
+    "h"
+   ],
+   "menuId": "call"
+  },
+  {
+   "model": "Haiku",
+   "tournamentId": "m01-r2",
+   "handNo": 8,
+   "street": "preflop",
+   "hole": "KhKd",
+   "board": "",
+   "talk": "Kings again, Jev. Let's make this interesting.",
+   "hits": [
+    "K",
+    "K"
+   ],
+   "menuId": "raise_pot"
+  },
+  {
+   "model": "Haiku",
+   "tournamentId": "m01-r2",
+   "handNo": 8,
+   "street": "flop",
+   "hole": "KhKd",
+   "board": "4hJc9h",
+   "talk": "Kings are still good here. Let's keep building this pot.",
+   "hits": [
+    "K",
+    "K"
+   ],
+   "menuId": "raise_half_pot"
+  },
+  {
+   "model": "Haiku",
+   "tournamentId": "m01-r2",
+   "handNo": 17,
+   "street": "preflop",
+   "hole": "8d8c",
+   "board": "",
+   "talk": "Eights in hand. Let's make this pot worth my while.",
+   "hits": [
+    "8",
+    "8"
+   ],
+   "menuId": "raise_min"
+  },
+  {
+   "model": "Haiku",
+   "tournamentId": "m01-r2",
+   "handNo": 18,
+   "street": "preflop",
+   "hole": "JdJh",
+   "board": "",
+   "talk": "Jacks in the hole, Sol. Your raise just got more expensive.",
+   "hits": [
+    "J",
+    "J"
+   ],
+   "menuId": "raise_half_pot"
+  },
+  {
+   "model": "Haiku",
+   "tournamentId": "m01-r2",
+   "handNo": 19,
+   "street": "preflop",
+   "hole": "3dKc",
+   "board": "",
+   "talk": "Button's got a lot of nerve. Let's see if the king holds up.",
+   "hits": [
+    "K"
+   ],
+   "menuId": "call"
+  },
+  {
+   "model": "Haiku",
+   "tournamentId": "m01-r2",
+   "handNo": 29,
+   "street": "preflop",
+   "hole": "JhQh",
+   "board": "",
+   "talk": "Jack-Queen of hearts, Sol. Let's see that flop.",
+   "hits": [
+    "h",
+    "h"
+   ],
+   "menuId": "call"
+  },
+  {
+   "model": "Haiku",
+   "tournamentId": "m01-r2",
+   "handNo": 29,
+   "street": "flop",
+   "hole": "JhQh",
+   "board": "8c7h2h",
+   "talk": "Four hearts on the board and in my hand, Sol. I'm staying for the ride.",
+   "hits": [
+    "h",
+    "h"
+   ],
+   "menuId": "call"
+  },
+  {
+   "model": "Haiku",
+   "tournamentId": "m01-r2",
+   "handNo": 29,
+   "street": "river",
+   "hole": "JhQh",
+   "board": "8c7h2h6c5h",
+   "talk": "Heart flush on the river, Sol. Your move.",
+   "hits": [
+    "h",
+    "h"
+   ],
+   "menuId": "raise_half_pot"
+  },
+  {
+   "model": "Haiku",
+   "tournamentId": "m01-r2",
+   "handNo": 33,
+   "street": "turn",
+   "hole": "JsKs",
+   "board": "4h3hAdJh",
+   "talk": "Jacks and kings, Sol. Your move.",
+   "hits": [
+    "K"
+   ],
+   "menuId": "raise_half_pot"
+  },
+  {
+   "model": "Haiku",
+   "tournamentId": "m01-r2",
+   "handNo": 35,
+   "street": "turn",
+   "hole": "2cAd",
+   "board": "TcQcJs3c",
+   "talk": "Four clubs on the board, Sol. Your move again.",
+   "hits": [
+    "c"
+   ],
+   "menuId": "check"
+  },
+  {
+   "model": "Haiku",
+   "tournamentId": "m01-r2",
+   "handNo": 36,
+   "street": "flop",
+   "hole": "8h7h",
+   "board": "ThJcAh",
+   "talk": "Hearts and a little hope, Sol. Call.",
+   "hits": [
+    "h",
+    "h"
+   ],
+   "menuId": "call"
+  },
+  {
+   "model": "Haiku",
+   "tournamentId": "m01-r2",
+   "handNo": 40,
+   "street": "preflop",
+   "hole": "QhJh",
+   "board": "",
+   "talk": "Queen-jack of hearts, Sol. Let's see a flop.",
+   "hits": [
+    "h",
+    "h"
+   ],
+   "menuId": "call"
+  },
+  {
+   "model": "Haiku",
+   "tournamentId": "m01-r3",
+   "handNo": 3,
+   "street": "turn",
+   "hole": "5dAh",
+   "board": "7h2d8h5h",
+   "talk": "Your move, Sol. I'm feeling a little heart-y.",
+   "hits": [
+    "h"
+   ],
+   "menuId": "raise_half_pot"
+  },
+  {
+   "model": "Haiku",
+   "tournamentId": "m01-r3",
+   "handNo": 5,
+   "street": "river",
+   "hole": "3s9d",
+   "board": "6sKc9sKs5s",
+   "talk": "Spades are looking friendly on the river.",
+   "hits": [
+    "s"
+   ],
+   "menuId": "raise_half_pot"
+  },
+  {
+   "model": "Haiku",
+   "tournamentId": "m01-r3",
+   "handNo": 7,
+   "street": "turn",
+   "hole": "6h3c",
+   "board": "Kc6c7h3h",
+   "talk": "Two pairs and a heart draw, so I'm building this pot.",
+   "hits": [
+    "h"
+   ],
+   "menuId": "raise_half_pot"
+  },
+  {
+   "model": "Haiku",
+   "tournamentId": "m01-r3",
+   "handNo": 10,
+   "street": "preflop",
+   "hole": "AdAc",
+   "board": "",
+   "talk": "Aces. Let's make this one interesting.",
+   "hits": [
+    "A",
+    "A"
+   ],
+   "menuId": "raise_pot"
+  },
+  {
+   "model": "Haiku",
+   "tournamentId": "m01-r3",
+   "handNo": 11,
+   "street": "preflop",
+   "hole": "As3d",
+   "board": "",
+   "talk": "Still just the ace and trey. Let's see the flop.",
+   "hits": [
+    "A"
+   ],
+   "menuId": "call"
+  },
+  {
+   "model": "Haiku",
+   "tournamentId": "m01-r3",
+   "handNo": 11,
+   "street": "flop",
+   "hole": "As3d",
+   "board": "5s6hQd",
+   "talk": "Ace high, nothing fancy. Your move.",
+   "hits": [
+    "A"
+   ],
+   "menuId": "check"
+  },
+  {
+   "model": "Haiku",
+   "tournamentId": "m01-r3",
+   "handNo": 14,
+   "street": "preflop",
+   "hole": "ThTs",
+   "board": "",
+   "talk": "Tens on the button. Let's make this interesting.",
+   "hits": [
+    "T",
+    "T"
+   ],
+   "menuId": "raise_half_pot"
+  },
+  {
+   "model": "Haiku",
+   "tournamentId": "m01-r3",
+   "handNo": 14,
+   "street": "flop",
+   "hole": "ThTs",
+   "board": "7c6c4d",
+   "talk": "Quiet flop, but I'm not folding my tens. Your turn.",
+   "hits": [
+    "T",
+    "T"
+   ],
+   "menuId": "raise_half_pot"
+  },
+  {
+   "model": "Haiku",
+   "tournamentId": "m01-r3",
+   "handNo": 16,
+   "street": "flop",
+   "hole": "8sAd",
+   "board": "3cTd7c",
+   "talk": "Ace high and a patient check. Your move.",
+   "hits": [
+    "A"
+   ],
+   "menuId": "check"
+  },
+  {
+   "model": "Haiku",
+   "tournamentId": "m01-r4",
+   "handNo": 7,
+   "street": "turn",
+   "hole": "As2h",
+   "board": "Kc6c7h3h",
+   "talk": "Hearts are circling the table. Let's see if Jev still believes in his bet.",
+   "hits": [
+    "h"
+   ],
+   "menuId": "raise_half_pot"
+  },
+  {
+   "model": "Haiku",
+   "tournamentId": "m01-r4",
+   "handNo": 8,
+   "street": "flop",
+   "hole": "QdAh",
+   "board": "4hJc9h",
+   "talk": "Heart flush is on the board, but I'm still standing. Your turn, Luna Decisions.",
+   "hits": [
+    "h"
+   ],
+   "menuId": "call"
+  },
+  {
+   "model": "Haiku",
+   "tournamentId": "m01-r4",
+   "handNo": 10,
+   "street": "preflop",
+   "hole": "8c8d",
+   "board": "",
+   "talk": "Eights in hand, and I'm not looking to limp in.",
+   "hits": [
+    "8",
+    "8"
+   ],
+   "menuId": "raise_pot"
+  },
+  {
+   "model": "Haiku",
+   "tournamentId": "m01-r4",
+   "handNo": 10,
+   "street": "preflop",
+   "hole": "8c8d",
+   "board": "",
+   "talk": "Eights aren't fancy, but they're mine. Let's see a flop.",
+   "hits": [
+    "8",
+    "8"
+   ],
+   "menuId": "call"
+  },
+  {
+   "model": "Haiku",
+   "tournamentId": "m01-r4",
+   "handNo": 10,
+   "street": "flop",
+   "hole": "8c8d",
+   "board": "2c9dAh",
+   "talk": "Eights hold up for now. Your move, Luna.",
+   "hits": [
+    "8",
+    "8"
+   ],
+   "menuId": "check"
+  },
+  {
+   "model": "Haiku",
+   "tournamentId": "m01-r4",
+   "handNo": 10,
+   "street": "flop",
+   "hole": "8c8d",
+   "board": "2c9dAh",
+   "talk": "Eights still standing. I'll see the turn, Luna.",
+   "hits": [
+    "8",
+    "8"
+   ],
+   "menuId": "call"
+  },
+  {
+   "model": "Haiku",
+   "tournamentId": "m01-r4",
+   "handNo": 10,
+   "street": "turn",
+   "hole": "8c8d",
+   "board": "2c9dAh9h",
+   "talk": "Three eights, and I'm feeling generous. Let's keep it moving.",
+   "hits": [
+    "8",
+    "8"
+   ],
+   "menuId": "raise_min"
+  },
+  {
+   "model": "Haiku",
+   "tournamentId": "m02-r0",
+   "handNo": 4,
+   "street": "preflop",
+   "hole": "9h9s",
+   "board": "",
+   "talk": "Pocket nines, feeling generous. Let's build this up.",
+   "hits": [
+    "9",
+    "9"
+   ],
+   "menuId": "raise_min"
+  },
+  {
+   "model": "Haiku",
+   "tournamentId": "m02-r0",
+   "handNo": 10,
+   "street": "flop",
+   "hole": "7dKc",
+   "board": "4d7c6d",
+   "talk": "Sevens and a king, Sol. Care to test that?",
+   "hits": [
+    "K"
+   ],
+   "menuId": "raise_pot"
+  },
+  {
+   "model": "Haiku",
+   "tournamentId": "m02-r0",
+   "handNo": 10,
+   "street": "turn",
+   "hole": "7dKc",
+   "board": "4d7c6dAh",
+   "talk": "Ace on the board, Sol. Still got a seven and a king for you.",
+   "hits": [
+    "K"
+   ],
+   "menuId": "raise_half_pot"
+  },
+  {
+   "model": "Haiku",
+   "tournamentId": "m02-r0",
+   "handNo": 11,
+   "street": "preflop",
+   "hole": "JsJd",
+   "board": "",
+   "talk": "Jacks in the small blind. Let's make this interesting, Jev.",
+   "hits": [
+    "J",
+    "J"
+   ],
+   "menuId": "raise_half_pot"
+  },
+  {
+   "model": "Haiku",
+   "tournamentId": "m02-r0",
+   "handNo": 11,
+   "street": "flop",
+   "hole": "JsJd",
+   "board": "2h2c3s",
+   "talk": "Twos on the board, Jev, but my jacks are still standing tall.",
+   "hits": [
+    "J",
+    "J"
+   ],
+   "menuId": "raise_half_pot"
+  },
+  {
+   "model": "Haiku",
+   "tournamentId": "m02-r1",
+   "handNo": 4,
+   "street": "river",
+   "hole": "2s4s",
+   "board": "Js3d8s2h7s",
+   "talk": "Spades are looking friendly today.",
+   "hits": [
+    "s",
+    "s"
+   ],
+   "menuId": "raise_half_pot"
+  },
+  {
+   "model": "Haiku",
+   "tournamentId": "m02-r1",
+   "handNo": 10,
+   "street": "flop",
+   "hole": "4sJd",
+   "board": "4d7c6d",
+   "talk": "Three diamonds on board, friends. Let's see who likes it.",
+   "hits": [
+    "d"
+   ],
+   "menuId": "raise_half_pot"
+  },
+  {
+   "model": "Haiku",
+   "tournamentId": "m02-r2",
+   "handNo": 7,
+   "street": "preflop",
+   "hole": "QsAs",
+   "board": "",
+   "talk": "Queen and ace, let's make this interesting.",
+   "hits": [
+    "Q",
+    "A"
+   ],
+   "menuId": "raise_min"
+  },
+  {
+   "model": "Haiku",
+   "tournamentId": "m02-r2",
+   "handNo": 16,
+   "street": "flop",
+   "hole": "6hJh",
+   "board": "7hKh4d",
+   "talk": "Hearts are looking friendly to me, Jev. Your move.",
+   "hits": [
+    "h",
+    "h"
+   ],
+   "menuId": "raise_half_pot"
+  }
+ ],
+ "leak_examples_other": [
+  {
+   "model": "Sol",
+   "tournamentId": "m08-r1",
+   "handNo": 9,
+   "street": "flop",
+   "hole": "4c2h",
+   "board": "Ac8hTs",
+   "talk": "I\u2019ll leave this one to you two.",
+   "hits": [
+    "2"
+   ],
+   "menuId": "fold"
+  },
+  {
+   "model": "Luna",
+   "tournamentId": "m02-r2",
+   "handNo": 17,
+   "street": "preflop",
+   "hole": "5cAc",
+   "board": "",
+   "talk": "A suited ace is worth a look.",
+   "hits": [
+    "A"
+   ],
+   "menuId": "call"
+  }
+ ],
+ "tells": {
+  "openai/gpt-6-sol": {
+   "bets_n": 490,
+   "bets_talk_n": 326,
+   "eq_talk": 0.6724907975460123,
+   "eq_silent": 0.4537957317073171,
+   "auc_talk_vs_silent": 0.7267413586712554,
+   "strong_words_n": 11,
+   "eq_strong_words": 0.8062909090909092,
+   "weak_words_n": 111,
+   "eq_weak_words": 0.6424801801801802,
+   "calls_eq_talk": 0.608721186440678,
+   "calls_eq_silent": 0.4748274509803921
+  },
+  "openai/gpt-6-luna": {
+   "bets_n": 224,
+   "bets_talk_n": 214,
+   "eq_talk": 0.7614775700934581,
+   "eq_silent": 0.8808300000000001,
+   "auc_talk_vs_silent": 0.2953271028037383,
+   "strong_words_n": 43,
+   "eq_strong_words": 0.8505581395348838,
+   "weak_words_n": 114,
+   "eq_weak_words": 0.7580622807017543,
+   "calls_eq_talk": 0.5985705882352941,
+   "calls_eq_silent": 0.546553076923077
+  },
+  "anthropic/claude-haiku-5.5": {
+   "bets_n": 634,
+   "bets_talk_n": 614,
+   "eq_talk": 0.5768705211726384,
+   "eq_silent": 0.623295,
+   "auc_talk_vs_silent": 0.4476384364820847,
+   "strong_words_n": 88,
+   "eq_strong_words": 0.6397261363636364,
+   "weak_words_n": 205,
+   "eq_weak_words": 0.511950243902439,
+   "calls_eq_talk": 0.44268348909657323,
+   "calls_eq_silent": 0.4035058823529412
+  }
+ },
+ "haiku_leak_strength": {
+  "leak_n": 204,
+  "eq_leak": 0.4773838235294118,
+  "eq_noleak": 0.4035146031746032
+ },
+ "reasoning_mentions_talk": {
+  "Sol": 1,
+  "Luna": 0,
+  "Haiku": 10
+ },
+ "reasoning_mentions_talk_examples": [
+  {
+   "model": "Haiku",
+   "tournamentId": "m01-r1",
+   "handNo": 9,
+   "reasoning": "Ace-eight offsuit is a decent hand to pressure two limpers in the big blind with a raise; I'll raise to 80 to build the pot and take initiative. Table talk should be new and not reveal cards."
+  },
+  {
+   "model": "Haiku",
+   "tournamentId": "m01-r1",
+   "handNo": 14,
+   "reasoning": "King-nine offsuit is a decent but not dominant hand facing a 140 raise from an early position player; calling 100 to see a flop with a reasonable price and position-free but acceptable equity is reasonable. Table talk should be new and not "
+  },
+  {
+   "model": "Haiku",
+   "tournamentId": "m02-r2",
+   "handNo": 8,
+   "reasoning": "Suited connector 5-6 is a playable hand in position-ish against only one caller in the big blind with a small pot. Calling the 10 to see a flop is reasonable, and I can keep table talk fresh without revealing anything."
+  },
+  {
+   "model": "Haiku",
+   "tournamentId": "m06-r1",
+   "handNo": 8,
+   "reasoning": "Queen-eight offsuit is a weak early-position hand with a gap and no connection, so folding is the disciplined choice rather than limping into a multiway pot. Table talk should be new and not reveal cards."
+  },
+  {
+   "model": "Haiku",
+   "tournamentId": "m06-r1",
+   "handNo": 15,
+   "reasoning": "I have Q-2 with no pair on an A-8-K rainbow-ish board with two diamonds-free... only a backdoor flush draw (two clubs, one club on board) and no straight draw worth much. Checking keeps the pot small and lets me see if the field bets; table"
+  },
+  {
+   "model": "Sol",
+   "tournamentId": "m06-r4",
+   "handNo": 11,
+   "reasoning": "I have only a four-out straight draw, and the call is too expensive for a one-card chase. A bluff is unlikely to work against a player who says they have a king, so I fold."
+  },
+  {
+   "model": "Haiku",
+   "tournamentId": "m07-r0",
+   "handNo": 9,
+   "reasoning": "J-K suited is a strong early-position hand with good playability against a field of mostly unknown opponents. Raising to 40 builds the pot and takes initiative, and I've already been using table talk about raising, so I'll keep the pressure"
+  },
+  {
+   "model": "Haiku",
+   "tournamentId": "m07-r0",
+   "handNo": 17,
+   "reasoning": "Five-deuce offsuit with an ace is a weak hand, but on the button facing a cutoff raise with two blinds left to act, it has some steal and playability value. Calling keeps the pot manageable, and the table talk should be fresh."
+  },
+  {
+   "model": "Haiku",
+   "tournamentId": "m07-r1",
+   "handNo": 50,
+   "reasoning": "Hand #50, I hold 3s6h, a weak suited-ish but disconnected offsuit hand; calling 160 to see a cheap flop from the button is reasonable with pot odds and position, avoiding a bloated pot with a poor hand. Table talk should be new and not reve"
+  },
+  {
+   "model": "Haiku",
+   "tournamentId": "m07-r4",
+   "handNo": 33,
+   "reasoning": "I hold 9d and 2h, giving a pair of nines with a backdoor flush draw on a Td 9c 7d board with two diamonds. Checking keeps the pot controlled and lets me see whether the others bet, and the table talk should be new."
+  },
+  {
+   "model": "Haiku",
+   "tournamentId": "m08-r2",
+   "handNo": 39,
+   "reasoning": "Q2 offsuit on the button is a weak hand, but calling 80 to see a flop from late position is cheap and reasonable against a big blind. I'll call and stay quiet to avoid repeating table talk."
+  }
+ ]
+}

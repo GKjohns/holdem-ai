@@ -1,0 +1,357 @@
+{
+ "shape": {
+  "openai/gpt-6-luna-decisions": {
+   "n": 2973,
+   "topP_mean": 0.639848637739657,
+   "topP_median": 0.61,
+   "share_topP_ge_0.9": 0.16145307769929365,
+   "share_topP_lt_0.5": 0.286242852337706,
+   "entropy_mean": 1.3118596367305753,
+   "by_street": {
+    "preflop": {
+     "n": 1726,
+     "topP": 0.684223638470452,
+     "entropy": 1.1869502896871378
+    },
+    "flop": {
+     "n": 581,
+     "topP": 0.5960240963855422,
+     "entropy": 1.4430848537005165
+    },
+    "turn": {
+     "n": 393,
+     "topP": 0.5412468193384224,
+     "entropy": 1.5699111959287528
+    },
+    "river": {
+     "n": 273,
+     "topP": 0.5945054945054944,
+     "entropy": 1.450824542124542
+    }
+   },
+   "topP_hist": [
+    67,
+    318,
+    466,
+    543,
+    427,
+    355,
+    317,
+    171,
+    309
+   ],
+   "choiceNotTop": 0,
+   "argmax_mismatch": 0,
+   "off_choice_mass": 0.3601513622603431,
+   "topP_by_action": {
+    "fold": 0.749006359300477,
+    "raise_half_pot": 0.4355339805825243,
+    "raise_min": 0.43500000000000005,
+    "check": 0.6128947368421052,
+    "all_in": 0.5307142857142856,
+    "raise_pot": 0.3612857142857143,
+    "call": 0.5746987951807229
+   },
+   "not_top_examples": []
+  },
+  "typesafe-ai/jev": {
+   "n": 2932,
+   "topP_mean": 0.5473908594815825,
+   "topP_median": 0.53,
+   "share_topP_ge_0.9": 0.030695770804911322,
+   "share_topP_lt_0.5": 0.4130286493860846,
+   "entropy_mean": 1.6605857094133694,
+   "by_street": {
+    "preflop": {
+     "n": 1363,
+     "topP": 0.5472120322817315,
+     "entropy": 1.622905355832722
+    },
+    "flop": {
+     "n": 643,
+     "topP": 0.5379160186625195,
+     "entropy": 1.7232757387247277
+    },
+    "turn": {
+     "n": 518,
+     "topP": 0.5450772200772201,
+     "entropy": 1.6979088803088802
+    },
+    "river": {
+     "n": 408,
+     "topP": 0.565857843137255,
+     "entropy": 1.6402799019607845
+    }
+   },
+   "topP_hist": [
+    68,
+    460,
+    683,
+    696,
+    514,
+    259,
+    162,
+    68,
+    22
+   ],
+   "choiceNotTop": 7,
+   "argmax_mismatch": 7,
+   "off_choice_mass": 0.45263301500682124,
+   "topP_by_action": {
+    "fold": 0.6540422721268164,
+    "raise_half_pot": 0.4010891089108911,
+    "raise_min": 0.3410236220472441,
+    "check": 0.5624973432518596,
+    "all_in": 0.4351282051282052,
+    "raise_pot": 0.36296551724137927,
+    "call": 0.5195985401459854
+   },
+   "not_top_examples": [
+    {
+     "tournamentId": "m03-r0",
+     "handNo": 16.0,
+     "street": "flop",
+     "hole": "TcKc",
+     "board": "6hKs8h",
+     "menuId": "raise_pot",
+     "top": "raise_half_pot",
+     "topP": 0.32,
+     "pChosen": 0.31,
+     "toCall": 0.0,
+     "pot": 295.0
+    },
+    {
+     "tournamentId": "m04-r2",
+     "handNo": 15.0,
+     "street": "preflop",
+     "hole": "As7h",
+     "board": "",
+     "menuId": "call",
+     "top": "all_in",
+     "topP": 0.3,
+     "pChosen": 0.29,
+     "toCall": 320.0,
+     "pot": 640.0
+    },
+    {
+     "tournamentId": "m05-r4",
+     "handNo": 7.0,
+     "street": "flop",
+     "hole": "8s8c",
+     "board": "3d6c7c",
+     "menuId": "raise_half_pot",
+     "top": "check",
+     "topP": 0.35,
+     "pChosen": 0.34,
+     "toCall": 0.0,
+     "pot": 120.0
+    },
+    {
+     "tournamentId": "m05-r4",
+     "handNo": 21.0,
+     "street": "preflop",
+     "hole": "Ad9s",
+     "board": "",
+     "menuId": "raise_min",
+     "top": "raise_pot",
+     "topP": 0.28,
+     "pChosen": 0.27,
+     "toCall": 80.0,
+     "pot": 120.0
+    },
+    {
+     "tournamentId": "m07-r3",
+     "handNo": 26.0,
+     "street": "preflop",
+     "hole": "TcKs",
+     "board": "",
+     "menuId": "raise_min",
+     "top": "raise_pot",
+     "topP": 0.34,
+     "pChosen": 0.33,
+     "toCall": 80.0,
+     "pot": 120.0
+    },
+    {
+     "tournamentId": "m07-r3",
+     "handNo": 44.0,
+     "street": "preflop",
+     "hole": "8dAd",
+     "board": "",
+     "menuId": "raise_pot",
+     "top": "raise_min",
+     "topP": 0.25,
+     "pChosen": 0.24,
+     "toCall": 320.0,
+     "pot": 480.0
+    },
+    {
+     "tournamentId": "m08-r0",
+     "handNo": 8.0,
+     "street": "preflop",
+     "hole": "Ah3h",
+     "board": "",
+     "menuId": "call",
+     "top": "fold",
+     "topP": 0.36,
+     "pChosen": 0.35,
+     "toCall": 20.0,
+     "pot": 70.0
+    }
+   ]
+  }
+ },
+ "confidence_vs_difficulty": {
+  "openai/gpt-6-luna-decisions": {
+   "close_n": 73,
+   "close_topP": 0.6904109589041094,
+   "clear_n": 115,
+   "clear_topP": 0.6929565217391304
+  },
+  "typesafe-ai/jev": {
+   "close_n": 138,
+   "close_topP": 0.5692028985507246,
+   "clear_n": 208,
+   "clear_topP": 0.6051442307692307
+  }
+ },
+ "same_spot_agreement": {
+  "Haiku|Luna": {
+   "n": 184,
+   "exact": 0.4782608695652174,
+   "coarse": 0.6032608695652174
+  },
+  "Haiku|Luna Decisions": {
+   "n": 286,
+   "exact": 0.3811188811188811,
+   "coarse": 0.4370629370629371
+  },
+  "Haiku|Sol": {
+   "n": 214,
+   "exact": 0.37850467289719625,
+   "coarse": 0.616822429906542
+  },
+  "Haiku|Jev": {
+   "n": 249,
+   "exact": 0.5060240963855421,
+   "coarse": 0.642570281124498
+  },
+  "Luna|Luna Decisions": {
+   "n": 221,
+   "exact": 0.6832579185520362,
+   "coarse": 0.7058823529411765
+  },
+  "Luna|Sol": {
+   "n": 259,
+   "exact": 0.6795366795366795,
+   "coarse": 0.7413127413127413
+  },
+  "Luna|Jev": {
+   "n": 230,
+   "exact": 0.5782608695652174,
+   "coarse": 0.6695652173913044
+  },
+  "Luna Decisions|Sol": {
+   "n": 253,
+   "exact": 0.6482213438735178,
+   "coarse": 0.6679841897233202
+  },
+  "Luna Decisions|Jev": {
+   "n": 244,
+   "exact": 0.5122950819672131,
+   "coarse": 0.5245901639344263
+  },
+  "Sol|Jev": {
+   "n": 245,
+   "exact": 0.5346938775510204,
+   "coarse": 0.6816326530612244
+  }
+ },
+ "same_spot_count": {
+  "spots": 901,
+  "by_street": {
+   "preflop": 808,
+   "flop": 67,
+   "turn": 20,
+   "river": 6
+  }
+ },
+ "dm_prob_for_other_action": {
+  "Luna Decisions on Sol": {
+   "n": 252,
+   "mean_p": 0.5102380952380952
+  },
+  "Luna Decisions on Luna": {
+   "n": 221,
+   "mean_p": 0.5520361990950227
+  },
+  "Luna Decisions on Haiku": {
+   "n": 286,
+   "mean_p": 0.3716433566433566
+  },
+  "Luna Decisions on Jev": {
+   "n": 244,
+   "mean_p": 0.43028688524590164
+  },
+  "Jev on Sol": {
+   "n": 244,
+   "mean_p": 0.39635245901639343
+  },
+  "Jev on Luna": {
+   "n": 230,
+   "mean_p": 0.42921739130434783
+  },
+  "Jev on Luna Decisions": {
+   "n": 244,
+   "mean_p": 0.3827049180327869
+  },
+  "Jev on Haiku": {
+   "n": 249,
+   "mean_p": 0.39586345381526106
+  }
+ },
+ "same_spot_profile": {
+  "Sol": {
+   "fold": 0.4789579158316633,
+   "passive": 0.1523046092184369,
+   "aggressive": 0.3687374749498998,
+   "n": 499
+  },
+  "Luna": {
+   "fold": 0.5066666666666667,
+   "passive": 0.3111111111111111,
+   "aggressive": 0.18222222222222223,
+   "n": 450
+  },
+  "Luna Decisions": {
+   "fold": 0.6646586345381527,
+   "passive": 0.2429718875502008,
+   "aggressive": 0.09236947791164658,
+   "n": 498
+  },
+  "Haiku": {
+   "fold": 0.24168514412416853,
+   "passive": 0.41019955654101997,
+   "aggressive": 0.34811529933481156,
+   "n": 451
+  },
+  "Jev": {
+   "fold": 0.3919491525423729,
+   "passive": 0.3050847457627119,
+   "aggressive": 0.3029661016949153,
+   "n": 472
+  }
+ },
+ "same_spot_chance_coarse": {
+  "Haiku|Luna": 0.3135057896033506,
+  "Haiku|Luna Decisions": 0.2924603068593665,
+  "Haiku|Sol": 0.30659545254589005,
+  "Haiku|Jev": 0.32534105002066976,
+  "Luna|Luna Decisions": 0.42918340026773766,
+  "Luna|Sol": 0.35724782899131596,
+  "Luna|Jev": 0.3487099811676083,
+  "Luna Decisions|Sol": 0.3894093407698932,
+  "Luna Decisions|Jev": 0.36262422571642505,
+  "Sol|Jev": 0.34590791752997524
+ }
+}

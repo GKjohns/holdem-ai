@@ -1,0 +1,1935 @@
+{
+ "run": "20261010_lab",
+ "config": {
+  "run": "20261010_lab",
+  "base": "openai/gpt-6-luna",
+  "generations": 3,
+  "cards": 8,
+  "nextCards": 5,
+  "hands": 50,
+  "r1": 1,
+  "r2": 2,
+  "topup": 1,
+  "heldoutMatches": 3,
+  "heldoutField": [
+   "openai/gpt-6-sol",
+   "anthropic/claude-haiku-5.5"
+  ],
+  "field": [
+   "typesafe-ai/jev",
+   "openai/gpt-6-luna-decisions"
+  ],
+  "seed": 20261011,
+  "fake": false,
+  "planner": "anthropic/claude-fable-5.1"
+ },
+ "fake": false,
+ "status": "complete",
+ "spend": {
+  "tables": 10.416349605999983,
+  "planner": 2.81552,
+  "total": 13.231869605999982,
+  "cap": 13.24
+ },
+ "fieldNotes": "# Field notes: 20261010_lab\n\n*2026-10-10 · 2 generations · 13 cards · 7573 hands · $13.23 (pricing.ts) · base GPT-6 Luna · written by anthropic/claude-fable-5.1 from stats.ts numbers*\n\nAcross two generations, 13 cards and a held-out test, no strategy card beat the card-less GPT-6 Luna by a margin that survived: the best training lead, Bot Hunter's +24 [+1, +55] bb/100, became −24 [−59, +10] on fresh seeds in a different field, and the pure-noise yardstick between two identical card-less Lunas (−9 [−32, +10] over 17 matches) is as wide as most effects we measured.\n\n## What wins\n\nThe only cards positive in absolute bb/100 with a CI excluding zero were medium-tight, raise-first, rare-bluff cards: Balanced Solid +18 [+6, +31] over 13 matches and 2925 hands (lead over control +13 [−3, +26]), Bot Hunter +22 [+3, +40] over 4 matches (lead +24 [+1, +55]), and Silver Tongue +11 [+1, +25] over 3 matches (lead +7 [−2, +21]). All three played VPIP 26–40%, PFR 19–28%, AF 3+. The plausible mechanism is value-betting Jev, which goes to showdown 74% of the time (556/750) and wins only 46% of those, as in g1-g1c04 m01-r0 #2 where it paid off 750 on the river with a king-high flush.\n\nHeld-out (3 matches × 6 tournaments, field with GPT-6 Sol and Claude Haiku 5.5): Bot Hunter −25 [−59, +4], lead −24 [−59, +10], marked overfit; Balanced Solid −2 [−42, +20], lead −1 [−45, +23], marked overfit; Silver Tongue +9 [−20, +39], lead +10 [−16, +36], inconclusive. So Balanced Solid is probably a genuinely positive player in the training field (13-match CI excludes zero), but its lead over the card-less control is unproven everywhere, and Bot Hunter's named-opponent exploits did not travel.\n\n## What loses\n\n- Extremes lost or trended that way. Blitz Maniac −45 [−107, +30] with AF 13.9 and PFR 81%, paid off by real hands (shoving queen-high into trips for −49 bb in g0-g0c02 m03-r0 #4). Granite Rock −23 (lead −30) at VPIP 11% (26/228), blinded down in a 50-hand sit-and-go with doubling blinds. Happy Station lead −110 in one match, W$SD 36%, VPIP 82%.\n- Sticky showdown exploits lost. Sticky Hunter −5 [−47, +45], lead −20 [−61, +28], WTSD 64% but W$SD 40% (38/94); 'never fold top pair to Jev' stacked Q9 into AK for −75 bb (g1-g1c02 m03-r0 #2).\n- Rule brittleness is the common mechanism. GPT-6 Luna follows card text literally and over-generalizes: Table Reader (W$SD 30%, 9/30) folded jacks and eights to Jev's flop bets because 'a raiser is strong' bled into 'a bettor is strong'; Solid Hunter folded pocket jacks to 4-bets twice in one match for −47.5 and −40.5 bb (g1-g1c01 m03-r4 #4, m01-r0 #10). Each extra conditional rule created a new leak.\n- Hybrids regressed: Solid Hunter +2 [−22, +26] and Silver Value −29 both landed below their parents.\n\n## Where the priors were wrong\n\nLargest errors in predicted vs actual bb/100: Silver Tongue +56 (predicted −45, actual +11), Silver Value −38, Granite Rock −35, Table Reader −35, Small Ball Chatter +34, Bot Hunter −33, Happy Station +32, Sticky Hunter −27, Solid Hunter −25, Blitz Maniac +25. The pattern is systematic, not random: every card I favored came in 19–38 below prediction (Balanced Solid −19, Bot Hunter −33, Solid Hunter −25, Sticky Hunter −27, Silver Value −38), and every card I expected to lose came in 25–56 above (Blitz +25, Happy Station +32, Small Ball +34, Silver Tongue +56). Rank order was right only at the top of gen 0 (Bot Hunter and Balanced Solid predicted 1 and 2, finished 1 and 2).\n\nTwo lessons. First, the model moderates extreme text: Silver Tongue was told to bluff two rivers in three yet showed WTSD 42% with 15 calls against 171 bets and gave up multiway as instructed, so 'frequent bluffing loses to stations' never fully executed. Second, gen-1 exploits were built on gen-0 leads that were partly luck (champion's lead +27 [+20, +35] fell to +9 [−12, +25] unchanged), so the intuition 'stack the winners' chased noise. Poker intuition about styles was roughly right in direction for the extremes but wrong about magnitude by 25–55 bb/100.\n\n## Still noise\n\n- The noise floor: two card-less Lunas differ by −9 [−32, +10] over 17 matches. Any lead within about ±20 bb/100 of the control is unreadable, which covers Balanced Solid (+13 [−3, +26]), Silver Tongue (+7 [−2, +21]), Solid Hunter (+2 [−22, +26]) and the champion in gen 1 (+9 [−12, +25]).\n- Seven of 13 cards have one match and no CI (Granite Rock, Happy Station, Quiet Trapper, Table Reader, Silver Value, Blind Pressure Shover, Small Ball Chatter); their leads from −110 to +11 are all inside the ±40–100 single-match band.\n- Sticky Hunter's CI spans 89 bb/100 after 3 matches; Blitz Maniac's [−107, +30] still includes a winning outcome.\n- One duplicate-seeded hand (#10, A♠T♠ vs JJ) was worth +75.0, +58.0 and +34.5 bb to three different cards; a single deck can move a one-match lead by the whole size of our effects.\n- Held-out CIs are ±30–40 bb/100 after 3 matches, so 'overfit' there means 'did not reproduce', not 'proven worse'.\n- We cannot tell Balanced Solid from the control, Silver Tongue from Balanced Solid, or Bot Hunter's training result from its held-out result in any statistically clean way.\n\n## What to test next\n\n1. Balanced Solid vs control, 30+ matches, fresh seeds, original field. If the lead CI excludes zero with half-width under 15 bb/100, cards matter; if it still spans zero, conclude that no card moves GPT-6 Luna meaningfully in this format.\n2. Field transfer: Bot Hunter and Balanced Solid for 10+ matches in the Sol/Haiku field. If leads return to roughly +15 or better, the 3-match held-out flip (−24, −1) was noise; if they stay at or below zero, named-opponent exploits are field-specific and should be dropped.\n3. Pure sizing ablation: one fixed range (Balanced Solid's) with the postflop size swapped among raise_min, raise_half_pot, raise_pot and raise_2x_pot, 10 matches each. Hand #10 showed a 40 bb gap between min/half and pot sizing on identical cards; if pot sizing leads small ball by more than 15 with a CI excluding zero, sizing is the mechanism behind the winners.\n4. Rule-brittleness ablation: Balanced Solid with and without the line 'need two pair or better to call a big river raise' and the 'fold below two pair to a raise' family, counting how often each version folds an overpair or top pair to a single raise (Solid Hunter did it twice in one match for −88 bb combined). If the stripped version gains more than 10 bb/100, literal rule-following is the main leak and cards should carry fewer conditionals.\n5. Control vs control for 30 matches to pin the noise floor; if the yardstick stays wider than ±15, the lab needs 10+ matches per card before any pre-registration is scoreable, and single-match explore cards should be dropped from the design.\n\n---\n\n## The numbers (computed by stats.ts, not written by the planner)\n\n### Pooled leaderboard (training tables; lead = card − control, paired, 95% match-bootstrap CI)\n\n- [g0c05] \"Bot Hunter\": 4 matches, 923 hands · bb/100 +22 [+3, +40] · lead vs control +24 [+1, +55]\n- [g0c04] \"Balanced Solid\": 13 matches, 2925 hands · bb/100 +18 [+6, +31] · lead vs control +13 [−3, +26]\n- [g1c05] \"Small Ball Chatter\": 1 matches, 244 hands · bb/100 +19 [—, —] · lead vs control +11 [—, —]\n- [g0c07] \"Silver Tongue\": 3 matches, 657 hands · bb/100 +11 [+1, +25] · lead vs control +7 [−2, +21]\n- [g1c01] \"Solid Hunter\": 4 matches, 866 hands · bb/100 +3 [−9, +15] · lead vs control +2 [−22, +26]\n- [g1c04] \"Blind Pressure Shover\": 1 matches, 238 hands · bb/100 +16 [—, —] · lead vs control −14 [—, —]\n- [g1c02] \"Sticky Hunter\": 3 matches, 573 hands · bb/100 −5 [−47, +45] · lead vs control −20 [−61, +28]\n- [g0c08] \"Table Reader\": 1 matches, 221 hands · bb/100 −5 [—, —] · lead vs control −28 [—, —]\n- [g1c03] \"Silver Value\": 1 matches, 201 hands · bb/100 −24 [—, —] · lead vs control −29 [—, —]\n- [g0c06] \"Quiet Trapper\": 1 matches, 231 hands · bb/100 −12 [—, —] · lead vs control −29 [—, —]\n- [g0c01] \"Granite Rock\": 1 matches, 228 hands · bb/100 −23 [—, —] · lead vs control −30 [—, —]\n- [g0c02] \"Blitz Maniac\": 3 matches, 392 hands · bb/100 −45 [−107, +30] · lead vs control −49 [−116, +30]\n- [g0c03] \"Happy Station\": 1 matches, 146 hands · bb/100 +12 [—, —] · lead vs control −110 [—, —]\n\n### Predicted vs actual\n\n- [g0c01] \"Granite Rock\": predicted bb/100 +12 vs actual −23 [—, —] (error −35) · predicted lead +18 vs actual −30 [—, —] · rank predicted 4, actual 7 · verdict inconclusive\n- [g0c02] \"Blitz Maniac\": predicted bb/100 −70 vs actual −45 [−107, +30] (error +25) · predicted lead −65 vs actual −49 [−116, +30] · rank predicted 8, actual 8 · verdict inconclusive\n- [g0c03] \"Happy Station\": predicted bb/100 −20 vs actual +12 [—, —] (error +32) · predicted lead −15 vs actual −110 [—, —] · rank predicted 6, actual 3 · verdict inconclusive\n- [g0c04] \"Balanced Solid\": predicted bb/100 +38 vs actual +19 [+14, +27] (error −19) · predicted lead +42 vs actual +27 [+20, +35] · rank predicted 2, actual 2 · verdict confirmed\n- [g0c05] \"Bot Hunter\": predicted bb/100 +55 vs actual +22 [+3, +40] (error −33) · predicted lead +60 vs actual +24 [+1, +55] · rank predicted 1, actual 1 · verdict confirmed\n- [g0c06] \"Quiet Trapper\": predicted bb/100 −5 vs actual −12 [—, —] (error −7) · predicted lead 0 vs actual −29 [—, —] · rank predicted 5, actual 6 · verdict inconclusive\n- [g0c07] \"Silver Tongue\": predicted bb/100 −45 vs actual +11 [+1, +25] (error +56) · predicted lead −40 vs actual +7 [−2, +21] · rank predicted 7, actual 4 · verdict inconclusive\n- [g0c08] \"Table Reader\": predicted bb/100 +30 vs actual −5 [—, —] (error −35) · predicted lead +35 vs actual −28 [—, —] · rank predicted 3, actual 5 · verdict inconclusive\n- [g1c01] \"Solid Hunter\": predicted bb/100 +28 vs actual +3 [−9, +15] (error −25) · predicted lead +30 vs actual +2 [−22, +26] · rank predicted 1, actual 3 · verdict inconclusive\n- [g1c02] \"Sticky Hunter\": predicted bb/100 +22 vs actual −5 [−47, +45] (error −27) · predicted lead +24 vs actual −20 [−61, +28] · rank predicted 2, actual 4 · verdict inconclusive\n- [g1c03] \"Silver Value\": predicted bb/100 +14 vs actual −24 [—, —] (error −38) · predicted lead +12 vs actual −29 [—, —] · rank predicted 3, actual 5 · verdict inconclusive\n- [g1c04] \"Blind Pressure Shover\": predicted bb/100 0 vs actual +16 [—, —] (error +16) · predicted lead −5 vs actual −14 [—, —] · rank predicted 4, actual 2 · verdict inconclusive\n- [g1c05] \"Small Ball Chatter\": predicted bb/100 −15 vs actual +19 [—, —] (error +34) · predicted lead −20 vs actual +11 [—, —] · rank predicted 5, actual 1 · verdict inconclusive\n\n### Held-out final\n\n3 matches × 6 tournaments; table: Luna · Bot Hunter, Luna · Balanced Solid, Luna · Silver Tongue, Luna (control, no card), GPT-6 Sol, Claude Haiku 5.5; seeds asserted unseen (2060 training/benchmark seeds checked)\n- Luna · Bot Hunter: held-out bb/100 −25 [−59, +4], lead vs control −24 [−59, +10] · training lead +24 [+1, +55] · overfit\n- Luna · Balanced Solid: held-out bb/100 −2 [−42, +20], lead vs control −1 [−45, +23] · training lead +13 [−3, +26] · overfit\n- Luna · Silver Tongue: held-out bb/100 +9 [−20, +39], lead vs control +10 [−16, +36] · training lead +7 [−2, +21] · inconclusive\n",
+ "notes": {
+  "headline": "Across two generations, 13 cards and a held-out test, no strategy card beat the card-less GPT-6 Luna by a margin that survived: the best training lead, Bot Hunter's +24 [+1, +55] bb/100, became −24 [−59, +10] on fresh seeds in a different field, and the pure-noise yardstick between two identical card-less Lunas (−9 [−32, +10] over 17 matches) is as wide as most effects we measured.",
+  "whatWins": "The only cards positive in absolute bb/100 with a CI excluding zero were medium-tight, raise-first, rare-bluff cards: Balanced Solid +18 [+6, +31] over 13 matches and 2925 hands (lead over control +13 [−3, +26]), Bot Hunter +22 [+3, +40] over 4 matches (lead +24 [+1, +55]), and Silver Tongue +11 [+1, +25] over 3 matches (lead +7 [−2, +21]). All three played VPIP 26–40%, PFR 19–28%, AF 3+. The plausible mechanism is value-betting Jev, which goes to showdown 74% of the time (556/750) and wins only 46% of those, as in g1-g1c04 m01-r0 #2 where it paid off 750 on the river with a king-high flush.\n\nHeld-out (3 matches × 6 tournaments, field with GPT-6 Sol and Claude Haiku 5.5): Bot Hunter −25 [−59, +4], lead −24 [−59, +10], marked overfit; Balanced Solid −2 [−42, +20], lead −1 [−45, +23], marked overfit; Silver Tongue +9 [−20, +39], lead +10 [−16, +36], inconclusive. So Balanced Solid is probably a genuinely positive player in the training field (13-match CI excludes zero), but its lead over the card-less control is unproven everywhere, and Bot Hunter's named-opponent exploits did not travel.",
+  "whatLoses": "- Extremes lost or trended that way. Blitz Maniac −45 [−107, +30] with AF 13.9 and PFR 81%, paid off by real hands (shoving queen-high into trips for −49 bb in g0-g0c02 m03-r0 #4). Granite Rock −23 (lead −30) at VPIP 11% (26/228), blinded down in a 50-hand sit-and-go with doubling blinds. Happy Station lead −110 in one match, W$SD 36%, VPIP 82%.\n- Sticky showdown exploits lost. Sticky Hunter −5 [−47, +45], lead −20 [−61, +28], WTSD 64% but W$SD 40% (38/94); 'never fold top pair to Jev' stacked Q9 into AK for −75 bb (g1-g1c02 m03-r0 #2).\n- Rule brittleness is the common mechanism. GPT-6 Luna follows card text literally and over-generalizes: Table Reader (W$SD 30%, 9/30) folded jacks and eights to Jev's flop bets because 'a raiser is strong' bled into 'a bettor is strong'; Solid Hunter folded pocket jacks to 4-bets twice in one match for −47.5 and −40.5 bb (g1-g1c01 m03-r4 #4, m01-r0 #10). Each extra conditional rule created a new leak.\n- Hybrids regressed: Solid Hunter +2 [−22, +26] and Silver Value −29 both landed below their parents.",
+  "priorsWrong": "Largest errors in predicted vs actual bb/100: Silver Tongue +56 (predicted −45, actual +11), Silver Value −38, Granite Rock −35, Table Reader −35, Small Ball Chatter +34, Bot Hunter −33, Happy Station +32, Sticky Hunter −27, Solid Hunter −25, Blitz Maniac +25. The pattern is systematic, not random: every card I favored came in 19–38 below prediction (Balanced Solid −19, Bot Hunter −33, Solid Hunter −25, Sticky Hunter −27, Silver Value −38), and every card I expected to lose came in 25–56 above (Blitz +25, Happy Station +32, Small Ball +34, Silver Tongue +56). Rank order was right only at the top of gen 0 (Bot Hunter and Balanced Solid predicted 1 and 2, finished 1 and 2).\n\nTwo lessons. First, the model moderates extreme text: Silver Tongue was told to bluff two rivers in three yet showed WTSD 42% with 15 calls against 171 bets and gave up multiway as instructed, so 'frequent bluffing loses to stations' never fully executed. Second, gen-1 exploits were built on gen-0 leads that were partly luck (champion's lead +27 [+20, +35] fell to +9 [−12, +25] unchanged), so the intuition 'stack the winners' chased noise. Poker intuition about styles was roughly right in direction for the extremes but wrong about magnitude by 25–55 bb/100.",
+  "noise": "- The noise floor: two card-less Lunas differ by −9 [−32, +10] over 17 matches. Any lead within about ±20 bb/100 of the control is unreadable, which covers Balanced Solid (+13 [−3, +26]), Silver Tongue (+7 [−2, +21]), Solid Hunter (+2 [−22, +26]) and the champion in gen 1 (+9 [−12, +25]).\n- Seven of 13 cards have one match and no CI (Granite Rock, Happy Station, Quiet Trapper, Table Reader, Silver Value, Blind Pressure Shover, Small Ball Chatter); their leads from −110 to +11 are all inside the ±40–100 single-match band.\n- Sticky Hunter's CI spans 89 bb/100 after 3 matches; Blitz Maniac's [−107, +30] still includes a winning outcome.\n- One duplicate-seeded hand (#10, A♠T♠ vs JJ) was worth +75.0, +58.0 and +34.5 bb to three different cards; a single deck can move a one-match lead by the whole size of our effects.\n- Held-out CIs are ±30–40 bb/100 after 3 matches, so 'overfit' there means 'did not reproduce', not 'proven worse'.\n- We cannot tell Balanced Solid from the control, Silver Tongue from Balanced Solid, or Bot Hunter's training result from its held-out result in any statistically clean way.",
+  "nextTests": "1. Balanced Solid vs control, 30+ matches, fresh seeds, original field. If the lead CI excludes zero with half-width under 15 bb/100, cards matter; if it still spans zero, conclude that no card moves GPT-6 Luna meaningfully in this format.\n2. Field transfer: Bot Hunter and Balanced Solid for 10+ matches in the Sol/Haiku field. If leads return to roughly +15 or better, the 3-match held-out flip (−24, −1) was noise; if they stay at or below zero, named-opponent exploits are field-specific and should be dropped.\n3. Pure sizing ablation: one fixed range (Balanced Solid's) with the postflop size swapped among raise_min, raise_half_pot, raise_pot and raise_2x_pot, 10 matches each. Hand #10 showed a 40 bb gap between min/half and pot sizing on identical cards; if pot sizing leads small ball by more than 15 with a CI excluding zero, sizing is the mechanism behind the winners.\n4. Rule-brittleness ablation: Balanced Solid with and without the line 'need two pair or better to call a big river raise' and the 'fold below two pair to a raise' family, counting how often each version folds an overpair or top pair to a single raise (Solid Hunter did it twice in one match for −88 bb combined). If the stripped version gains more than 10 bb/100, literal rule-following is the main leak and cards should carry fewer conditionals.\n5. Control vs control for 30 matches to pin the noise floor; if the yardstick stays wider than ±15, the lab needs 10+ matches per card before any pre-registration is scoreable, and single-match explore cards should be dropped from the design.",
+  "model": "anthropic/claude-fable-5.1"
+ },
+ "cards": [
+  {
+   "id": "g0c01",
+   "gen": 0,
+   "kind": "explore",
+   "parentIds": [],
+   "changed": "",
+   "name": "Granite Rock",
+   "card": "You are a patient rock. Play very few hands and only strong ones. Early position: raise only pairs tens or better, ace-king, ace-queen suited. Middle and cutoff: add pairs sevens and up, ace-jack, king-queen. Button and blinds: add any pair, ace-ten, suited broadways. Fold everything else, including small suited connectors. Never limp; open with raise_pot. Facing a raise, call with pairs and ace-king; reraise raise_pot with queens or better; fold the rest. After the flop, bet raise_half_pot with top pair or better and keep betting while you hold it. With nothing, check and fold to any bet. Bluff rarely, almost never: only a single raise_half_pot on a flop when everyone checked to you and you are last to act. If an opponent raises your bet, fold anything less than two pair unless the board is dry and you hold an overpair. Do not call to see what they have. When blinds get large and your stack is under ten big blinds, go all_in with any pair, any ace, or king-queen rather than bleed out. Table talk: stay silent; leave tableTalk empty.",
+   "axes": {
+    "looseness": "tight",
+    "aggression": "balanced",
+    "bluffing": "rare",
+    "sizing": "pot",
+    "showdown": "folds_easily",
+    "adaptation": "fixed",
+    "talk": "silent"
+   },
+   "hypothesis": "Against a passive field that calls too much, a nit wins its few showdowns but gives up too many pots and gets blinded down as blinds double, so it finishes slightly positive but behind the value-betting cards.",
+   "predicted": {
+    "bb100": 12,
+    "rank": 4,
+    "vsControl": 18
+   },
+   "label": "Luna · Granite Rock"
+  },
+  {
+   "id": "g0c02",
+   "gen": 0,
+   "kind": "explore",
+   "parentIds": [],
+   "changed": "",
+   "name": "Blitz Maniac",
+   "card": "You are a relentless pressure player. Enter almost every hand and always by raising, never calling. From any position open with raise_pot; from the button or blinds, raise_2x_pot. Facing a raise, reraise raise_pot with any two cards you like and go all_in with any pair or any ace. On the flop, bet raise_pot whether you hit or not; on the turn fire raise_pot again; on the river bet raise_2x_pot often, about two rivers in three, with made hands and air alike. If someone bets into you, raise. If someone raises you, shove all_in unless you have absolutely nothing on a scary board, and even then shove about half the time. Never fold a pair or a draw. Call down big bets with any pair; folding is for other people. Table talk: needle them constantly, mock their folds, dare them to call, and announce that you are coming for every pot. Be short, cocky, and never repeat a line.",
+   "axes": {
+    "looseness": "loose",
+    "aggression": "aggressive",
+    "bluffing": "frequent",
+    "sizing": "overbet",
+    "showdown": "sticky",
+    "adaptation": "fixed",
+    "talk": "needling"
+   },
+   "hypothesis": "Nonstop overbetting into calling stations like Jev and the control Luna gets paid off by real hands, so this card loses heavily despite stealing many small pots.",
+   "predicted": {
+    "bb100": -70,
+    "rank": 8,
+    "vsControl": -65
+   },
+   "label": "Luna · Blitz Maniac"
+  },
+  {
+   "id": "g0c03",
+   "gen": 0,
+   "kind": "explore",
+   "parentIds": [],
+   "changed": "",
+   "name": "Happy Station",
+   "card": "You are easygoing and curious; you like to see cards. Preflop, call with almost any hand from any position, especially suited cards, connectors, any ace, any pair, and any two pictures. Never raise preflop except all_in when short with a pair. Fold preflop only to a raise of pot size or larger while holding junk like seven-deuce. After the flop, do not bet; check and call. Call any bet with any pair, any draw, or two overcards. On the turn and river keep calling with any pair or better, and with ace-high if the bet is small. Fold only to an all_in without at least a pair. When you make two pair or better on the river and it is checked to you, bet raise_half_pot; otherwise check. Never bluff. Do not raise anyone's bet; just call it. If opponents talk tough, ignore it and call. Table talk: friendly and warm, compliment good plays, say you just want to see the river, and laugh off losses.",
+   "axes": {
+    "looseness": "loose",
+    "aggression": "passive",
+    "bluffing": "rare",
+    "sizing": "small",
+    "showdown": "sticky",
+    "adaptation": "fixed",
+    "talk": "friendly"
+   },
+   "hypothesis": "A pure station resembles the control's own passive style but with even wider calls and no raising, so it lands slightly below the control, losing mostly to the aggressive seats' value bets.",
+   "predicted": {
+    "bb100": -20,
+    "rank": 6,
+    "vsControl": -15
+   },
+   "label": "Luna · Happy Station"
+  },
+  {
+   "id": "g0c04",
+   "gen": 0,
+   "kind": "explore",
+   "parentIds": [],
+   "changed": "",
+   "name": "Balanced Solid",
+   "card": "You play a balanced, disciplined game that is hard to read. Early position: raise pairs sixes and up, ace-ten and better, king-queen, suited broadways. Cutoff: add any suited ace, suited connectors seven-eight and up, king-jack. Button and small blind: add any pair, suited connectors, king-ten, queen-jack. Always enter by raising with raise_pot; never limp. Big blind: call a single raise with most playable hands, reraise raise_pot with jacks or better and ace-king. After the flop, when you were the raiser, bet raise_half_pot with a mix: strong hands, draws, and some ace-high on dry boards. Use raise_pot on wet boards with strong hands and strong draws. Bluff sometimes, about one river in four, choosing missed flush or straight draws. Call down with top pair or better against one bet; need two pair or better to call a big river raise. Fold weak pairs to heavy pressure. Respond to the hand: against a check, bet; against a large bet from someone who was passive all hand, respect it and fold medium hands. Table talk: stay silent; leave tableTalk empty.",
+   "axes": {
+    "looseness": "medium",
+    "aggression": "balanced",
+    "bluffing": "sometimes",
+    "sizing": "mixed",
+    "showdown": "selective",
+    "adaptation": "situational",
+    "talk": "silent"
+   },
+   "hypothesis": "A balanced raise-first strategy beats a passive field mainly through preflop initiative and value betting, but its river bluffs leak chips against stations, placing it second behind the pure exploiter.",
+   "predicted": {
+    "bb100": 38,
+    "rank": 2,
+    "vsControl": 42
+   },
+   "label": "Luna · Balanced Solid"
+  },
+  {
+   "id": "g0c05",
+   "gen": 0,
+   "kind": "explore",
+   "parentIds": [],
+   "changed": "",
+   "name": "Bot Hunter",
+   "card": "Jev and GPT-6 Luna Decisions are machines you can exploit. Jev calls almost anything and almost never bets; GPT-6 Luna Decisions folds a lot preflop and rarely fights. The other seats call too much and raise rarely. So: value bet big, bluff rarely. Preflop, raise raise_pot with pairs, any ace, broadways, and suited connectors from any position; add weaker suited hands on the button. Never limp. When Jev is in the hand, size up: raise_pot on every street with top pair or better, raise_2x_pot on the river with two pair or better. Never bluff Jev. When only GPT-6 Luna Decisions remains, bet raise_half_pot at any pot it checks to you and fire a second barrel; fold if it raises. Against the other seats (Ash, Birch, Cedar, Elm, Hazel, Rowan), bet raise_pot for value with any top pair and give up when they raise, since they raise only with strong hands. Bluff rarely overall, about one river in eight, only against a lone opponent who checked twice. Fold medium hands to any all_in. Table talk: silent; leave tableTalk empty.",
+   "axes": {
+    "looseness": "medium",
+    "aggression": "aggressive",
+    "bluffing": "rare",
+    "sizing": "pot",
+    "showdown": "selective",
+    "adaptation": "targets_opponents",
+    "talk": "silent"
+   },
+   "hypothesis": "Big value sizing into Jev's sticky calls plus stealing from Luna Decisions' folds is the most direct exploit of this field, so this card posts the largest lead over the control.",
+   "predicted": {
+    "bb100": 55,
+    "rank": 1,
+    "vsControl": 60
+   },
+   "label": "Luna · Bot Hunter"
+  },
+  {
+   "id": "g0c06",
+   "gen": 0,
+   "kind": "explore",
+   "parentIds": [],
+   "changed": "",
+   "name": "Quiet Trapper",
+   "card": "You are a trapper. Play tight preflop: pairs, ace-king, ace-queen, ace-jack suited, king-queen suited from any position; add suited aces and broadways on the button. Enter mostly by calling, not raising, so your strength stays hidden; raise raise_min only occasionally with your very best hands. After the flop, with a strong made hand (two pair, a set, or better) check and call the first bet, then on the turn or river spring the trap with raise_2x_pot or all_in. With top pair, check and call down to showdown. With nothing, check and fold; never bluff. If no one bets for you by the river and you hold a strong hand, bet raise_2x_pot yourself. If an opponent plays aggressively against you while you hold a strong hand, let them keep betting and raise only on the river. Do not fold a strong hand because the board looks scary. Table talk: deceptive. Sound worried when strong, saying you are just hoping to get there, and sound bored when weak. Never repeat a line.",
+   "axes": {
+    "looseness": "tight",
+    "aggression": "passive",
+    "bluffing": "rare",
+    "sizing": "overbet",
+    "showdown": "sticky",
+    "adaptation": "fixed",
+    "talk": "deceptive"
+   },
+   "hypothesis": "Slow-playing needs opponents who bet, and this field mostly checks and calls, so the trapper misses value and bleeds blinds, finishing near zero and below the aggressive cards.",
+   "predicted": {
+    "bb100": -5,
+    "rank": 5,
+    "vsControl": 0
+   },
+   "label": "Luna · Quiet Trapper"
+  },
+  {
+   "id": "g0c07",
+   "gen": 0,
+   "kind": "explore",
+   "parentIds": [],
+   "changed": "",
+   "name": "Silver Tongue",
+   "card": "You win pots with pressure and words, not showdowns. Play loose: raise raise_half_pot preflop with any ace, any pair, any two cards ten or higher, suited connectors, and any two suited cards on the button or cutoff; fold the worst junk early. After the flop, bet frequently: raise_half_pot on dry boards, raise_pot on boards with an ace or king that could scare pairs. Bluff frequently, about two rivers in three when checked to, and overbet raise_2x_pot on scary rivers. Pick targets: bluff when only one or two opponents remain, give up multiway. When someone raises your bet or shows real strength, fold quickly unless you hold two pair or better; your chips are for the next pot. Call down lightly only against tiny bets. If an opponent has checked twice, take the pot away. Table talk: deceptive and lively. Tell stories, claim monsters, sigh about missed draws, and talk about your hand in ways that mislead without ever actually revealing it. Vary lines constantly.",
+   "axes": {
+    "looseness": "loose",
+    "aggression": "aggressive",
+    "bluffing": "frequent",
+    "sizing": "mixed",
+    "showdown": "folds_easily",
+    "adaptation": "situational",
+    "talk": "deceptive"
+   },
+   "hypothesis": "Frequent river bluffs against a field whose stations never fold and whose bots cannot read talk will be called down repeatedly, so this card loses clearly, though less than the maniac because it folds to raises.",
+   "predicted": {
+    "bb100": -45,
+    "rank": 7,
+    "vsControl": -40
+   },
+   "label": "Luna · Silver Tongue"
+  },
+  {
+   "id": "g0c08",
+   "gen": 0,
+   "kind": "explore",
+   "parentIds": [],
+   "changed": "",
+   "name": "Table Reader",
+   "card": "Play a thoughtful, medium-tight game and read this hand's action. Preflop from early position raise pairs sevens and up, ace-ten and up, king-queen; from cutoff and button add any pair, suited aces, suited connectors, and broadways; always enter with raise_pot. If someone raised in front, call with pairs and strong suited hands and reraise raise_pot only with queens or better or ace-king. After the flop, label each opponent by what they did this hand: a player who only calls is a station, so bet raise_pot for value with top pair or better and never bluff them; a player who checks twice is giving up, so bet raise_half_pot once as a bluff; a player who raises is strong, so fold anything below two pair. Bluff sometimes, about one river in four, only against a single opponent who has shown weakness. Treat loud confidence in table talk as weakness and sudden quiet as strength. Fold medium hands to an all_in from a player who was passive all hand. Table talk: friendly and relaxed; ask how their day is going, congratulate winners, keep it light.",
+   "axes": {
+    "looseness": "medium",
+    "aggression": "balanced",
+    "bluffing": "sometimes",
+    "sizing": "pot",
+    "showdown": "selective",
+    "adaptation": "targets_opponents",
+    "talk": "friendly"
+   },
+   "hypothesis": "Reading within-hand action lets this card value bet stations and steal from quitters, but without cross-hand memory the reads are noisy, so it beats the control by less than the bot-targeting card.",
+   "predicted": {
+    "bb100": 30,
+    "rank": 3,
+    "vsControl": 35
+   },
+   "label": "Luna · Table Reader"
+  },
+  {
+   "id": "g1c01",
+   "gen": 1,
+   "kind": "exploit",
+   "parentIds": [
+    "g0c04",
+    "g0c05"
+   ],
+   "changed": "Grafts Bot Hunter's opponent-specific sizing (pot bets and 2x-pot rivers against Jev, half-pot steals against GPT-6 Luna Decisions, never bluff Jev) onto Balanced Solid's tighter position-based ranges and its rule of calling pot-or-smaller bets with strong draws.",
+   "name": "Solid Hunter",
+   "card": "You play a solid, aggressive game. Jev calls almost anything, raises light, and rarely bets without a hand; GPT-6 Luna Decisions folds a lot preflop but bets when it connects. Always open with raise_pot; never limp. Early position: pairs sixes and up, ace-ten and better, king-queen, suited broadways. Cutoff: add any suited ace, suited connectors seven-eight and up, king-jack. Button and small blind: add any pair, suited connectors, king-ten, queen-jack. Big blind: call one raise with playable hands; reraise raise_pot with jacks or better and ace-king. After the flop, with Jev in the hand, bet raise_pot on every street with top pair good kicker or better, raise_2x_pot on the river with two pair or better, and never bluff Jev. When only GPT-6 Luna Decisions remains, bet raise_half_pot when it checks and fire again on the turn; fold if it raises. Against the named Luna seats, bet raise_pot with top pair or better and fold to their raises below two pair. Call bets of pot or less with flush or open-ended straight draws. Bluff rarely, about one river in eight, only heads-up after two checks. Table talk: silent; leave tableTalk empty.",
+   "axes": {
+    "looseness": "medium",
+    "aggression": "aggressive",
+    "bluffing": "rare",
+    "sizing": "pot",
+    "showdown": "selective",
+    "adaptation": "targets_opponents",
+    "talk": "silent"
+   },
+   "hypothesis": "Combining the two confirmed winners' strongest parts (Balanced Solid's ranges and draw-calling, Bot Hunter's Jev sizing) yields a lead over the control above either parent's because the parents won through different mechanisms that do not conflict.",
+   "predicted": {
+    "bb100": 28,
+    "rank": 1,
+    "vsControl": 30
+   },
+   "label": "Luna · Solid Hunter"
+  },
+  {
+   "id": "g1c02",
+   "gen": 1,
+   "kind": "exploit",
+   "parentIds": [
+    "g0c05"
+   ],
+   "changed": "Replaces Bot Hunter's 'give up when they raise' and 'fold medium hands to any all_in' with never folding top pair or better to Jev's raises or shoves, since Jev raised and shoved with ace-high and one pair repeatedly.",
+   "name": "Sticky Hunter",
+   "card": "Jev and GPT-6 Luna Decisions are machines you can exploit. Jev calls almost anything, and when it raises or shoves it is often weak: ace-high, a draw, or a small pair. GPT-6 Luna Decisions folds a lot preflop and rarely fights. So: value bet big, bluff rarely, and do not fold made hands. Preflop, raise raise_pot with pairs, any ace, broadways, and suited connectors from any position; add weaker suited hands on the button. Never limp. When Jev is in the hand, size up: raise_pot on every street with top pair or better, raise_2x_pot on the river with two pair or better. Never bluff Jev, and never fold top pair or better to Jev's bets, raises, or all_in; call. When only GPT-6 Luna Decisions remains, bet raise_half_pot at any pot it checks to you and fire a second barrel; call its bets with any pair, fold to its raises with less than top pair. Against the named Luna seats, bet raise_pot for value with any top pair and call their raises with top pair good kicker or better; fold below that. Bluff rarely, about one river in eight, only against a lone opponent who checked twice. Table talk: silent; leave tableTalk empty.",
+   "axes": {
+    "looseness": "medium",
+    "aggression": "aggressive",
+    "bluffing": "rare",
+    "sizing": "pot",
+    "showdown": "sticky",
+    "adaptation": "targets_opponents",
+    "talk": "silent"
+   },
+   "hypothesis": "Because Jev's raises and all-ins are frequently ace-high or one pair, refusing to fold top pair to Jev adds won showdowns worth more than the extra losses to Jev's real hands, lifting the lead over Bot Hunter's +24.",
+   "predicted": {
+    "bb100": 22,
+    "rank": 2,
+    "vsControl": 24
+   },
+   "label": "Luna · Sticky Hunter"
+  },
+  {
+   "id": "g1c03",
+   "gen": 1,
+   "kind": "exploit",
+   "parentIds": [
+    "g0c07"
+   ],
+   "changed": "Cuts river bluffing from about two rivers in three to about one in four, restricts it to heads-up spots after two checks and never against Jev, and replaces 2x-pot bluff overbets with 2x-pot value only.",
+   "name": "Silver Value",
+   "card": "You win pots with pressure and words, but you pick your bluffs. Play loose: raise raise_half_pot preflop with any ace, any pair, any two cards ten or higher, suited connectors, and any two suited cards on the button or cutoff; fold the worst junk early. After the flop, bet raise_half_pot with top pair or better and keep betting it on every street; bet raise_pot on boards with an ace or king when you hold the top pair. Bluff sometimes, about one river in four, and only heads-up against an opponent who has checked twice; never bluff Jev, who calls everything, and never bluff more than one player at once. Overbet raise_2x_pot only with two pair or better. When someone raises your bet or shows real strength, fold quickly unless you hold two pair or better; your chips are for the next pot. Call down lightly only against tiny bets. Table talk: deceptive and lively. Tell stories, claim monsters, sigh about missed draws, and talk about your hand in ways that mislead without ever actually revealing it. Vary lines constantly.",
+   "axes": {
+    "looseness": "loose",
+    "aggression": "aggressive",
+    "bluffing": "sometimes",
+    "sizing": "mixed",
+    "showdown": "folds_easily",
+    "adaptation": "situational",
+    "talk": "deceptive"
+   },
+   "hypothesis": "Silver Tongue's +11 came from loose-aggressive value, not from its bluffs, so trimming the bluffs against a field with WTSD above 60% raises its lead over the control from +7 to double digits.",
+   "predicted": {
+    "bb100": 14,
+    "rank": 3,
+    "vsControl": 12
+   },
+   "label": "Luna · Silver Value"
+  },
+  {
+   "id": "g1c04",
+   "gen": 1,
+   "kind": "explore",
+   "parentIds": [],
+   "changed": "",
+   "name": "Blind Pressure Shover",
+   "card": "You play tight and fast, and you use the rising blinds as a weapon. Early position: pairs nines and up, ace-king, ace-queen, ace-jack suited, king-queen suited. Cutoff and button: add any pair, any ace, king-queen, king-jack, queen-jack suited, suited connectors eight-nine and up. Blinds: add suited kings. Open with raise_2x_pot; never limp and never call a raise. Facing a raise, reraise raise_pot with queens or better and ace-king, go all_in with any other hand you would have opened if the raiser is short, otherwise fold. Once your stack is below about twelve big blinds, stop raising normally: preflop you either go all_in or fold, shoving any pair, any ace, any king with a picture, and suited connectors from the cutoff onward. After the flop, with top pair or better bet raise_pot and call any bet or all_in; with a flush or open-ended draw bet raise_pot once, then check; with nothing check and fold. Bluff rarely: only a single raise_pot stab when everyone has checked to you on the button. Table talk: needling. Short jabs about folds and how the blinds are coming for them. Never repeat a line.",
+   "axes": {
+    "looseness": "tight",
+    "aggression": "aggressive",
+    "bluffing": "rare",
+    "sizing": "overbet",
+    "showdown": "sticky",
+    "adaptation": "situational",
+    "talk": "needling"
+   },
+   "hypothesis": "A tight, all-in-heavy style suited to doubling blinds will avoid Granite Rock's blind-down (VPIP 11%) but still enter too few pots against callers who pay off medium hands, landing near the control rather than clearly above it.",
+   "predicted": {
+    "bb100": 0,
+    "rank": 4,
+    "vsControl": -5
+   },
+   "label": "Luna · Blind Pressure Shover"
+  },
+  {
+   "id": "g1c05",
+   "gen": 1,
+   "kind": "explore",
+   "parentIds": [],
+   "changed": "",
+   "name": "Small Ball Chatter",
+   "card": "You play lots of hands cheaply and keep the pots small until you have it. Preflop from any position open raise_min with any pair, any ace, any two suited cards, any two pictures, and connectors; on the button open raise_min with anything. Facing a raise, call with those hands if the raise is half-pot or smaller; fold to larger raises unless you hold a pair or ace-king. After the flop, if you were the raiser bet raise_min whether you hit or not; on the turn bet raise_half_pot only with top pair or better or a strong draw, otherwise check. On the river bet raise_half_pot with two pair or better, raise_min with top pair. Bluff sometimes, about one river in four, with raise_min when a lone opponent has checked twice. If anyone raises you, fold unless you hold two pair or better. Fold to pot-size or bigger bets without top pair. Do not go all_in except with a set or better. Table talk: friendly and chatty; ask about their day, compliment good hands, joke that small bets never hurt anyone. Never repeat a line.",
+   "axes": {
+    "looseness": "loose",
+    "aggression": "aggressive",
+    "bluffing": "sometimes",
+    "sizing": "small",
+    "showdown": "folds_easily",
+    "adaptation": "fixed",
+    "talk": "friendly"
+   },
+   "hypothesis": "Small bets against stations who call anything collect too little value and the wide range gets outdrawn in multiway pots, so this card loses to the control despite its initiative.",
+   "predicted": {
+    "bb100": -15,
+    "rank": 5,
+    "vsControl": -20
+   },
+   "label": "Luna · Small Ball Chatter"
+  }
+ ],
+ "gens": [
+  {
+   "gen": 0,
+   "championIn": "control-2",
+   "championInLabel": "Luna (no card, seat 2)",
+   "championOut": "g0c04",
+   "championWhy": "best pooled lead over the control: g0c04 +27 over 3 matches · g0c05 +24 over 4 matches · g0c07 +7 over 3 matches · g0c02 −49 over 3 matches",
+   "predictionsWrittenAt": "2026-10-10T08:07:11.025Z",
+   "firstHandAt": "2026-10-10T08:07:16.429Z",
+   "rounds": [
+    {
+     "round": 1,
+     "kind": "equal",
+     "matches": {
+      "g0c01": 1,
+      "g0c02": 1,
+      "g0c03": 1,
+      "g0c04": 1,
+      "g0c05": 1,
+      "g0c06": 1,
+      "g0c07": 1,
+      "g0c08": 1
+     }
+    },
+    {
+     "round": 2,
+     "kind": "halving",
+     "matches": {
+      "g0c01": 1,
+      "g0c02": 3,
+      "g0c03": 1,
+      "g0c04": 3,
+      "g0c05": 3,
+      "g0c06": 1,
+      "g0c07": 3,
+      "g0c08": 1
+     },
+     "ranking": [
+      {
+       "cardId": "g0c02",
+       "lead": 29.744507184519104,
+       "se": 80
+      },
+      {
+       "cardId": "g0c05",
+       "lead": 20.88402347923805,
+       "se": 80
+      },
+      {
+       "cardId": "g0c07",
+       "lead": 20.671538978494624,
+       "se": 80
+      },
+      {
+       "cardId": "g0c04",
+       "lead": 19.886217948717945,
+       "se": 80
+      },
+      {
+       "cardId": "g0c08",
+       "lead": -28.252395008484164,
+       "se": 80
+      },
+      {
+       "cardId": "g0c06",
+       "lead": -29.27048172092225,
+       "se": 80
+      },
+      {
+       "cardId": "g0c01",
+       "lead": -29.574050014742742,
+       "se": 80
+      },
+      {
+       "cardId": "g0c03",
+       "lead": -109.73136542621043,
+       "se": 80
+      }
+     ]
+    },
+    {
+     "round": 3,
+     "kind": "thompson",
+     "matches": {
+      "g0c01": 1,
+      "g0c02": 3,
+      "g0c03": 1,
+      "g0c04": 3,
+      "g0c05": 4,
+      "g0c06": 1,
+      "g0c07": 3,
+      "g0c08": 1
+     },
+     "ranking": [
+      {
+       "cardId": "g0c04",
+       "lead": 26.927197261772214,
+       "se": 3.788039098124198
+      },
+      {
+       "cardId": "g0c05",
+       "lead": 8.531235801469808,
+       "se": 5.0994714339280245
+      },
+      {
+       "cardId": "g0c07",
+       "lead": 7.391916458950268,
+       "se": 5.756152894359293
+      },
+      {
+       "cardId": "g0c02",
+       "lead": -48.773623470960025,
+       "se": 37.264883284014275
+      }
+     ]
+    }
+   ],
+   "memo": {
+    "gen": 0,
+    "headline": "The only cards that beat the control were medium-tight raise-first cards (VPIP 26–35%, PFR 19–25%, AF 3+): Balanced Solid +27 [+20, +35] and Bot Hunter +24 [+1, +55], while both extremes (Granite Rock at VPIP 11%, Blitz Maniac at VPIP 84%) lost and the frequent-bluff card I predicted to lose finished positive.",
+    "confirmed": [
+     "Bot Hunter beat the control (+22 bb/100, lead +24 [+1, +55] over 4 matches) and Balanced Solid did too (+19, lead +27 [+20, +35] over 3 matches); both played VPIP 26–33%, PFR 19–25%, AF 3.2–3.5, so raise-first medium ranges beat this passive field as predicted (I had them ranked 1 and 2; they finished 1 and 2 by bb/100).",
+     "Jev is a sticky station that pays off big value: WTSD 72% (984/1372), AF 0.7 across gen 0, and in g0-g0c05 m03-r3 #9 and m02-r3 #4 it called pot bets on three streets and shipped +34 bb each time; Bot Hunter's size-up rule worked.",
+     "Blitz Maniac lost as predicted (−45 bb/100, lead −49, predicted −70/−65): AF 13.9 and PFR 81% got paid off, e.g. g0-g0c02 m03-r0 #4 shoving queen-high into trips for −49 bb and m03-r2 #2 four-betting K7s for −45 bb.",
+     "The control is as described: VPIP 41%, PFR 13%, AF 1.6, WTSD 64%, W$SD 51% over 3741 hands; it calls down and seldom raises, so it is a value target, not a bluff target."
+    ],
+    "refuted": [
+     "Silver Tongue was predicted to lose clearly (−45 bb/100, rank 7) and instead posted +11 [+1, +25] bb/100 (rank 3 of 8); frequent bluffing instructions did not sink it because the model tempered them: WTSD 42%, only 15 calls vs 171 bets, and it gave up multiway as told (g0-g0c07 m01-r0 #17 checked air through four-way, then won a backdoor flush).",
+     "Table Reader was predicted +30/+35 and rank 3 but scored −5 bb/100, lead −28, with W$SD 30% (9/30); the rule 'a raiser is strong, fold below two pair' bled over to bets and made it fold jacks and eights to Jev's flop bets in 3-bet pots (g0-g0c08 m01-r3 #17, m01-r1 #17 for −15 and −11.5 bb).",
+     "Granite Rock was predicted slightly positive (+12) and came in at −23 bb/100, lead −30; VPIP 11% (26/228) is too tight for a 50-hand sit-and-go with doubling blinds, and when it did play big pots it mostly got coolered (g0-g0c01 m01-r3 #38 set under set-ish full house for −5.2 bb).",
+     "My magnitude predictions were inflated for both winners: Bot Hunter predicted lead +60, got +24; Balanced Solid predicted +42, got +27."
+    ],
+    "noise": [
+     "Happy Station: 1 match, bb/100 +12 but lead −110 because the control ran hot at that table; VPIP 82%, WTSD 75%, W$SD 36% point to a loser but one match proves nothing.",
+     "Granite Rock (−23), Quiet Trapper (−12), Table Reader (−5) each have 1 match and no CI; their leads (−30, −29, −28) are inside the ±40–100 band expected and are directionally consistent with each other but not individually meaningful.",
+     "Silver Tongue's lead vs control +7 [−2, +21] spans zero; it is positive in absolute bb/100 but not yet distinguishable from the control.",
+     "Blitz Maniac −45 [−107, +30] spans zero over 3 matches despite the strong prior; its variance is enormous (one hand g0-g0c02 m01-r4 #1 swung +77 bb).",
+     "The two card-less Luna seats differ by −9 [−32, +10] bb/100 over 17 matches, which is the yardstick for pure noise between identical players; anything within about ±20 of the control is unproven."
+    ],
+    "surprises": [
+     "Jev's raises and shoves are often weak: all-in with A5 high card on T-high board (g0-g0c05 m04-r1 #3), three-street barrel with AK high into a flush (g0-g0c04 m02-r2 #19), three barrels and a shove with one pair of queens (g0-g0c03 m01-r2 #4); folding top pair to Jev's aggression, as Table Reader did, is a leak.",
+     "GPT-6 Luna Decisions posts AF 3.7 (602 bets/raises, 161 calls) in this field, far above the 1.7 in the scouting report, and W$SD 41%; it bets postflop more than the cards assumed, so 'fire a second barrel at it' may need a 'call its bets with a pair' companion.",
+     "Balanced Solid's 95% CI is unusually narrow (+14 to +27 bb/100 over 3 matches), narrower than Bot Hunter's over 4; its edge came less from bluffs (it declined most, e.g. g0-g0c04 m01-r0 #9 checked ace-high down and still won) than from calling draws and raising made hands (m01-r0 #11 +35 bb).",
+     "Luna follows extreme aggression instructions literally (Maniac PFR 81%, AF 13.9) but softens bluffing instructions (Silver Tongue WTSD 42% with only one in three bluffs executed in spots), so cards should treat 'bluff frequency' as a weak lever and 'sizing/aggression' as strong levers."
+    ]
+   },
+   "rows": [
+    {
+     "cardId": "g0c04",
+     "label": "Luna · Balanced Solid",
+     "gen": 0,
+     "kind": "explore",
+     "matches": 3,
+     "hands": 683,
+     "bb100": {
+      "value": 18.5921486090776,
+      "lo": 13.707696506550219,
+      "hi": 27.323717948717945
+     },
+     "lead": {
+      "value": 26.927197261772214,
+      "lo": 19.886217948717945,
+      "hi": 34.7353312133648
+     },
+     "predicted": {
+      "bb100": 38,
+      "rank": 2,
+      "vsControl": 42
+     },
+     "verdict": "confirmed",
+     "survived": true
+    },
+    {
+     "cardId": "g0c05",
+     "label": "Luna · Bot Hunter",
+     "gen": 0,
+     "kind": "explore",
+     "matches": 4,
+     "hands": 923,
+     "bb100": {
+      "value": 22.4624187432286,
+      "lo": 2.9790717539863327,
+      "hi": 40.13429752066116
+     },
+     "lead": {
+      "value": 24.01086548879073,
+      "lo": 1.1168268560271493,
+      "hi": 55.29466389268886
+     },
+     "predicted": {
+      "bb100": 55,
+      "rank": 1,
+      "vsControl": 60
+     },
+     "verdict": "confirmed",
+     "survived": true
+    },
+    {
+     "cardId": "g0c07",
+     "label": "Luna · Silver Tongue",
+     "gen": 0,
+     "kind": "explore",
+     "matches": 3,
+     "hands": 657,
+     "bb100": {
+      "value": 11.08019406392694,
+      "lo": 0.921474358974359,
+      "hi": 25.218413978494624
+     },
+     "lead": {
+      "value": 7.391916458950268,
+      "lo": -1.8925803673938,
+      "hi": 20.671538978494624
+     },
+     "predicted": {
+      "bb100": -45,
+      "rank": 7,
+      "vsControl": -40
+     },
+     "verdict": "inconclusive",
+     "survived": true
+    },
+    {
+     "cardId": "g0c08",
+     "label": "Luna · Table Reader",
+     "gen": 0,
+     "kind": "explore",
+     "matches": 1,
+     "hands": 221,
+     "bb100": {
+      "value": -5.449660633484163,
+      "lo": null,
+      "hi": null
+     },
+     "lead": {
+      "value": -28.252395008484164,
+      "lo": null,
+      "hi": null
+     },
+     "predicted": {
+      "bb100": 30,
+      "rank": 3,
+      "vsControl": 35
+     },
+     "verdict": "inconclusive",
+     "survived": false
+    },
+    {
+     "cardId": "g0c06",
+     "label": "Luna · Quiet Trapper",
+     "gen": 0,
+     "kind": "explore",
+     "matches": 1,
+     "hands": 231,
+     "bb100": {
+      "value": -12.337662337662337,
+      "lo": null,
+      "hi": null
+     },
+     "lead": {
+      "value": -29.27048172092225,
+      "lo": null,
+      "hi": null
+     },
+     "predicted": {
+      "bb100": -5,
+      "rank": 5,
+      "vsControl": 0
+     },
+     "verdict": "inconclusive",
+     "survived": false
+    },
+    {
+     "cardId": "g0c01",
+     "label": "Luna · Granite Rock",
+     "gen": 0,
+     "kind": "explore",
+     "matches": 1,
+     "hands": 228,
+     "bb100": {
+      "value": -23.081140350877195,
+      "lo": null,
+      "hi": null
+     },
+     "lead": {
+      "value": -29.574050014742742,
+      "lo": null,
+      "hi": null
+     },
+     "predicted": {
+      "bb100": 12,
+      "rank": 4,
+      "vsControl": 18
+     },
+     "verdict": "inconclusive",
+     "survived": false
+    },
+    {
+     "cardId": "g0c02",
+     "label": "Luna · Blitz Maniac",
+     "gen": 0,
+     "kind": "explore",
+     "matches": 3,
+     "hands": 392,
+     "bb100": {
+      "value": -44.6109693877551,
+      "lo": -106.86201780415429,
+      "hi": 30.33940397350993
+     },
+     "lead": {
+      "value": -48.773623470960025,
+      "lo": -116.33383528881687,
+      "hi": 29.744507184519104
+     },
+     "predicted": {
+      "bb100": -70,
+      "rank": 8,
+      "vsControl": -65
+     },
+     "verdict": "inconclusive",
+     "survived": true
+    },
+    {
+     "cardId": "g0c03",
+     "label": "Luna · Happy Station",
+     "gen": 0,
+     "kind": "explore",
+     "matches": 1,
+     "hands": 146,
+     "bb100": {
+      "value": 12.101883561643827,
+      "lo": null,
+      "hi": null
+     },
+     "lead": {
+      "value": -109.73136542621043,
+      "lo": null,
+      "hi": null
+     },
+     "predicted": {
+      "bb100": -20,
+      "rank": 6,
+      "vsControl": -15
+     },
+     "verdict": "inconclusive",
+     "survived": false
+    }
+   ],
+   "champion": {
+    "id": "control-2",
+    "label": "Luna (no card, seat 2)",
+    "matches": 17,
+    "hands": 3710,
+    "bb100": {
+     "value": 1.234417115902965,
+     "lo": -6.468850160256411,
+     "hi": 9.809310532030402
+    },
+    "control": {
+     "value": 10.3679664528201,
+     "lo": -2.590198282910877,
+     "hi": 27.685870273794006
+    },
+    "lead": {
+     "value": -9.133549336917135,
+     "lo": -31.626977476339725,
+     "hi": 9.886690591209451
+    }
+   },
+   "hands": 4177
+  },
+  {
+   "gen": 1,
+   "championIn": "g0c04",
+   "championInLabel": "Luna · Balanced Solid",
+   "championOut": "g0c04",
+   "championWhy": "best pooled lead over the control: g0c04 +13 over 13 matches · g1c01 +2 over 4 matches · g1c02 −20 over 3 matches",
+   "predictionsWrittenAt": "2026-10-10T08:46:34.085Z",
+   "firstHandAt": "2026-10-10T08:46:42.773Z",
+   "rounds": [
+    {
+     "round": 1,
+     "kind": "equal",
+     "matches": {
+      "g1c01": 1,
+      "g1c02": 1,
+      "g1c03": 1,
+      "g1c04": 1,
+      "g1c05": 1
+     }
+    },
+    {
+     "round": 2,
+     "kind": "halving",
+     "matches": {
+      "g1c01": 3,
+      "g1c02": 3,
+      "g1c03": 1,
+      "g1c04": 1,
+      "g1c05": 1
+     },
+     "ranking": [
+      {
+       "cardId": "g1c02",
+       "lead": 28.121787592636867,
+       "se": 80
+      },
+      {
+       "cardId": "g1c01",
+       "lead": 20.005263415589503,
+       "se": 80
+      },
+      {
+       "cardId": "g1c05",
+       "lead": 10.525967980387755,
+       "se": 80
+      },
+      {
+       "cardId": "g1c04",
+       "lead": -13.56477627357997,
+       "se": 80
+      },
+      {
+       "cardId": "g1c03",
+       "lead": -28.950964714243906,
+       "se": 80
+      }
+     ]
+    },
+    {
+     "round": 3,
+     "kind": "thompson",
+     "matches": {
+      "g1c01": 4,
+      "g1c02": 3,
+      "g1c03": 1,
+      "g1c04": 1,
+      "g1c05": 1
+     },
+     "ranking": [
+      {
+       "cardId": "g1c01",
+       "lead": -8.53432217448517,
+       "se": 10.83993803447414
+      },
+      {
+       "cardId": "g1c02",
+       "lead": -20.08037084289272,
+       "se": 22.67418884361686
+      }
+     ]
+    }
+   ],
+   "memo": {
+    "gen": 1,
+    "headline": "Generation 1 taught us that recombining gen-0 winners does not add up and that gen-0's leads were partly luck: Solid Hunter landed at +2 [−22, +26] against a predicted +30, Sticky Hunter at −20 [−61, +28] against +24, the champion Balanced Solid's lead shrank from +27 [+20, +35] to +9 [−12, +25] over 10 matches, and the held-out test flipped Bot Hunter from +24 [+1, +55] to −24 [−59, +10].",
+    "confirmed": [
+     "Jev remains a sticky station worth sizing up against: WTSD 74% (556/750), AF 0.4 (169 bets/raises vs 394 calls), W$SD 46% across gen 1; in g1-g1c02 m02-r3 #7 it called pot bets on flop and turn then shoved AK into a set for −67.5 bb, and in g1-g1c04 m01-r0 #2 it called a 750 river bet with a king-high flush into the nut flush.",
+     "The control is stable across generations: VPIP 42% (974/2324), PFR 15%, AF 1.5, WTSD 59%, W$SD 55% in gen 1 versus 41/13/1.6/64/51 in gen 0, so card differences are measured against the same baseline.",
+     "Blind Pressure Shover's direction was predicted (lead −5 predicted, −14 actual): it played VPIP 16% (39/238), PFR 16%, AF 11.0 (11 bets/raises, 1 call) exactly as written, won showdowns (W$SD 57%, 13/23) but entered too few pots to beat a control that just calls down.",
+     "Balanced Solid stayed positive in absolute terms as champion: +18 [+0, +34] bb/100 over 10 gen-1 matches, and pooled +18 [+6, +31] over 13 matches and 2925 hands, the only card whose pooled bb/100 CI excludes zero with a real sample."
+    ],
+    "refuted": [
+     "Solid Hunter's hypothesis (parents' mechanisms do not conflict, so the hybrid beats both) failed: predicted lead +30, actual +2 [−22, +26]; the merged 'fold to raises below two pair' rule made it fold pocket jacks to 4-bets twice in the same match for −47.5 bb (g1-g1c01 m03-r4 #4, into QQ) and −40.5 bb (g1-g1c01 m01-r0 #10, into Jev's A6 shove on an ace-high flop).",
+     "Sticky Hunter's hypothesis (never fold top pair to Jev) failed: predicted lead +24, actual −20 [−61, +28], WTSD 64% (94/146) but W$SD 40% (38/94); g1-g1c02 m03-r0 #2 stacked off Q9 top pair into Jev's AK for −75 bb. Jev's raises are not weak enough to pay this rule: its W$SD is 46%.",
+     "Silver Value's hypothesis (Silver Tongue's +11 came from value, so trimming bluffs raises it) failed in its one match: predicted lead +12, actual −29; AF 5.2 (26 bets/raises, 5 calls) but W$SD 43% (15/35), and in g1-g1c03 m01-r4 #19 it bet K9 two pair into two callers for −18 bb against Jev's K5 full house. One match, so this is a failed point prediction rather than a proven loser.",
+     "Small Ball Chatter was predicted to lose (lead −20, rank 5) and finished first in gen 1 (lead +11, rank 1) with W$SD 57% (37/65) and AF 2.2; the min-raise with aces in g1-g1c05 m01-r3 #34 induced Jev to 4-bet shove AQ for +2160 chips (+13.5 bb). Again one match."
+    ],
+    "noise": [
+     "Three of five gen-1 cards (Silver Value −29, Blind Pressure Shover −14, Small Ball Chatter +11) have one match and no CI; all three leads are inside the ±40–100 bb/100 band a single match produces.",
+     "Sticky Hunter's lead CI [−61, +28] is 89 bb/100 wide after 3 matches and contains both its prediction (+24) and the measured −20; single hands swung +68.5, +58.0 and −75.0 bb.",
+     "Solid Hunter's lead +2 [−22, +26] over 4 matches is indistinguishable from the control and from the champion's +9 [−12, +25].",
+     "The same duplicate-seeded hand (A♠T♠ vs Jev's JJ on Q♦9♠A♥Q♠2♠, hand #10) was worth +75.0 bb to Solid Hunter, +58.0 to Sticky Hunter and +34.5 to Small Ball Chatter purely from bet sizing; one deck like this moves a one-match lead by the entire size of the effects we are trying to measure.",
+     "The champion's lead fell from +27 [+20, +35] in gen 0 to +9 [−12, +25] in gen 1 with no change to the card: regression toward the mean, not a strategy change."
+    ],
+    "surprises": [
+     "Jev's reraising range is wider than the gen-0 scouting implied: in decisive hands it 3-bet to 230 with JJ, 220 with AK, 240 with A6o and 965 with AQ, and shoved ace-high (g1-g1c01 m01-r0 #10); it is both a station postflop (AF 0.4) and a frequent preflop re-raiser (PFR 17%), which is why 'its raises are weak' and 'its raises are strong' each lost money.",
+     "GPT-6 Luna Decisions is not passive postflop: AF 4.3 (400 bets/raises, 94 calls) in gen 1 against 1.7 in the benchmark, and it 4-bet shoved QQ for +1030 (g1-g1c01 m03-r4 #4); the 'rarely fights' line in Bot Hunter-derived cards is wrong once it has a hand.",
+     "Small sizing cost a measurable amount on identical cards: pot-sized betting on hand #10 collected 2980 chips (+75 bb) where min-bet then half-pot collected 1360 (+34.5 bb) against the same Jev holding.",
+     "The held-out test against a different field (GPT-6 Sol, Claude Haiku 5.5) flipped the gen-0 leader: Bot Hunter went from training lead +24 [+1, +55] to −24 [−59, +10], while Silver Tongue, which I predicted to lose, was the only card still positive (+10 [−16, +36])."
+    ]
+   },
+   "rows": [
+    {
+     "cardId": "g1c05",
+     "label": "Luna · Small Ball Chatter",
+     "gen": 1,
+     "kind": "explore",
+     "matches": 1,
+     "hands": 244,
+     "bb100": {
+      "value": 19.48002049180328,
+      "lo": null,
+      "hi": null
+     },
+     "lead": {
+      "value": 10.525967980387755,
+      "lo": null,
+      "hi": null
+     },
+     "predicted": {
+      "bb100": -15,
+      "rank": 5,
+      "vsControl": -20
+     },
+     "verdict": "inconclusive",
+     "survived": false
+    },
+    {
+     "cardId": "g1c01",
+     "label": "Luna · Solid Hunter",
+     "gen": 1,
+     "kind": "exploit",
+     "matches": 4,
+     "hands": 866,
+     "bb100": {
+      "value": 2.913900115473441,
+      "lo": -8.50537330316742,
+      "hi": 14.817954009433961
+     },
+     "lead": {
+      "value": 1.5838946450139224,
+      "lo": -22.051539609862886,
+      "hi": 26.02915134868008
+     },
+     "predicted": {
+      "bb100": 28,
+      "rank": 1,
+      "vsControl": 30
+     },
+     "verdict": "inconclusive",
+     "survived": true
+    },
+    {
+     "cardId": "g1c04",
+     "label": "Luna · Blind Pressure Shover",
+     "gen": 1,
+     "kind": "explore",
+     "matches": 1,
+     "hands": 238,
+     "bb100": {
+      "value": 16.02547268907563,
+      "lo": null,
+      "hi": null
+     },
+     "lead": {
+      "value": -13.56477627357997,
+      "lo": null,
+      "hi": null
+     },
+     "predicted": {
+      "bb100": 0,
+      "rank": 4,
+      "vsControl": -5
+     },
+     "verdict": "inconclusive",
+     "survived": false
+    },
+    {
+     "cardId": "g1c02",
+     "label": "Luna · Sticky Hunter",
+     "gen": 1,
+     "kind": "exploit",
+     "matches": 3,
+     "hands": 573,
+     "bb100": {
+      "value": -4.881108202443281,
+      "lo": -47.39491150442478,
+      "hi": 45.18960674157304
+     },
+     "lead": {
+      "value": -20.08037084289272,
+      "lo": -60.761032674341216,
+      "hi": 28.121787592636867
+     },
+     "predicted": {
+      "bb100": 22,
+      "rank": 2,
+      "vsControl": 24
+     },
+     "verdict": "inconclusive",
+     "survived": true
+    },
+    {
+     "cardId": "g1c03",
+     "label": "Luna · Silver Value",
+     "gen": 1,
+     "kind": "exploit",
+     "matches": 1,
+     "hands": 201,
+     "bb100": {
+      "value": -23.725124378109452,
+      "lo": null,
+      "hi": null
+     },
+     "lead": {
+      "value": -28.950964714243906,
+      "lo": null,
+      "hi": null
+     },
+     "predicted": {
+      "bb100": 14,
+      "rank": 3,
+      "vsControl": 12
+     },
+     "verdict": "inconclusive",
+     "survived": false
+    }
+   ],
+   "champion": {
+    "id": "g0c04",
+    "label": "Luna · Balanced Solid",
+    "matches": 10,
+    "hands": 2242,
+    "bb100": {
+     "value": 18.338955173951828,
+     "lo": 0.21657986111111083,
+     "hi": 34.26814516129033
+    },
+    "control": {
+     "value": 9.627124569707401,
+     "lo": 1.9078449394463668,
+     "hi": 16.648129288164665
+    },
+    "lead": {
+     "value": 8.711830604244426,
+     "lo": -11.967160885357664,
+     "hi": 24.77826622342079
+    }
+   },
+   "hands": 2498
+  }
+ ],
+ "pooled": [
+  {
+   "cardId": "g0c05",
+   "label": "Luna · Bot Hunter",
+   "gen": 0,
+   "matches": 4,
+   "hands": 923,
+   "bb100": {
+    "value": 22.4624187432286,
+    "lo": 2.9790717539863327,
+    "hi": 40.13429752066116
+   },
+   "control": {
+    "value": -1.5484467455621302,
+    "lo": -15.752180232558139,
+    "hi": 7.536262798634813
+   },
+   "lead": {
+    "value": 24.01086548879073,
+    "lo": 1.1168268560271493,
+    "hi": 55.29466389268886
+   }
+  },
+  {
+   "cardId": "g0c04",
+   "label": "Luna · Balanced Solid",
+   "gen": 0,
+   "matches": 13,
+   "hands": 2925,
+   "bb100": {
+    "value": 18.39807692307692,
+    "lo": 5.61947956356079,
+    "hi": 31.21974105937922
+   },
+   "control": {
+    "value": 5.616853275401069,
+    "lo": -2.8790350274725287,
+    "hi": 13.082847883163767
+   },
+   "lead": {
+    "value": 12.781223647675851,
+    "lo": -2.6307408736228703,
+    "hi": 25.732258226906776
+   }
+  },
+  {
+   "cardId": "g1c05",
+   "label": "Luna · Small Ball Chatter",
+   "gen": 1,
+   "matches": 1,
+   "hands": 244,
+   "bb100": {
+    "value": 19.48002049180328,
+    "lo": null,
+    "hi": null
+   },
+   "control": {
+    "value": 8.954052511415526,
+    "lo": null,
+    "hi": null
+   },
+   "lead": {
+    "value": 10.525967980387755,
+    "lo": null,
+    "hi": null
+   }
+  },
+  {
+   "cardId": "g0c07",
+   "label": "Luna · Silver Tongue",
+   "gen": 0,
+   "matches": 3,
+   "hands": 657,
+   "bb100": {
+    "value": 11.08019406392694,
+    "lo": 0.921474358974359,
+    "hi": 25.218413978494624
+   },
+   "control": {
+    "value": 3.6882776049766726,
+    "lo": 2.814054726368159,
+    "hi": 4.546875
+   },
+   "lead": {
+    "value": 7.391916458950268,
+    "lo": -1.8925803673938,
+    "hi": 20.671538978494624
+   }
+  },
+  {
+   "cardId": "g1c01",
+   "label": "Luna · Solid Hunter",
+   "gen": 1,
+   "matches": 4,
+   "hands": 866,
+   "bb100": {
+    "value": 2.913900115473441,
+    "lo": -8.50537330316742,
+    "hi": 14.817954009433961
+   },
+   "control": {
+    "value": 1.3300054704595186,
+    "lo": -11.21119733924612,
+    "hi": 13.55204872646733
+   },
+   "lead": {
+    "value": 1.5838946450139224,
+    "lo": -22.051539609862886,
+    "hi": 26.02915134868008
+   }
+  },
+  {
+   "cardId": "g1c04",
+   "label": "Luna · Blind Pressure Shover",
+   "gen": 1,
+   "matches": 1,
+   "hands": 238,
+   "bb100": {
+    "value": 16.02547268907563,
+    "lo": null,
+    "hi": null
+   },
+   "control": {
+    "value": 29.5902489626556,
+    "lo": null,
+    "hi": null
+   },
+   "lead": {
+    "value": -13.56477627357997,
+    "lo": null,
+    "hi": null
+   }
+  },
+  {
+   "cardId": "g1c02",
+   "label": "Luna · Sticky Hunter",
+   "gen": 1,
+   "matches": 3,
+   "hands": 573,
+   "bb100": {
+    "value": -4.881108202443281,
+    "lo": -47.39491150442478,
+    "hi": 45.18960674157304
+   },
+   "control": {
+    "value": 15.199262640449437,
+    "lo": 13.365149930264995,
+    "hi": 17.06781914893617
+   },
+   "lead": {
+    "value": -20.08037084289272,
+    "lo": -60.761032674341216,
+    "hi": 28.121787592636867
+   }
+  },
+  {
+   "cardId": "g0c08",
+   "label": "Luna · Table Reader",
+   "gen": 0,
+   "matches": 1,
+   "hands": 221,
+   "bb100": {
+    "value": -5.449660633484163,
+    "lo": null,
+    "hi": null
+   },
+   "control": {
+    "value": 22.802734375,
+    "lo": null,
+    "hi": null
+   },
+   "lead": {
+    "value": -28.252395008484164,
+    "lo": null,
+    "hi": null
+   }
+  },
+  {
+   "cardId": "g1c03",
+   "label": "Luna · Silver Value",
+   "gen": 1,
+   "matches": 1,
+   "hands": 201,
+   "bb100": {
+    "value": -23.725124378109452,
+    "lo": null,
+    "hi": null
+   },
+   "control": {
+    "value": 5.225840336134454,
+    "lo": null,
+    "hi": null
+   },
+   "lead": {
+    "value": -28.950964714243906,
+    "lo": null,
+    "hi": null
+   }
+  },
+  {
+   "cardId": "g0c06",
+   "label": "Luna · Quiet Trapper",
+   "gen": 0,
+   "matches": 1,
+   "hands": 231,
+   "bb100": {
+    "value": -12.337662337662337,
+    "lo": null,
+    "hi": null
+   },
+   "control": {
+    "value": 16.93281938325991,
+    "lo": null,
+    "hi": null
+   },
+   "lead": {
+    "value": -29.27048172092225,
+    "lo": null,
+    "hi": null
+   }
+  },
+  {
+   "cardId": "g0c01",
+   "label": "Luna · Granite Rock",
+   "gen": 0,
+   "matches": 1,
+   "hands": 228,
+   "bb100": {
+    "value": -23.081140350877195,
+    "lo": null,
+    "hi": null
+   },
+   "control": {
+    "value": 6.492909663865547,
+    "lo": null,
+    "hi": null
+   },
+   "lead": {
+    "value": -29.574050014742742,
+    "lo": null,
+    "hi": null
+   }
+  },
+  {
+   "cardId": "g0c02",
+   "label": "Luna · Blitz Maniac",
+   "gen": 0,
+   "matches": 3,
+   "hands": 392,
+   "bb100": {
+    "value": -44.6109693877551,
+    "lo": -106.86201780415429,
+    "hi": 30.33940397350993
+   },
+   "control": {
+    "value": 4.162654083204929,
+    "lo": -4.913690476190481,
+    "hi": 11.116950757575758
+   },
+   "lead": {
+    "value": -48.773623470960025,
+    "lo": -116.33383528881687,
+    "hi": 29.744507184519104
+   }
+  },
+  {
+   "cardId": "g0c03",
+   "label": "Luna · Happy Station",
+   "gen": 0,
+   "matches": 1,
+   "hands": 146,
+   "bb100": {
+    "value": 12.101883561643827,
+    "lo": null,
+    "hi": null
+   },
+   "control": {
+    "value": 121.83324898785426,
+    "lo": null,
+    "hi": null
+   },
+   "lead": {
+    "value": -109.73136542621043,
+    "lo": null,
+    "hi": null
+   }
+  }
+ ],
+ "control": {
+  "bb100": {
+   "value": 10.084089035449297,
+   "lo": 1.6332244999173413,
+   "hi": 22.0404441480763
+  },
+  "matches": 27,
+  "hands": 6065
+ },
+ "scatter": [
+  {
+   "cardId": "g0c04",
+   "label": "Luna · Balanced Solid",
+   "gen": 0,
+   "predicted": 38,
+   "actual": 18.5921486090776,
+   "lo": 13.707696506550219,
+   "hi": 27.323717948717945
+  },
+  {
+   "cardId": "g0c05",
+   "label": "Luna · Bot Hunter",
+   "gen": 0,
+   "predicted": 55,
+   "actual": 22.4624187432286,
+   "lo": 2.9790717539863327,
+   "hi": 40.13429752066116
+  },
+  {
+   "cardId": "g0c07",
+   "label": "Luna · Silver Tongue",
+   "gen": 0,
+   "predicted": -45,
+   "actual": 11.08019406392694,
+   "lo": 0.921474358974359,
+   "hi": 25.218413978494624
+  },
+  {
+   "cardId": "g0c08",
+   "label": "Luna · Table Reader",
+   "gen": 0,
+   "predicted": 30,
+   "actual": -5.449660633484163,
+   "lo": null,
+   "hi": null
+  },
+  {
+   "cardId": "g0c06",
+   "label": "Luna · Quiet Trapper",
+   "gen": 0,
+   "predicted": -5,
+   "actual": -12.337662337662337,
+   "lo": null,
+   "hi": null
+  },
+  {
+   "cardId": "g0c01",
+   "label": "Luna · Granite Rock",
+   "gen": 0,
+   "predicted": 12,
+   "actual": -23.081140350877195,
+   "lo": null,
+   "hi": null
+  },
+  {
+   "cardId": "g0c02",
+   "label": "Luna · Blitz Maniac",
+   "gen": 0,
+   "predicted": -70,
+   "actual": -44.6109693877551,
+   "lo": -106.86201780415429,
+   "hi": 30.33940397350993
+  },
+  {
+   "cardId": "g0c03",
+   "label": "Luna · Happy Station",
+   "gen": 0,
+   "predicted": -20,
+   "actual": 12.101883561643827,
+   "lo": null,
+   "hi": null
+  },
+  {
+   "cardId": "g1c05",
+   "label": "Luna · Small Ball Chatter",
+   "gen": 1,
+   "predicted": -15,
+   "actual": 19.48002049180328,
+   "lo": null,
+   "hi": null
+  },
+  {
+   "cardId": "g1c01",
+   "label": "Luna · Solid Hunter",
+   "gen": 1,
+   "predicted": 28,
+   "actual": 2.913900115473441,
+   "lo": -8.50537330316742,
+   "hi": 14.817954009433961
+  },
+  {
+   "cardId": "g1c04",
+   "label": "Luna · Blind Pressure Shover",
+   "gen": 1,
+   "predicted": 0,
+   "actual": 16.02547268907563,
+   "lo": null,
+   "hi": null
+  },
+  {
+   "cardId": "g1c02",
+   "label": "Luna · Sticky Hunter",
+   "gen": 1,
+   "predicted": 22,
+   "actual": -4.881108202443281,
+   "lo": -47.39491150442478,
+   "hi": 45.18960674157304
+  },
+  {
+   "cardId": "g1c03",
+   "label": "Luna · Silver Value",
+   "gen": 1,
+   "predicted": 14,
+   "actual": -23.725124378109452,
+   "lo": null,
+   "hi": null
+  }
+ ],
+ "heldout": {
+  "matches": 3,
+  "planned": 3,
+  "field": [
+   "openai/gpt-6-sol",
+   "anthropic/claude-haiku-5.5"
+  ],
+  "players": [
+   {
+    "id": "g0c05",
+    "label": "Luna · Bot Hunter"
+   },
+   {
+    "id": "g0c04",
+    "label": "Luna · Balanced Solid"
+   },
+   {
+    "id": "g0c07",
+    "label": "Luna · Silver Tongue"
+   },
+   {
+    "id": "control",
+    "label": "Luna (control, no card)"
+   },
+   {
+    "id": "openai/gpt-6-sol",
+    "label": "GPT-6 Sol"
+   },
+   {
+    "id": "anthropic/claude-haiku-5.5",
+    "label": "Claude Haiku 5.5"
+   }
+  ],
+  "rows": [
+   {
+    "cardId": "g0c05",
+    "label": "Luna · Bot Hunter",
+    "heldout": {
+     "matches": 3,
+     "hands": 684,
+     "bb100": {
+      "value": -25.107364766081876,
+      "lo": -58.76713039867111,
+      "hi": 3.8708178438661713
+     },
+     "control": {
+      "value": -1.3797898640296664,
+      "lo": -5.680216165413534,
+      "hi": 3.172149122807017
+     },
+     "lead": {
+      "value": -23.727574902052208,
+      "lo": -58.623949999170485,
+      "hi": 9.551034009279705
+     }
+    },
+    "training": {
+     "value": 24.01086548879073,
+     "lo": 1.1168268560271493,
+     "hi": 55.29466389268886
+    },
+    "verdict": "overfit"
+   },
+   {
+    "cardId": "g0c04",
+    "label": "Luna · Balanced Solid",
+    "heldout": {
+     "matches": 3,
+     "hands": 787,
+     "bb100": {
+      "value": -2.471013341804321,
+      "lo": -41.67724609374999,
+      "hi": 20.217134300126098
+     },
+     "control": {
+      "value": -1.3797898640296664,
+      "lo": -5.680216165413534,
+      "hi": 3.172149122807017
+     },
+     "lead": {
+      "value": -1.0912234777746546,
+      "lo": -44.849395216557014,
+      "hi": 23.45202880140487
+     }
+    },
+    "training": {
+     "value": 12.781223647675851,
+     "lo": -2.6307408736228703,
+     "hi": 25.732258226906776
+    },
+    "verdict": "overfit"
+   },
+   {
+    "cardId": "g0c07",
+    "label": "Luna · Silver Tongue",
+    "heldout": {
+     "matches": 3,
+     "hands": 818,
+     "bb100": {
+      "value": 8.561659535452321,
+      "lo": -19.676136363636367,
+      "hi": 39.321996466431095
+     },
+     "control": {
+      "value": -1.3797898640296664,
+      "lo": -5.680216165413534,
+      "hi": 3.172149122807017
+     },
+     "lead": {
+      "value": 9.941449399481987,
+      "lo": -16.441241862357593,
+      "hi": 36.149847343624074
+     }
+    },
+    "training": {
+     "value": 7.391916458950268,
+     "lo": -1.8925803673938,
+     "hi": 20.671538978494624
+    },
+    "verdict": "inconclusive"
+   }
+  ],
+  "others": [
+   {
+    "id": "control",
+    "label": "Luna (control, no card)",
+    "bb100": {
+     "value": -1.3797898640296664,
+     "lo": -5.680216165413534,
+     "hi": 3.172149122807017
+    }
+   },
+   {
+    "id": "openai/gpt-6-sol",
+    "label": "GPT-6 Sol",
+    "bb100": {
+     "value": 57.54782749675746,
+     "lo": 18.206395348837216,
+     "hi": 78.85404497663552
+    }
+   },
+   {
+    "id": "anthropic/claude-haiku-5.5",
+    "label": "Claude Haiku 5.5",
+    "bb100": {
+     "value": -58.75176886792454,
+     "lo": -86.30306603773586,
+     "hi": -41.94431818181818
+    }
+   }
+  ],
+  "seedsUnseen": true,
+  "trainingSeeds": 2060
+ },
+ "styles": [
+  {
+   "seatId": "control",
+   "hands": 6065,
+   "vpip": 41.22011541632317,
+   "pfr": 13.998351195383346,
+   "af": 1.567391304347826,
+   "wtsd": 62.13379973764758,
+   "wsd": 52.35749472202674,
+   "counts": {
+    "vpip": 2500,
+    "pfr": 849,
+    "bets": 721,
+    "calls": 460,
+    "sawFlop": 2287,
+    "showdowns": 1421,
+    "wonAtShowdown": 744
+   },
+   "decisions": 12063,
+   "avgMs": 1950,
+   "costUsd": 1.550960199999996,
+   "label": "Luna (control, no card)"
+  },
+  {
+   "seatId": "g0c05",
+   "hands": 923,
+   "vpip": 32.71939328277356,
+   "pfr": 25.46045503791983,
+   "af": 3.1538461538461537,
+   "wtsd": 54.32098765432099,
+   "wsd": 49.24242424242424,
+   "counts": {
+    "vpip": 302,
+    "pfr": 235,
+    "bets": 82,
+    "calls": 26,
+    "sawFlop": 243,
+    "showdowns": 132,
+    "wonAtShowdown": 65
+   },
+   "decisions": 1458,
+   "avgMs": 2113,
+   "costUsd": 0.2133596999999996,
+   "label": "Luna · Bot Hunter"
+  },
+  {
+   "seatId": "g0c04",
+   "hands": 2925,
+   "vpip": 29.2991452991453,
+   "pfr": 20.410256410256412,
+   "af": 3.6930693069306932,
+   "wtsd": 51.82679296346414,
+   "wsd": 44.38642297650131,
+   "counts": {
+    "vpip": 857,
+    "pfr": 597,
+    "bets": 373,
+    "calls": 101,
+    "sawFlop": 739,
+    "showdowns": 383,
+    "wonAtShowdown": 170
+   },
+   "decisions": 4632,
+   "avgMs": 1907,
+   "costUsd": 0.6804257000000016,
+   "label": "Luna · Balanced Solid"
+  },
+  {
+   "seatId": "g1c05",
+   "hands": 244,
+   "vpip": 48.77049180327869,
+   "pfr": 26.229508196721312,
+   "af": 2.2083333333333335,
+   "wtsd": 57.52212389380531,
+   "wsd": 56.92307692307692,
+   "counts": {
+    "vpip": 119,
+    "pfr": 64,
+    "bets": 53,
+    "calls": 24,
+    "sawFlop": 113,
+    "showdowns": 65,
+    "wonAtShowdown": 37
+   },
+   "decisions": 547,
+   "avgMs": 1916,
+   "costUsd": 0.08834450000000005,
+   "label": "Luna · Small Ball Chatter"
+  },
+  {
+   "seatId": "g0c07",
+   "hands": 657,
+   "vpip": 34.70319634703196,
+   "pfr": 24.200913242009133,
+   "af": 11.4,
+   "wtsd": 41.70616113744076,
+   "wsd": 46.590909090909086,
+   "counts": {
+    "vpip": 228,
+    "pfr": 159,
+    "bets": 171,
+    "calls": 15,
+    "sawFlop": 211,
+    "showdowns": 88,
+    "wonAtShowdown": 41
+   },
+   "decisions": 1130,
+   "avgMs": 2008,
+   "costUsd": 0.17940849999999997,
+   "label": "Luna · Silver Tongue"
+  },
+  {
+   "seatId": "g1c01",
+   "hands": 866,
+   "vpip": 30.369515011547342,
+   "pfr": 20.785219399538107,
+   "af": 2.6785714285714284,
+   "wtsd": 45.497630331753555,
+   "wsd": 45.83333333333333,
+   "counts": {
+    "vpip": 263,
+    "pfr": 180,
+    "bets": 75,
+    "calls": 28,
+    "sawFlop": 211,
+    "showdowns": 96,
+    "wonAtShowdown": 44
+   },
+   "decisions": 1342,
+   "avgMs": 1796,
+   "costUsd": 0.2008245999999998,
+   "label": "Luna · Solid Hunter"
+  },
+  {
+   "seatId": "g1c04",
+   "hands": 238,
+   "vpip": 16.386554621848738,
+   "pfr": 15.546218487394958,
+   "af": 11,
+   "wtsd": 62.16216216216216,
+   "wsd": 56.52173913043478,
+   "counts": {
+    "vpip": 39,
+    "pfr": 37,
+    "bets": 11,
+    "calls": 1,
+    "sawFlop": 37,
+    "showdowns": 23,
+    "wonAtShowdown": 13
+   },
+   "decisions": 289,
+   "avgMs": 1926,
+   "costUsd": 0.046276999999999985,
+   "label": "Luna · Blind Pressure Shover"
+  },
+  {
+   "seatId": "g1c02",
+   "hands": 573,
+   "vpip": 31.064572425828967,
+   "pfr": 22.862129144851657,
+   "af": 1.8888888888888888,
+   "wtsd": 64.38356164383562,
+   "wsd": 40.42553191489361,
+   "counts": {
+    "vpip": 178,
+    "pfr": 131,
+    "bets": 51,
+    "calls": 27,
+    "sawFlop": 146,
+    "showdowns": 94,
+    "wonAtShowdown": 38
+   },
+   "decisions": 910,
+   "avgMs": 1845,
+   "costUsd": 0.13636519999999996,
+   "label": "Luna · Sticky Hunter"
+  },
+  {
+   "seatId": "g0c08",
+   "hands": 221,
+   "vpip": 23.52941176470588,
+   "pfr": 16.289592760180994,
+   "af": 3.6666666666666665,
+   "wtsd": 51.724137931034484,
+   "wsd": 30,
+   "counts": {
+    "vpip": 52,
+    "pfr": 36,
+    "bets": 22,
+    "calls": 6,
+    "sawFlop": 58,
+    "showdowns": 30,
+    "wonAtShowdown": 9
+   },
+   "decisions": 356,
+   "avgMs": 2094,
+   "costUsd": 0.055873200000000026,
+   "label": "Luna · Table Reader"
+  },
+  {
+   "seatId": "g1c03",
+   "hands": 201,
+   "vpip": 39.800995024875625,
+   "pfr": 27.860696517412936,
+   "af": 5.2,
+   "wtsd": 52.23880597014925,
+   "wsd": 42.857142857142854,
+   "counts": {
+    "vpip": 80,
+    "pfr": 56,
+    "bets": 26,
+    "calls": 5,
+    "sawFlop": 67,
+    "showdowns": 35,
+    "wonAtShowdown": 15
+   },
+   "decisions": 351,
+   "avgMs": 1954,
+   "costUsd": 0.05605699999999997,
+   "label": "Luna · Silver Value"
+  },
+  {
+   "seatId": "g0c06",
+   "hands": 231,
+   "vpip": 14.285714285714285,
+   "pfr": 2.1645021645021645,
+   "af": 0.5454545454545454,
+   "wtsd": 63.26530612244898,
+   "wsd": 58.06451612903226,
+   "counts": {
+    "vpip": 33,
+    "pfr": 5,
+    "bets": 6,
+    "calls": 11,
+    "sawFlop": 49,
+    "showdowns": 31,
+    "wonAtShowdown": 18
+   },
+   "decisions": 359,
+   "avgMs": 2345,
+   "costUsd": 0.05705660000000004,
+   "label": "Luna · Quiet Trapper"
+  },
+  {
+   "seatId": "g0c01",
+   "hands": 228,
+   "vpip": 11.403508771929824,
+   "pfr": 9.649122807017543,
+   "af": 9,
+   "wtsd": 57.14285714285714,
+   "wsd": 37.5,
+   "counts": {
+    "vpip": 26,
+    "pfr": 22,
+    "bets": 9,
+    "calls": 1,
+    "sawFlop": 28,
+    "showdowns": 16,
+    "wonAtShowdown": 6
+   },
+   "decisions": 293,
+   "avgMs": 1965,
+   "costUsd": 0.0423697,
+   "label": "Luna · Granite Rock"
+  },
+  {
+   "seatId": "g0c02",
+   "hands": 392,
+   "vpip": 83.6734693877551,
+   "pfr": 81.37755102040816,
+   "af": 13.875,
+   "wtsd": 58.57988165680473,
+   "wsd": 42.42424242424242,
+   "counts": {
+    "vpip": 328,
+    "pfr": 319,
+    "bets": 111,
+    "calls": 8,
+    "sawFlop": 169,
+    "showdowns": 99,
+    "wonAtShowdown": 42
+   },
+   "decisions": 720,
+   "avgMs": 1993,
+   "costUsd": 0.11477020000000002,
+   "label": "Luna · Blitz Maniac"
+  },
+  {
+   "seatId": "g0c03",
+   "hands": 146,
+   "vpip": 82.1917808219178,
+   "pfr": 0.684931506849315,
+   "af": 0.38461538461538464,
+   "wtsd": 75.177304964539,
+   "wsd": 35.84905660377358,
+   "counts": {
+    "vpip": 120,
+    "pfr": 1,
+    "bets": 30,
+    "calls": 78,
+    "sawFlop": 141,
+    "showdowns": 106,
+    "wonAtShowdown": 38
+   },
+   "decisions": 594,
+   "avgMs": 1951,
+   "costUsd": 0.09604100000000006,
+   "label": "Luna · Happy Station"
+  },
+  {
+   "seatId": "typesafe-ai/jev",
+   "hands": 4966,
+   "vpip": 44.663713250100685,
+   "pfr": 17.498993153443415,
+   "af": 0.5700836820083682,
+   "wtsd": 72.57304429783224,
+   "wsd": 47.33766233766234,
+   "counts": {
+    "vpip": 2218,
+    "pfr": 869,
+    "bets": 545,
+    "calls": 956,
+    "sawFlop": 2122,
+    "showdowns": 1540,
+    "wonAtShowdown": 729
+   },
+   "decisions": 10939,
+   "avgMs": 236,
+   "costUsd": 0.4484925059999962,
+   "label": "Jev"
+  },
+  {
+   "seatId": "openai/gpt-6-luna-decisions",
+   "hands": 6090,
+   "vpip": 28.078817733990146,
+   "pfr": 6.962233169129721,
+   "af": 3.929411764705882,
+   "wtsd": 59.49152542372881,
+   "wsd": 44.254510921177584,
+   "counts": {
+    "vpip": 1710,
+    "pfr": 424,
+    "bets": 1002,
+    "calls": 255,
+    "sawFlop": 1770,
+    "showdowns": 1053,
+    "wonAtShowdown": 466
+   },
+   "decisions": 10507,
+   "avgMs": 226,
+   "costUsd": 0.5688629000000024,
+   "label": "GPT-6 Luna Decisions"
+  }
+ ]
+}

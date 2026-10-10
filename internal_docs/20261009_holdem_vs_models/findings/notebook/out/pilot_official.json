@@ -1,0 +1,746 @@
+{
+ "item": {
+  "slug": "20261010_pilot",
+  "lineup": [
+   "openai/gpt-6-sol",
+   "google/gemini-3.1-pro-preview",
+   "anthropic/claude-haiku-5.5",
+   "openai/gpt-6-luna",
+   "openai/gpt-6-luna-decisions",
+   "typesafe-ai/jev"
+  ],
+  "format": "sng",
+  "fake": false,
+  "tournamentsDone": 6,
+  "tournamentsPlanned": 6,
+  "matchesComplete": 1,
+  "hands": 90,
+  "costUsd": 1.3385489720000001,
+  "status": "complete",
+  "updated": ""
+ },
+ "models": [
+  {
+   "id": "openai/gpt-6-sol",
+   "label": "GPT-6 Sol",
+   "vendor": "OpenAI",
+   "kind": "llm"
+  },
+  {
+   "id": "google/gemini-3.1-pro-preview",
+   "label": "Gemini 3.1 Pro",
+   "vendor": "Google",
+   "kind": "llm"
+  },
+  {
+   "id": "anthropic/claude-haiku-5.5",
+   "label": "Claude Haiku 5.5",
+   "vendor": "Anthropic",
+   "kind": "llm"
+  },
+  {
+   "id": "openai/gpt-6-luna",
+   "label": "GPT-6 Luna",
+   "vendor": "OpenAI",
+   "kind": "llm"
+  },
+  {
+   "id": "openai/gpt-6-luna-decisions",
+   "label": "GPT-6 Luna Decisions",
+   "vendor": "OpenAI",
+   "kind": "evaluation"
+  },
+  {
+   "id": "typesafe-ai/jev",
+   "label": "Jev",
+   "vendor": "TypeSafe AI",
+   "kind": "evaluation"
+  }
+ ],
+ "players": 6,
+ "maxHands": 15,
+ "matchesUsed": 1,
+ "leaderboard": [
+  {
+   "modelId": "openai/gpt-6-sol",
+   "hands": 90,
+   "tournaments": 6,
+   "bb100": {
+    "value": 230.52777777777774,
+    "lo": null,
+    "hi": null
+   },
+   "avgFinish": {
+    "value": 2.5,
+    "lo": null,
+    "hi": null
+   }
+  },
+  {
+   "modelId": "google/gemini-3.1-pro-preview",
+   "hands": 90,
+   "tournaments": 6,
+   "bb100": {
+    "value": 184.86111111111111,
+    "lo": null,
+    "hi": null
+   },
+   "avgFinish": {
+    "value": 2.6666666666666665,
+    "lo": null,
+    "hi": null
+   }
+  },
+  {
+   "modelId": "anthropic/claude-haiku-5.5",
+   "hands": 58,
+   "tournaments": 6,
+   "bb100": {
+    "value": -440.3448275862069,
+    "lo": null,
+    "hi": null
+   },
+   "avgFinish": {
+    "value": 4.833333333333333,
+    "lo": null,
+    "hi": null
+   }
+  },
+  {
+   "modelId": "openai/gpt-6-luna",
+   "hands": 90,
+   "tournaments": 6,
+   "bb100": {
+    "value": 41.25,
+    "lo": null,
+    "hi": null
+   },
+   "avgFinish": {
+    "value": 3,
+    "lo": null,
+    "hi": null
+   }
+  },
+  {
+   "modelId": "openai/gpt-6-luna-decisions",
+   "hands": 90,
+   "tournaments": 6,
+   "bb100": {
+    "value": 135.61111111111111,
+    "lo": null,
+    "hi": null
+   },
+   "avgFinish": {
+    "value": 3.3333333333333335,
+    "lo": null,
+    "hi": null
+   }
+  },
+  {
+   "modelId": "typesafe-ai/jev",
+   "hands": 57,
+   "tournaments": 6,
+   "bb100": {
+    "value": -487.06140350877195,
+    "lo": null,
+    "hi": null
+   },
+   "avgFinish": {
+    "value": 4.666666666666667,
+    "lo": null,
+    "hi": null
+   }
+  }
+ ],
+ "pairs": [
+  {
+   "a": "openai/gpt-6-sol",
+   "b": "google/gemini-3.1-pro-preview",
+   "bb100": {
+    "value": 45.66666666666663,
+    "lo": null,
+    "hi": null
+   },
+   "avgFinish": {
+    "value": -0.16666666666666652,
+    "lo": null,
+    "hi": null
+   }
+  },
+  {
+   "a": "openai/gpt-6-sol",
+   "b": "anthropic/claude-haiku-5.5",
+   "bb100": {
+    "value": 670.8726053639847,
+    "lo": null,
+    "hi": null
+   },
+   "avgFinish": {
+    "value": -2.333333333333333,
+    "lo": null,
+    "hi": null
+   }
+  },
+  {
+   "a": "openai/gpt-6-sol",
+   "b": "openai/gpt-6-luna",
+   "bb100": {
+    "value": 189.27777777777774,
+    "lo": null,
+    "hi": null
+   },
+   "avgFinish": {
+    "value": -0.5,
+    "lo": null,
+    "hi": null
+   }
+  },
+  {
+   "a": "openai/gpt-6-sol",
+   "b": "openai/gpt-6-luna-decisions",
+   "bb100": {
+    "value": 94.91666666666663,
+    "lo": null,
+    "hi": null
+   },
+   "avgFinish": {
+    "value": -0.8333333333333335,
+    "lo": null,
+    "hi": null
+   }
+  },
+  {
+   "a": "openai/gpt-6-sol",
+   "b": "typesafe-ai/jev",
+   "bb100": {
+    "value": 717.5891812865497,
+    "lo": null,
+    "hi": null
+   },
+   "avgFinish": {
+    "value": -2.166666666666667,
+    "lo": null,
+    "hi": null
+   }
+  },
+  {
+   "a": "google/gemini-3.1-pro-preview",
+   "b": "anthropic/claude-haiku-5.5",
+   "bb100": {
+    "value": 625.2059386973181,
+    "lo": null,
+    "hi": null
+   },
+   "avgFinish": {
+    "value": -2.1666666666666665,
+    "lo": null,
+    "hi": null
+   }
+  },
+  {
+   "a": "google/gemini-3.1-pro-preview",
+   "b": "openai/gpt-6-luna",
+   "bb100": {
+    "value": 143.61111111111111,
+    "lo": null,
+    "hi": null
+   },
+   "avgFinish": {
+    "value": -0.3333333333333335,
+    "lo": null,
+    "hi": null
+   }
+  },
+  {
+   "a": "google/gemini-3.1-pro-preview",
+   "b": "openai/gpt-6-luna-decisions",
+   "bb100": {
+    "value": 49.25,
+    "lo": null,
+    "hi": null
+   },
+   "avgFinish": {
+    "value": -0.666666666666667,
+    "lo": null,
+    "hi": null
+   }
+  },
+  {
+   "a": "google/gemini-3.1-pro-preview",
+   "b": "typesafe-ai/jev",
+   "bb100": {
+    "value": 671.922514619883,
+    "lo": null,
+    "hi": null
+   },
+   "avgFinish": {
+    "value": -2.0000000000000004,
+    "lo": null,
+    "hi": null
+   }
+  },
+  {
+   "a": "anthropic/claude-haiku-5.5",
+   "b": "openai/gpt-6-luna",
+   "bb100": {
+    "value": -481.5948275862069,
+    "lo": null,
+    "hi": null
+   },
+   "avgFinish": {
+    "value": 1.833333333333333,
+    "lo": null,
+    "hi": null
+   }
+  },
+  {
+   "a": "anthropic/claude-haiku-5.5",
+   "b": "openai/gpt-6-luna-decisions",
+   "bb100": {
+    "value": -575.9559386973181,
+    "lo": null,
+    "hi": null
+   },
+   "avgFinish": {
+    "value": 1.4999999999999996,
+    "lo": null,
+    "hi": null
+   }
+  },
+  {
+   "a": "anthropic/claude-haiku-5.5",
+   "b": "typesafe-ai/jev",
+   "bb100": {
+    "value": 46.71657592256503,
+    "lo": null,
+    "hi": null
+   },
+   "avgFinish": {
+    "value": 0.16666666666666607,
+    "lo": null,
+    "hi": null
+   }
+  },
+  {
+   "a": "openai/gpt-6-luna",
+   "b": "openai/gpt-6-luna-decisions",
+   "bb100": {
+    "value": -94.36111111111111,
+    "lo": null,
+    "hi": null
+   },
+   "avgFinish": {
+    "value": -0.3333333333333335,
+    "lo": null,
+    "hi": null
+   }
+  },
+  {
+   "a": "openai/gpt-6-luna",
+   "b": "typesafe-ai/jev",
+   "bb100": {
+    "value": 528.311403508772,
+    "lo": null,
+    "hi": null
+   },
+   "avgFinish": {
+    "value": -1.666666666666667,
+    "lo": null,
+    "hi": null
+   }
+  },
+  {
+   "a": "openai/gpt-6-luna-decisions",
+   "b": "typesafe-ai/jev",
+   "bb100": {
+    "value": 622.672514619883,
+    "lo": null,
+    "hi": null
+   },
+   "avgFinish": {
+    "value": -1.3333333333333335,
+    "lo": null,
+    "hi": null
+   }
+  }
+ ],
+ "finishes": {
+  "openai/gpt-6-sol": [
+   3,
+   0,
+   1,
+   1,
+   1,
+   0
+  ],
+  "google/gemini-3.1-pro-preview": [
+   1,
+   3,
+   0,
+   1,
+   1,
+   0
+  ],
+  "anthropic/claude-haiku-5.5": [
+   1,
+   0,
+   0,
+   0,
+   2,
+   3
+  ],
+  "openai/gpt-6-luna": [
+   1,
+   0,
+   3,
+   2,
+   0,
+   0
+  ],
+  "openai/gpt-6-luna-decisions": [
+   0,
+   2,
+   1,
+   2,
+   1,
+   0
+  ],
+  "typesafe-ai/jev": [
+   0,
+   1,
+   1,
+   0,
+   1,
+   3
+  ]
+ },
+ "plackettLuce": {
+  "openai/gpt-6-sol": 0.8300819154492196,
+  "google/gemini-3.1-pro-preview": 0.783686367133741,
+  "anthropic/claude-haiku-5.5": -1.2660534235096663,
+  "openai/gpt-6-luna": 0.605355004277688,
+  "openai/gpt-6-luna-decisions": 0.28998006896256895,
+  "typesafe-ai/jev": -1.2430499323135513
+ },
+ "flow": {
+  "openai/gpt-6-sol": {
+   "openai/gpt-6-sol": 0,
+   "google/gemini-3.1-pro-preview": -35.5,
+   "anthropic/claude-haiku-5.5": 119.25,
+   "openai/gpt-6-luna": -21.625,
+   "openai/gpt-6-luna-decisions": 12.25,
+   "typesafe-ai/jev": 133.1
+  },
+  "google/gemini-3.1-pro-preview": {
+   "openai/gpt-6-sol": 35.5,
+   "google/gemini-3.1-pro-preview": 0,
+   "anthropic/claude-haiku-5.5": 117.75,
+   "openai/gpt-6-luna": 10.25,
+   "openai/gpt-6-luna-decisions": 9.5,
+   "typesafe-ai/jev": -6.625
+  },
+  "anthropic/claude-haiku-5.5": {
+   "openai/gpt-6-sol": -119.25,
+   "google/gemini-3.1-pro-preview": -117.75,
+   "anthropic/claude-haiku-5.5": 0,
+   "openai/gpt-6-luna": -39.75,
+   "openai/gpt-6-luna-decisions": -51.15,
+   "typesafe-ai/jev": 72.5
+  },
+  "openai/gpt-6-luna": {
+   "openai/gpt-6-sol": 21.625,
+   "google/gemini-3.1-pro-preview": -10.25,
+   "anthropic/claude-haiku-5.5": 39.75,
+   "openai/gpt-6-luna": 0,
+   "openai/gpt-6-luna-decisions": -28,
+   "typesafe-ai/jev": 14
+  },
+  "openai/gpt-6-luna-decisions": {
+   "openai/gpt-6-sol": -12.25,
+   "google/gemini-3.1-pro-preview": -9.5,
+   "anthropic/claude-haiku-5.5": 51.15,
+   "openai/gpt-6-luna": 28,
+   "openai/gpt-6-luna-decisions": 0,
+   "typesafe-ai/jev": 64.65
+  },
+  "typesafe-ai/jev": {
+   "openai/gpt-6-sol": -133.1,
+   "google/gemini-3.1-pro-preview": 6.625,
+   "anthropic/claude-haiku-5.5": -72.5,
+   "openai/gpt-6-luna": -14,
+   "openai/gpt-6-luna-decisions": -64.65,
+   "typesafe-ai/jev": 0
+  }
+ },
+ "style": [
+  {
+   "seatId": "openai/gpt-6-sol",
+   "hands": 90,
+   "vpip": 37.77777777777778,
+   "pfr": 24.444444444444443,
+   "af": 1.3125,
+   "wtsd": 45.45454545454545,
+   "wsd": 73.33333333333333,
+   "counts": {
+    "vpip": 34,
+    "pfr": 22,
+    "bets": 21,
+    "calls": 16,
+    "sawFlop": 33,
+    "showdowns": 15,
+    "wonAtShowdown": 11
+   },
+   "decisions": 181,
+   "avgMs": 2702,
+   "costUsd": 0.5590080000000002,
+   "modelId": "openai/gpt-6-sol"
+  },
+  {
+   "seatId": "google/gemini-3.1-pro-preview",
+   "hands": 90,
+   "vpip": 23.333333333333332,
+   "pfr": 14.444444444444443,
+   "af": 3.1666666666666665,
+   "wtsd": 40.909090909090914,
+   "wsd": 33.33333333333333,
+   "counts": {
+    "vpip": 21,
+    "pfr": 13,
+    "bets": 19,
+    "calls": 6,
+    "sawFlop": 22,
+    "showdowns": 9,
+    "wonAtShowdown": 3
+   },
+   "decisions": 145,
+   "avgMs": 5390,
+   "costUsd": 0.6747400000000003,
+   "modelId": "google/gemini-3.1-pro-preview"
+  },
+  {
+   "seatId": "anthropic/claude-haiku-5.5",
+   "hands": 58,
+   "vpip": 77.58620689655173,
+   "pfr": 25.862068965517242,
+   "af": 1.6666666666666667,
+   "wtsd": 52.38095238095239,
+   "wsd": 22.727272727272727,
+   "counts": {
+    "vpip": 45,
+    "pfr": 15,
+    "bets": 40,
+    "calls": 24,
+    "sawFlop": 42,
+    "showdowns": 22,
+    "wonAtShowdown": 5
+   },
+   "decisions": 188,
+   "avgMs": 2784,
+   "costUsd": 0.06205720000000002,
+   "modelId": "anthropic/claude-haiku-5.5"
+  },
+  {
+   "seatId": "openai/gpt-6-luna",
+   "hands": 90,
+   "vpip": 36.666666666666664,
+   "pfr": 14.444444444444443,
+   "af": 0.8333333333333334,
+   "wtsd": 46.666666666666664,
+   "wsd": 78.57142857142857,
+   "counts": {
+    "vpip": 33,
+    "pfr": 13,
+    "bets": 10,
+    "calls": 12,
+    "sawFlop": 30,
+    "showdowns": 14,
+    "wonAtShowdown": 11
+   },
+   "decisions": 186,
+   "avgMs": 2446,
+   "costUsd": 0.025658699999999982,
+   "modelId": "openai/gpt-6-luna"
+  },
+  {
+   "seatId": "openai/gpt-6-luna-decisions",
+   "hands": 90,
+   "vpip": 28.888888888888886,
+   "pfr": 8.88888888888889,
+   "af": 1.3,
+   "wtsd": 45.83333333333333,
+   "wsd": 45.45454545454545,
+   "counts": {
+    "vpip": 26,
+    "pfr": 8,
+    "bets": 13,
+    "calls": 10,
+    "sawFlop": 24,
+    "showdowns": 11,
+    "wonAtShowdown": 5
+   },
+   "decisions": 157,
+   "avgMs": 224,
+   "costUsd": 0.010183799999999995,
+   "modelId": "openai/gpt-6-luna-decisions"
+  },
+  {
+   "seatId": "typesafe-ai/jev",
+   "hands": 57,
+   "vpip": 50.877192982456144,
+   "pfr": 28.07017543859649,
+   "af": 0.8076923076923077,
+   "wtsd": 59.25925925925925,
+   "wsd": 37.5,
+   "counts": {
+    "vpip": 29,
+    "pfr": 16,
+    "bets": 21,
+    "calls": 26,
+    "sawFlop": 27,
+    "showdowns": 16,
+    "wonAtShowdown": 6
+   },
+   "decisions": 148,
+   "avgMs": 245,
+   "costUsd": 0.006901271999999999,
+   "modelId": "typesafe-ai/jev"
+  }
+ ],
+ "ops": [
+  {
+   "modelId": "openai/gpt-6-sol",
+   "decisions": 181,
+   "fallbacks": 0,
+   "retried": 0,
+   "avgMs": 2702,
+   "p95Ms": 4415,
+   "costUsd": 0.5590080000000002,
+   "hands": 90
+  },
+  {
+   "modelId": "google/gemini-3.1-pro-preview",
+   "decisions": 145,
+   "fallbacks": 1,
+   "retried": 0,
+   "avgMs": 5219,
+   "p95Ms": 7647,
+   "costUsd": 0.6747400000000003,
+   "hands": 90
+  },
+  {
+   "modelId": "anthropic/claude-haiku-5.5",
+   "decisions": 188,
+   "fallbacks": 0,
+   "retried": 0,
+   "avgMs": 2784,
+   "p95Ms": 5627,
+   "costUsd": 0.06205720000000002,
+   "hands": 58
+  },
+  {
+   "modelId": "openai/gpt-6-luna",
+   "decisions": 186,
+   "fallbacks": 0,
+   "retried": 0,
+   "avgMs": 2446,
+   "p95Ms": 4086,
+   "costUsd": 0.025658699999999982,
+   "hands": 90
+  },
+  {
+   "modelId": "openai/gpt-6-luna-decisions",
+   "decisions": 157,
+   "fallbacks": 0,
+   "retried": 0,
+   "avgMs": 224,
+   "p95Ms": 345,
+   "costUsd": 0.010183799999999995,
+   "hands": 90
+  },
+  {
+   "modelId": "typesafe-ai/jev",
+   "decisions": 148,
+   "fallbacks": 2,
+   "retried": 0,
+   "avgMs": 245,
+   "p95Ms": 409,
+   "costUsd": 0.006901271999999999,
+   "hands": 57
+  }
+ ],
+ "command": "caffeinate -ims node --env-file=.env bench/tournament.ts --lineup openai/gpt-6-sol,google/gemini-3.1-pro-preview,anthropic/claude-haiku-5.5,openai/gpt-6-luna,openai/gpt-6-luna-decisions,typesafe-ai/jev --matches 1 --hands 15 --seed 20261010 --slug 20261010_pilot --budget 1 --concurrency 6",
+ "series": [
+  {
+   "tournamentId": "m01-r0",
+   "hands": 15,
+   "bb100": {
+    "openai/gpt-6-sol": null,
+    "google/gemini-3.1-pro-preview": null,
+    "anthropic/claude-haiku-5.5": null,
+    "openai/gpt-6-luna": null,
+    "openai/gpt-6-luna-decisions": null,
+    "typesafe-ai/jev": null
+   }
+  },
+  {
+   "tournamentId": "m01-r1",
+   "hands": 30,
+   "bb100": {
+    "openai/gpt-6-sol": null,
+    "google/gemini-3.1-pro-preview": null,
+    "anthropic/claude-haiku-5.5": null,
+    "openai/gpt-6-luna": null,
+    "openai/gpt-6-luna-decisions": null,
+    "typesafe-ai/jev": null
+   }
+  },
+  {
+   "tournamentId": "m01-r2",
+   "hands": 45,
+   "bb100": {
+    "openai/gpt-6-sol": null,
+    "google/gemini-3.1-pro-preview": null,
+    "anthropic/claude-haiku-5.5": null,
+    "openai/gpt-6-luna": null,
+    "openai/gpt-6-luna-decisions": null,
+    "typesafe-ai/jev": null
+   }
+  },
+  {
+   "tournamentId": "m01-r3",
+   "hands": 60,
+   "bb100": {
+    "openai/gpt-6-sol": 73.54166666666667,
+    "google/gemini-3.1-pro-preview": 156.45833333333334,
+    "anthropic/claude-haiku-5.5": null,
+    "openai/gpt-6-luna": 49.375,
+    "openai/gpt-6-luna-decisions": 211.24999999999997,
+    "typesafe-ai/jev": null
+   }
+  },
+  {
+   "tournamentId": "m01-r4",
+   "hands": 75,
+   "bb100": {
+    "openai/gpt-6-sol": 174.29999999999998,
+    "google/gemini-3.1-pro-preview": 162.5,
+    "anthropic/claude-haiku-5.5": null,
+    "openai/gpt-6-luna": 55.833333333333336,
+    "openai/gpt-6-luna-decisions": 182.73333333333335,
+    "typesafe-ai/jev": null
+   }
+  },
+  {
+   "tournamentId": "m01-r5",
+   "hands": 90,
+   "bb100": {
+    "openai/gpt-6-sol": 230.52777777777774,
+    "google/gemini-3.1-pro-preview": 184.86111111111111,
+    "anthropic/claude-haiku-5.5": -440.3448275862069,
+    "openai/gpt-6-luna": 41.25,
+    "openai/gpt-6-luna-decisions": 135.61111111111111,
+    "typesafe-ai/jev": -487.06140350877195
+   }
+  }
+ ]
+}

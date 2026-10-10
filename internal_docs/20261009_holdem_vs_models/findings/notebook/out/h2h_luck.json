@@ -1,0 +1,402 @@
+{
+ "flow_bb": {
+  "openai/gpt-6-sol": {
+   "openai/gpt-6-sol": 0,
+   "anthropic/claude-haiku-5.5": 118.33153709451872,
+   "openai/gpt-6-luna": 273.01539564220184,
+   "openai/gpt-6-luna-decisions": 230.20306726327942,
+   "typesafe-ai/jev": 671.946875
+  },
+  "anthropic/claude-haiku-5.5": {
+   "openai/gpt-6-sol": -118.33153709451872,
+   "anthropic/claude-haiku-5.5": 0,
+   "openai/gpt-6-luna": -241.51869226327946,
+   "openai/gpt-6-luna-decisions": -53.03675348735834,
+   "typesafe-ai/jev": -67.35051715484354
+  },
+  "openai/gpt-6-luna": {
+   "openai/gpt-6-sol": -273.01539564220184,
+   "anthropic/claude-haiku-5.5": 241.51869226327946,
+   "openai/gpt-6-luna": 0,
+   "openai/gpt-6-luna-decisions": -81.11631377592113,
+   "typesafe-ai/jev": 142.0973921548435
+  },
+  "openai/gpt-6-luna-decisions": {
+   "openai/gpt-6-sol": -230.20306726327942,
+   "anthropic/claude-haiku-5.5": 53.03675348735834,
+   "openai/gpt-6-luna": 81.11631377592113,
+   "openai/gpt-6-luna-decisions": 0,
+   "typesafe-ai/jev": 22.96875
+  },
+  "typesafe-ai/jev": {
+   "openai/gpt-6-sol": -671.946875,
+   "anthropic/claude-haiku-5.5": 67.35051715484354,
+   "openai/gpt-6-luna": -142.0973921548435,
+   "openai/gpt-6-luna-decisions": -22.96875,
+   "typesafe-ai/jev": 0
+  }
+ },
+ "flow_per100": {
+  "openai/gpt-6-sol": {
+   "openai/gpt-6-sol": null,
+   "openai/gpt-6-luna": 19.89908131502929,
+   "openai/gpt-6-luna-decisions": 16.30333337558636,
+   "anthropic/claude-haiku-5.5": 14.103878080395557,
+   "typesafe-ai/jev": 59.94173728813559
+  },
+  "openai/gpt-6-luna": {
+   "openai/gpt-6-sol": -19.89908131502929,
+   "openai/gpt-6-luna": null,
+   "openai/gpt-6-luna-decisions": -5.525634453400622,
+   "anthropic/claude-haiku-5.5": 24.64476451666117,
+   "typesafe-ai/jev": 13.000676317917979
+  },
+  "openai/gpt-6-luna-decisions": {
+   "openai/gpt-6-sol": -16.30333337558636,
+   "openai/gpt-6-luna": 5.525634453400622,
+   "openai/gpt-6-luna-decisions": null,
+   "anthropic/claude-haiku-5.5": 5.642207817804079,
+   "typesafe-ai/jev": 1.9903596187175043
+  },
+  "anthropic/claude-haiku-5.5": {
+   "openai/gpt-6-sol": -14.103878080395557,
+   "openai/gpt-6-luna": -24.64476451666117,
+   "openai/gpt-6-luna-decisions": -5.642207817804079,
+   "anthropic/claude-haiku-5.5": null,
+   "typesafe-ai/jev": -9.163335667325653
+  },
+  "typesafe-ai/jev": {
+   "openai/gpt-6-sol": -59.94173728813559,
+   "openai/gpt-6-luna": -13.000676317917979,
+   "openai/gpt-6-luna-decisions": -1.9903596187175043,
+   "anthropic/claude-haiku-5.5": 9.163335667325653,
+   "typesafe-ai/jev": null
+  }
+ },
+ "shared_hands": {
+  "Sol|Jev": 1121,
+  "Luna|Sol": 1372,
+  "Luna|Luna Decisions": 1468,
+  "Luna|Jev": 1093,
+  "Luna Decisions|Sol": 1412,
+  "Luna Decisions|Jev": 1154,
+  "Haiku|Sol": 839,
+  "Haiku|Luna": 980,
+  "Haiku|Luna Decisions": 940,
+  "Haiku|Jev": 735
+ },
+ "hu_postflop": {
+  "Sol>Haiku": {
+   "n": 142,
+   "bb_per_pot": 0.04859154929577456
+  },
+  "Haiku>Sol": {
+   "n": 142,
+   "bb_per_pot": 0.6415492957746476
+  },
+  "Luna>Jev": {
+   "n": 56,
+   "bb_per_pot": 0.8018410714285714
+  },
+  "Jev>Luna": {
+   "n": 56,
+   "bb_per_pot": -0.2661267857142858
+  },
+  "Haiku>Luna Decisions": {
+   "n": 49,
+   "bb_per_pot": -1.1658183673469389
+  },
+  "Luna Decisions>Haiku": {
+   "n": 49,
+   "bb_per_pot": 1.9260224489795919
+  },
+  "Haiku>Jev": {
+   "n": 71,
+   "bb_per_pot": -2.4362676056338026
+  },
+  "Jev>Haiku": {
+   "n": 71,
+   "bb_per_pot": 3.475
+  },
+  "Sol>Luna Decisions": {
+   "n": 88,
+   "bb_per_pot": 1.841869318181818
+  },
+  "Luna Decisions>Sol": {
+   "n": 88,
+   "bb_per_pot": -1.466869318181818
+  },
+  "Sol>Luna": {
+   "n": 166,
+   "bb_per_pot": 0.5034066265060241
+  },
+  "Luna>Sol": {
+   "n": 166,
+   "bb_per_pot": -0.060635542168674644
+  },
+  "Sol>Jev": {
+   "n": 91,
+   "bb_per_pot": 1.5527131868131867
+  },
+  "Jev>Sol": {
+   "n": 91,
+   "bb_per_pot": -1.1680978021978023
+  },
+  "Luna Decisions>Jev": {
+   "n": 35,
+   "bb_per_pot": 0.14687714285714293
+  },
+  "Jev>Luna Decisions": {
+   "n": 35,
+   "bb_per_pot": 0.38169428571428565
+  },
+  "Haiku>Luna": {
+   "n": 146,
+   "bb_per_pot": -0.9671445205479452
+  },
+  "Luna>Haiku": {
+   "n": 146,
+   "bb_per_pot": 1.4637198630136987
+  },
+  "Luna>Luna Decisions": {
+   "n": 78,
+   "bb_per_pot": -0.4801705128205128
+  },
+  "Luna Decisions>Luna": {
+   "n": 78,
+   "bb_per_pot": 0.6500423076923076
+  }
+ },
+ "heldout_flow_sol": {
+  "anthropic/claude-haiku-5.5": 160.25,
+  "control": 93.171875,
+  "g0c04": 45.23802347715736,
+  "g0c05": 102.6567576142132,
+  "g0c07": 42.37709390862944
+ },
+ "heldout_bb100": {
+  "anthropic/claude-haiku-5.5": -58.75179245283019,
+  "control": -1.3797527812113721,
+  "g0c04": -2.4710165184243973,
+  "g0c05": -25.107412280701755,
+  "g0c07": 8.561687041564792,
+  "openai/gpt-6-sol": 57.54782101167314
+ },
+ "card_quality_sd_between_models": {
+  "per_tournament": [
+   0.015791903289703157,
+   31
+  ],
+  "per_match": [
+   0.004005850421356883,
+   8
+  ]
+ },
+ "premiums": {
+  "per_tournament_max_minus_min_mean": 2.4,
+  "per_match_max_minus_min_mean": 4.875,
+  "per_model_total": {
+   "Sol": 53,
+   "Luna": 50,
+   "Luna Decisions": 51,
+   "Haiku": 29,
+   "Jev": 34
+  }
+ },
+ "allin": {
+  "openai/gpt-6-sol": {
+   "hands": 1592,
+   "allinShowdowns": 134,
+   "bb100": 81.24980370603014,
+   "luckBb": 73.90499369444547,
+   "adjustedBb100": 76.60753023276095
+  },
+  "anthropic/claude-haiku-5.5": {
+   "hands": 1048,
+   "allinShowdowns": 75,
+   "bb100": -45.824188931297705,
+   "luckBb": 30.422547901958747,
+   "adjustedBb100": -48.7271038074388
+  },
+  "openai/gpt-6-luna": {
+   "hands": 1669,
+   "allinShowdowns": 73,
+   "bb100": 1.766589275014979,
+   "luckBb": 83.87678852197745,
+   "adjustedBb100": -3.2589822361879834
+  },
+  "openai/gpt-6-luna-decisions": {
+   "hands": 1653,
+   "allinShowdowns": 69,
+   "bb100": -4.421128251663642,
+   "luckBb": -34.6689831329019,
+   "adjustedBb100": -2.323791099037998
+  },
+  "typesafe-ai/jev": {
+   "hands": 1243,
+   "allinShowdowns": 65,
+   "bb100": -61.91975060337891,
+   "luckBb": -153.53534698547983,
+   "adjustedBb100": -49.56775165040387
+  }
+ },
+ "allin_luck_abs_mean": {
+  "per_tournament": 6.296175,
+  "per_match_per_tournament": 4.599774999999999
+ },
+ "ci_cluster_choice": {
+  "openai/gpt-6-sol": {
+   "match": [
+    81.24979899497487,
+    42.421873278236916,
+    109.87036201780415
+   ],
+   "tournament": [
+    81.24979899497487,
+    41.20919712793734,
+    117.74047619047619
+   ]
+  },
+  "openai/gpt-6-luna": {
+   "match": [
+    1.766584781306171,
+    -24.757704918032786,
+    23.762775601566872
+   ],
+   "tournament": [
+    1.766584781306171,
+    -22.450226666666666,
+    24.384163898117386
+   ]
+  },
+  "openai/gpt-6-luna-decisions": {
+   "match": [
+    -4.421125226860254,
+    -28.00746061751733,
+    12.90490632318501
+   ],
+   "tournament": [
+    -4.421125226860254,
+    -26.185322784810126,
+    17.619821538461537
+   ]
+  },
+  "anthropic/claude-haiku-5.5": {
+   "match": [
+    -45.82418893129771,
+    -96.16444687842278,
+    -4.065246478873239
+   ],
+   "tournament": [
+    -45.82418893129771,
+    -135.92781859931114,
+    19.928201376936318
+   ]
+  },
+  "typesafe-ai/jev": {
+   "match": [
+    -61.91976669348351,
+    -106.51223320158103,
+    -30.67775619557937
+   ],
+   "tournament": [
+    -61.91976669348351,
+    -115.69980217606329,
+    -22.128468286099864
+   ]
+  }
+ },
+ "bust_hands": {
+  "Luna": {
+   "n": 25,
+   "median": 41.0,
+   "before_hand_15": 0
+  },
+  "Luna Decisions": {
+   "n": 27,
+   "median": 35.0,
+   "before_hand_15": 0
+  },
+  "Jev": {
+   "n": 34,
+   "median": 26.0,
+   "before_hand_15": 9
+  },
+  "Haiku": {
+   "n": 33,
+   "median": 17.0,
+   "before_hand_15": 12
+  },
+  "Sol": {
+   "n": 16,
+   "median": 25.5,
+   "before_hand_15": 1
+  }
+ },
+ "first_out": {
+  "Haiku": 20,
+  "Luna": 3,
+  "Sol": 4,
+  "Jev": 12,
+  "Luna Decisions": 1
+ },
+ "finishes": {
+  "openai/gpt-6-sol": [
+   23,
+   3,
+   1,
+   9,
+   4
+  ],
+  "anthropic/claude-haiku-5.5": [
+   7,
+   2,
+   4,
+   7,
+   20
+  ],
+  "openai/gpt-6-luna": [
+   5,
+   15,
+   11,
+   6,
+   3
+  ],
+  "openai/gpt-6-luna-decisions": [
+   3,
+   14,
+   15,
+   7,
+   1
+  ],
+  "typesafe-ai/jev": [
+   2,
+   6,
+   9,
+   11,
+   12
+  ]
+ },
+ "reasons": {
+  "finished": 20,
+  "hand_cap": 20
+ },
+ "survivors_at_cap": {
+  "2": 15,
+  "3": 5
+ },
+ "cap_winner": {
+  "Jev": 2,
+  "Sol": 12,
+  "Luna": 3,
+  "Haiku": 2,
+  "Luna Decisions": 1
+ },
+ "finished_winner": {
+  "Sol": 11,
+  "Luna": 2,
+  "Haiku": 5,
+  "Luna Decisions": 2
+ },
+ "cap_leader_share": 0.7150799999999999
+}

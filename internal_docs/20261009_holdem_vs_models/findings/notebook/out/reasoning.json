@@ -1,0 +1,738 @@
+{
+ "by_model": {
+  "openai/gpt-6-sol": {
+   "preflop_decisions": 1605,
+   "preflop_with_hand_named": 1210,
+   "preflop_misreads": 0,
+   "preflop_misread_rate_of_named": 0.0,
+   "preflop_kinds": {},
+   "claims": {
+    "flush": 22,
+    "top_pair": 33,
+    "two_pair": 29,
+    "straight": 19,
+    "set_trips": 11,
+    "full_house": 6
+   },
+   "claims_wrong": {},
+   "claim_wrong_rate": 0.0,
+   "odds_statements": 8,
+   "odds_within_15pct": 100.0,
+   "odds_off_by_50pct_plus": 0.0,
+   "odds_examples": [
+    {
+     "kind": "need",
+     "said": 37.0,
+     "true": 36.96,
+     "tournamentId": "m01-r1",
+     "handNo": 22
+    },
+    {
+     "kind": "need",
+     "said": 25.0,
+     "true": 25.0,
+     "tournamentId": "m02-r2",
+     "handNo": 7
+    },
+    {
+     "kind": "need",
+     "said": 20.0,
+     "true": 20.01,
+     "tournamentId": "m02-r4",
+     "handNo": 14
+    },
+    {
+     "kind": "need",
+     "said": 34.0,
+     "true": 33.59,
+     "tournamentId": "m05-r1",
+     "handNo": 34
+    },
+    {
+     "kind": "need",
+     "said": 25.0,
+     "true": 25.0,
+     "tournamentId": "m05-r3",
+     "handNo": 39
+    },
+    {
+     "kind": "need",
+     "said": 25.0,
+     "true": 24.6,
+     "tournamentId": "m06-r0",
+     "handNo": 33
+    },
+    {
+     "kind": "need",
+     "said": 25.0,
+     "true": 25.0,
+     "tournamentId": "m07-r1",
+     "handNo": 1
+    },
+    {
+     "kind": "need",
+     "said": 23.0,
+     "true": 23.33,
+     "tournamentId": "m08-r3",
+     "handNo": 37
+    }
+   ]
+  },
+  "openai/gpt-6-luna": {
+   "preflop_decisions": 1739,
+   "preflop_with_hand_named": 1411,
+   "preflop_misreads": 6,
+   "preflop_misread_rate_of_named": 0.42523033309709424,
+   "preflop_kinds": {
+    "says offsuit": 6
+   },
+   "claims": {
+    "flush": 14,
+    "two_pair": 51,
+    "full_house": 21,
+    "straight": 13,
+    "top_pair": 21,
+    "set_trips": 18
+   },
+   "claims_wrong": {
+    "top_pair": 5,
+    "full_house": 1,
+    "straight": 2,
+    "two_pair": 1
+   },
+   "claim_wrong_rate": 6.521739130434782,
+   "odds_statements": 7,
+   "odds_within_15pct": 85.71428571428571,
+   "odds_off_by_50pct_plus": 0.0,
+   "odds_examples": [
+    {
+     "kind": "need",
+     "said": 14.0,
+     "true": 14.29,
+     "tournamentId": "m01-r2",
+     "handNo": 24
+    },
+    {
+     "kind": "ratio",
+     "said": 3.0,
+     "true": 3.0,
+     "tournamentId": "m02-r1",
+     "handNo": 34
+    },
+    {
+     "kind": "ratio",
+     "said": 5.0,
+     "true": 5.0,
+     "tournamentId": "m02-r4",
+     "handNo": 8
+    },
+    {
+     "kind": "ratio",
+     "said": 3.0,
+     "true": 3.0,
+     "tournamentId": "m03-r3",
+     "handNo": 35
+    },
+    {
+     "kind": "need",
+     "said": 29.9,
+     "true": 29.85,
+     "tournamentId": "m03-r4",
+     "handNo": 41
+    },
+    {
+     "kind": "ratio",
+     "said": 4.0,
+     "true": 5.0,
+     "tournamentId": "m05-r4",
+     "handNo": 7
+    },
+    {
+     "kind": "need",
+     "said": 45.6,
+     "true": 45.56,
+     "tournamentId": "m06-r3",
+     "handNo": 50
+    }
+   ]
+  },
+  "anthropic/claude-haiku-5.5": {
+   "preflop_decisions": 1115,
+   "preflop_with_hand_named": 906,
+   "preflop_misreads": 167,
+   "preflop_misread_rate_of_named": 18.432671081677704,
+   "preflop_kinds": {
+    "says suited": 98,
+    "says offsuit": 37,
+    "names 7-4": 1,
+    "names Three-deuce": 5,
+    "names Seven-two": 6,
+    "names Seven-deuce": 9,
+    "names Six-deuce": 1,
+    "names Five-deuce": 3,
+    "names Two-seven": 3,
+    "names Three-two": 3,
+    "names 7-3": 1,
+    "names Three-three": 1,
+    "names 9-8": 1,
+    "names Two-three": 1,
+    "names T-9": 1
+   },
+   "claims": {
+    "set_trips": 64,
+    "two_pair": 83,
+    "top_pair": 65,
+    "flush": 17,
+    "full_house": 6,
+    "straight": 9
+   },
+   "claims_wrong": {
+    "set_trips": 38,
+    "top_pair": 21,
+    "straight": 4,
+    "two_pair": 2,
+    "full_house": 1,
+    "flush": 1
+   },
+   "claim_wrong_rate": 27.459016393442624,
+   "odds_statements": 108,
+   "odds_within_15pct": 78.70370370370371,
+   "odds_off_by_50pct_plus": 9.25925925925926,
+   "odds_examples": [
+    {
+     "kind": "need",
+     "said": 15.0,
+     "true": 14.63,
+     "tournamentId": "m01-r0",
+     "handNo": 15
+    },
+    {
+     "kind": "need",
+     "said": 25.0,
+     "true": 25.0,
+     "tournamentId": "m01-r1",
+     "handNo": 5
+    },
+    {
+     "kind": "need",
+     "said": 33.0,
+     "true": 33.33,
+     "tournamentId": "m01-r1",
+     "handNo": 15
+    },
+    {
+     "kind": "need",
+     "said": 4.0,
+     "true": 4.37,
+     "tournamentId": "m01-r1",
+     "handNo": 15
+    },
+    {
+     "kind": "need",
+     "said": 25.0,
+     "true": 25.02,
+     "tournamentId": "m01-r2",
+     "handNo": 29
+    },
+    {
+     "kind": "need",
+     "said": 25.0,
+     "true": 25.0,
+     "tournamentId": "m01-r2",
+     "handNo": 32
+    },
+    {
+     "kind": "need",
+     "said": 19.0,
+     "true": 19.09,
+     "tournamentId": "m01-r2",
+     "handNo": 36
+    },
+    {
+     "kind": "need",
+     "said": 9.5,
+     "true": 9.52,
+     "tournamentId": "m01-r2",
+     "handNo": 40
+    },
+    {
+     "kind": "ratio",
+     "said": 3.0,
+     "true": 3.0,
+     "tournamentId": "m01-r2",
+     "handNo": 43
+    },
+    {
+     "kind": "need",
+     "said": 13.0,
+     "true": 12.62,
+     "tournamentId": "m01-r2",
+     "handNo": 44
+    },
+    {
+     "kind": "need",
+     "said": 20.0,
+     "true": 25.0,
+     "tournamentId": "m01-r3",
+     "handNo": 8
+    },
+    {
+     "kind": "need",
+     "said": 33.0,
+     "true": 33.33,
+     "tournamentId": "m02-r0",
+     "handNo": 5
+    }
+   ]
+  }
+ },
+ "examples": {
+  "Luna|top_pair": [
+   {
+    "tournamentId": "m02-r3",
+    "handNo": 21,
+    "street": "flop",
+    "hole": "8sJs",
+    "board": "JhAsKs",
+    "made": "pair",
+    "reasoning": "I have top pair with a strong spade draw, but the ace-king board and early-position bet make a call better than inflating the pot. Calling keeps weaker hands and draws in while preserving my stack."
+   },
+   {
+    "tournamentId": "m02-r4",
+    "handNo": 21,
+    "street": "flop",
+    "hole": "AhTd",
+    "board": "8hTcJh",
+    "made": "pair",
+    "reasoning": "I have top pair with a strong kicker, but the bet is large and the two-heart, connected board gives Sol plenty of draws. Calling keeps weaker hands and bluffs in while avoiding an inflated pot."
+   },
+   {
+    "tournamentId": "m05-r2",
+    "handNo": 35,
+    "street": "turn",
+    "hole": "QdKh",
+    "board": "AhQh6dTd",
+    "made": "pair",
+    "reasoning": "I have top pair with a decent kicker, but the turn completes possible flush and straight draws. Check to control the pot and avoid building it against stronger hands."
+   },
+   {
+    "tournamentId": "m06-r4",
+    "handNo": 41,
+    "street": "turn",
+    "hole": "Qd9c",
+    "board": "4hKsQhJh",
+    "made": "pair",
+    "reasoning": "I have top pair with a weak kicker on a coordinated board, and the big blind can still continue. Check to avoid putting more chips in without strong value or protection."
+   },
+   {
+    "tournamentId": "m08-r1",
+    "handNo": 22,
+    "street": "turn",
+    "hole": "TdQd",
+    "board": "2dTc6dKh",
+    "made": "pair",
+    "reasoning": "I have top pair with a strong diamond draw, but the turn check gives little reason to risk my remaining 70; checking keeps the pot controlled and lets me realize my equity."
+   }
+  ],
+  "Luna|full_house": [
+   {
+    "tournamentId": "m02-r3",
+    "handNo": 34,
+    "street": "river",
+    "hole": "AdTs",
+    "board": "7s7d2hJs7h",
+    "made": "trips",
+    "reasoning": "The paired board gives me a full house (sevens full of aces), a very strong hand. Sol checked the river, so I\u2019ll make a substantial value bet while leaving room for a call from a weaker hand."
+   }
+  ],
+  "Luna|preflop": [
+   {
+    "tournamentId": "m03-r0",
+    "handNo": 50,
+    "hole": "5cAc",
+    "issue": [
+     "says offsuit, holds 5cAc"
+    ],
+    "reasoning": "Calling costs my remaining 400 and leaves no chips behind; with A5 offsuit against a raise, the risk outweighs the pot odds. Fold."
+   },
+   {
+    "tournamentId": "m04-r1",
+    "handNo": 39,
+    "hole": "2dTd",
+    "issue": [
+     "says offsuit, holds 2dTd"
+    ],
+    "reasoning": "T2 offsuit-equivalent strength even suited is weak, and the limped pot offers no need to inflate it out of position. Check and see the flop for free."
+   },
+   {
+    "tournamentId": "m05-r1",
+    "handNo": 2,
+    "hole": "5cAc",
+    "issue": [
+     "says offsuit, holds 5cAc"
+    ],
+    "reasoning": "A5 offsuit is playable on the button, but an early-position raise plus a caller makes it a poor spot to inflate the pot. Call and use position to see the flop."
+   },
+   {
+    "tournamentId": "m08-r0",
+    "handNo": 5,
+    "hole": "5cAc",
+    "issue": [
+     "says offsuit, holds 5cAc"
+    ],
+    "reasoning": "A-5 offsuit is too weak to open from early position, especially with several players still to act. Folding avoids building a pot out of position with a dominated hand."
+   },
+   {
+    "tournamentId": "m08-r3",
+    "handNo": 18,
+    "hole": "5dAd",
+    "issue": [
+     "says offsuit, holds 5dAd"
+    ],
+    "reasoning": "A5 offsuit is playable but not strong enough to build a pot with a raise against two limpers. Check and take the flop for free."
+   },
+   {
+    "tournamentId": "m08-r4",
+    "handNo": 10,
+    "hole": "2cQc",
+    "issue": [
+     "says offsuit, holds 2cQc"
+    ],
+    "reasoning": "Q2 offsuit is weak, but in the cutoff with only the blinds behind, a small raise can take the pot or buy position. I\u2019ll make the minimum raise and fold to strong resistance."
+   }
+  ],
+  "Luna|straight": [
+   {
+    "tournamentId": "m04-r4",
+    "handNo": 5,
+    "street": "river",
+    "hole": "8hTs",
+    "board": "8sKhJsThQs",
+    "made": "two_pair",
+    "reasoning": "I have a straight with the ten-high run 8-9-T-J-Q, but the four-spade board makes flushes possible and higher straights are possible too. With three opponents still in, checking takes the showdown without inflating the pot."
+   },
+   {
+    "tournamentId": "m07-r3",
+    "handNo": 17,
+    "street": "turn",
+    "hole": "8s9c",
+    "board": "AdTdKcQh",
+    "made": "high_card",
+    "reasoning": "The board already gives me a king-high straight, so I should bet for value and protection. A half-pot bet can be called by weaker hands without needlessly inflating the pot."
+   }
+  ],
+  "Luna|two_pair": [
+   {
+    "tournamentId": "m08-r2",
+    "handNo": 8,
+    "street": "river",
+    "hole": "Ah2c",
+    "board": "5sQs8dAd4s",
+    "made": "pair",
+    "reasoning": "I have two pair, aces and fives, but the three spades make a flush possible and the river four completes a straight for 3-6. With no worse hands likely to call a bet, I\u2019ll check and take the showdown."
+   }
+  ],
+  "Haiku|preflop": [
+   {
+    "tournamentId": "m01-r0",
+    "handNo": 4,
+    "hole": "8sTd",
+    "issue": [
+     "says suited, holds 8sTd"
+    ],
+    "reasoning": "Eight-ten suited is a weak but playable hand in position-ish spots, yet from early position with several players to act, folding or a small call is reasonable. Calling 20 keeps the hand cheap with suited connectors-style"
+   },
+   {
+    "tournamentId": "m01-r1",
+    "handNo": 15,
+    "hole": "9hJc",
+    "issue": [
+     "says suited, holds 9hJc"
+    ],
+    "reasoning": "J9 suited is a playable hand in position-ish against a limper-raiser range, and calling 60 to see a flop with a speculative holding is reasonable. Calling keeps the pot manageable without bloating it out of position."
+   },
+   {
+    "tournamentId": "m01-r2",
+    "handNo": 7,
+    "hole": "9s8d",
+    "issue": [
+     "says suited, holds 9s8d"
+    ],
+    "reasoning": "98 suited offsuit is a playable connector in early position but not strong enough to raise into several players; calling the 20 keeps the hand cheap and with decent postflop potential."
+   },
+   {
+    "tournamentId": "m01-r2",
+    "handNo": 7,
+    "hole": "9s8d",
+    "issue": [
+     "says suited, holds 9s8d"
+    ],
+    "reasoning": "98 suited is a playable hand in position-ish spot; facing a raise plus a caller with a 70 call, I'll call to see a flop cheaply rather than bloat the pot out of position with a marginal hand."
+   },
+   {
+    "tournamentId": "m01-r2",
+    "handNo": 10,
+    "hole": "4dKd",
+    "issue": [
+     "says offsuit, holds 4dKd"
+    ],
+    "reasoning": "K4 offsuit on the button facing a 150 raise after an early limper-raiser; it's a weak hand out of position against a raise, so calling is marginal and folding is reasonable. Calling keeps some equity with a king but risk"
+   },
+   {
+    "tournamentId": "m01-r2",
+    "handNo": 21,
+    "hole": "JhTc",
+    "issue": [
+     "says suited, holds JhTc"
+    ],
+    "reasoning": "Jack-ten suited in the cutoff is a strong steal candidate versus limpers and a folded early seat with a small price to see the flop. Raising to 160 applies pressure while keeping the pot manageable with the blinds still "
+   },
+   {
+    "tournamentId": "m01-r2",
+    "handNo": 31,
+    "hole": "2c7c",
+    "issue": [
+     "says offsuit, holds 2c7c"
+    ],
+    "reasoning": "7-2 offsuit is weak and out of position against a raiser, with the big blind still to act; folding saves chips. Calling 240 to see a flop with a bad hand is poor value."
+   },
+   {
+    "tournamentId": "m01-r3",
+    "handNo": 8,
+    "hole": "5d6h",
+    "issue": [
+     "says suited, holds 5d6h"
+    ],
+    "reasoning": "Five-six suited is a weak connector out of position against a button raise, and the price is only 60 more to call. Calling keeps the hand cheap with suited connector potential, and folding is reasonable but calling is a "
+   }
+  ],
+  "Haiku|set_trips": [
+   {
+    "tournamentId": "m01-r0",
+    "handNo": 10,
+    "street": "flop",
+    "hole": "4h4c",
+    "board": "2c9dAh",
+    "made": "pair",
+    "reasoning": "I flopped a set of fours with board 2c 9d Ah, a fairly dry flop. Checking lets the field bet into me or check through, and with three opponents still in I want to build the pot while keeping control, so a half-pot bet is a reasonable value "
+   },
+   {
+    "tournamentId": "m01-r2",
+    "handNo": 8,
+    "street": "flop",
+    "hole": "KhKd",
+    "board": "4hJc9h",
+    "made": "pair",
+    "reasoning": "I have top set of kings on a J-9-4 board with a heart flush draw on board, so I'm likely ahead of Jev's range. I'll bet half pot for value while keeping the hand simple, and avoid overcommitting given the flush possibility."
+   },
+   {
+    "tournamentId": "m02-r0",
+    "handNo": 4,
+    "street": "flop",
+    "hole": "9h9s",
+    "board": "Js3d8s",
+    "made": "pair",
+    "reasoning": "I have a set of nines on a Js 3d 8s board, which is a strong made hand (three of a kind). Sol checked, so I should bet for value to build the pot, using a half-pot size to keep them calling with weaker pairs or draws."
+   },
+   {
+    "tournamentId": "m02-r0",
+    "handNo": 4,
+    "street": "turn",
+    "hole": "9h9s",
+    "board": "Js3d8s2h",
+    "made": "pair",
+    "reasoning": "I have a set of nines on a Js 3d 8s 2h board, which is strong but not the nuts; the board has a possible straight and flushes, but Sol checked the turn, suggesting weakness or a trap. Betting half pot extracts value from worse pairs and dra"
+   },
+   {
+    "tournamentId": "m02-r1",
+    "handNo": 10,
+    "street": "flop",
+    "hole": "4sJd",
+    "board": "4d7c6d",
+    "made": "pair",
+    "reasoning": "I hold a pair of fours with a jack kicker on a 4-7-6 board with three diamonds, giving me a set-level pair and some straight-draw potential with 5 and 8. Checking lets the field act; a half-pot bet builds the pot while I'm ahead of most ran"
+   },
+   {
+    "tournamentId": "m02-r2",
+    "handNo": 32,
+    "street": "flop",
+    "hole": "2c2h",
+    "board": "5cJcKs",
+    "made": "pair",
+    "reasoning": "I hold a set of deuces on a K-J-5 rainbow-ish flop, which is a strong made hand with a pair of twos at the bottom plus the 5 and a gutshot-free board; I want value from Luna's checking range, so a pot-size bet extracts chips while keeping i"
+   },
+   {
+    "tournamentId": "m02-r3",
+    "handNo": 12,
+    "street": "flop",
+    "hole": "QdQc",
+    "board": "As2cJh",
+    "made": "pair",
+    "reasoning": "I have a set of queens on an A-2-J flop, so I have top set with an ace on board but a strong made hand. Sol checked to me, so betting for value against a single opponent who may have an ace or a weaker pair makes sense."
+   },
+   {
+    "tournamentId": "m02-r3",
+    "handNo": 12,
+    "street": "flop",
+    "hole": "QdQc",
+    "board": "As2cJh",
+    "made": "pair",
+    "reasoning": "I hold a set of queens on an As-2c-Jh flop, which is a strong made hand with only an ace and possible flush/straight draws to worry about. Calling keeps Sol's range in play while I stay pot-committed enough to continue, and raising risks ru"
+   }
+  ],
+  "Haiku|top_pair": [
+   {
+    "tournamentId": "m01-r1",
+    "handNo": 2,
+    "street": "flop",
+    "hole": "6dAc",
+    "board": "7cTc6s",
+    "made": "pair",
+    "reasoning": "I hold top pair with an ace kicker on a 7-6-T board, a strong hand heads-up against Jev, who checked. Betting half the pot builds value while keeping the pot manageable against a possible pair."
+   },
+   {
+    "tournamentId": "m02-r0",
+    "handNo": 2,
+    "street": "flop",
+    "hole": "QhAh",
+    "board": "3dTs7h",
+    "made": "high_card",
+    "reasoning": "I hold top pair with an ace kicker on a T-7-3 rainbow-ish flop, and GPT-6 Luna checked after I raised preflop. Betting half pot builds the pot while Luna is likely to call with weaker holdings or a draw."
+   },
+   {
+    "tournamentId": "m02-r1",
+    "handNo": 23,
+    "street": "flop",
+    "hole": "TsAh",
+    "board": "ThQc7d",
+    "made": "pair",
+    "reasoning": "I have top pair with the ace kicker... actually pair of tens with ace high, a strong hand on this board, but going all-in for 28 into a 280 pot is a tiny shove that just gives away the option; checking keeps the pot controlled and lets me s"
+   },
+   {
+    "tournamentId": "m02-r2",
+    "handNo": 20,
+    "street": "turn",
+    "hole": "KdTc",
+    "board": "KcAh9d8c",
+    "made": "pair",
+    "reasoning": "I hold top pair with a ten kicker on a board with an ace and a king, so I'm likely ahead of many hands but not the nuts. Checking keeps the pot controlled, avoids bloating it into a bigger one for a hand that could be behind, and the tiny 4"
+   },
+   {
+    "tournamentId": "m02-r2",
+    "handNo": 34,
+    "street": "turn",
+    "hole": "QsKd",
+    "board": "7s7d2hJs",
+    "made": "pair",
+    "reasoning": "I hold top pair with king kicker... actually Q-K on a 7-7-2-J board gives me Jack-high pair? No: I have Qs Kd, board has Js and pairs of sevens, so I have only high cards; the sevens are paired on board and Luna called a small flop bet. Che"
+   },
+   {
+    "tournamentId": "m02-r4",
+    "handNo": 11,
+    "street": "flop",
+    "hole": "KhJc",
+    "board": "2h2c3s",
+    "made": "pair",
+    "reasoning": "I have top pair with King-high... actually Jack-high with a board pair of 2s; I hold no pair beyond the board's twos, so I have only a weak overcard situation with a gutshot-less hand. Sol's bet of 180 into 360 is a reasonable continuation "
+   },
+   {
+    "tournamentId": "m03-r0",
+    "handNo": 10,
+    "street": "flop",
+    "hole": "TcAc",
+    "board": "3dJs4h",
+    "made": "high_card",
+    "reasoning": "I hold top pair with an ace kicker on a J-4-3 rainbow-ish board, which is a strong made hand facing a single caller who may have a weaker jack or a draw. Betting half pot builds value while keeping the pot manageable."
+   },
+   {
+    "tournamentId": "m03-r3",
+    "handNo": 31,
+    "street": "flop",
+    "hole": "KdQc",
+    "board": "2cKhAc",
+    "made": "pair",
+    "reasoning": "I have top pair with a king and queen kicker on an ace-high-ish board with a flush draw blocked by nothing; the board pairs no one yet and Luna checked, so a value bet extracts chips. A half-pot bet is reasonable against a passive opponent "
+   }
+  ],
+  "Haiku|straight": [
+   {
+    "tournamentId": "m02-r1",
+    "handNo": 1,
+    "street": "river",
+    "hole": "6s7s",
+    "board": "4hKsJc5c9h",
+    "made": "high_card",
+    "reasoning": "I have 6-7 of spades, which is only a missed straight draw (no straight possible with 4,5,6,7,9? actually 4-5-6-7 with 8 needed; I have 4,5,6,7 on board/hand, so an 8 or 3 makes a straight, but the river 9 and 8 never came). Jev's river bet"
+   },
+   {
+    "tournamentId": "m03-r0",
+    "handNo": 11,
+    "street": "river",
+    "hole": "KhQd",
+    "board": "5c7sTdKcJc",
+    "made": "pair",
+    "reasoning": "I have K-high straight? Board 5-7-T-K-J with Q-K-J-T is a straight: Kh Qd with Td Jc Kc makes K-Q-J-T plus a 9 needed... I hold K and Q; board has T, J, K, so K-Q-J-T with a 9 or A completes a straight; I have Q,K,T,J, which needs 9 or A, s"
+   },
+   {
+    "tournamentId": "m03-r0",
+    "handNo": 12,
+    "street": "river",
+    "hole": "5c7h",
+    "board": "6dKc6c2cAc",
+    "made": "flush",
+    "reasoning": "My 5c7h on board 6d Kc 6c 2c Ac gives me a pair of sixes... no, I hold 5c and 7h with 6s on board, so I have a straight with 5-6-7 only if I had 4 or 8; actually I have only 5,7 with 6,2,A,K \u2014 no pair. Checking the river with a missed hand "
+   },
+   {
+    "tournamentId": "m04-r4",
+    "handNo": 3,
+    "street": "flop",
+    "hole": "7d8s",
+    "board": "6d5h2d",
+    "made": "high_card",
+    "reasoning": "I have a open-ended straight draw (7-8 with 6-5 on board gives me a straight with any 4 or 9) plus a backdoor flush draw with two diamonds. Two checks already, so betting half pot builds the pot with a strong draw and can take it down."
+   }
+  ],
+  "Haiku|two_pair": [
+   {
+    "tournamentId": "m02-r2",
+    "handNo": 18,
+    "street": "flop",
+    "hole": "Jd7h",
+    "board": "8s7dTd",
+    "made": "pair",
+    "reasoning": "I flopped two pair (sevens and eights... actually pair of sevens and pair of tens? Board 8s 7d Td with my 7h gives a pair of sevens plus Jack kicker with straight draw to nine-ten-jack-eight-seven needs a 9 or Q for J-T-9-8-7 or J-T-8-7-Q.."
+   },
+   {
+    "tournamentId": "m04-r1",
+    "handNo": 4,
+    "street": "river",
+    "hole": "6cAc",
+    "board": "8hQdJs2sAs",
+    "made": "pair",
+    "reasoning": "I hold Ace-high with an ace on board (pair of aces, with 6c kicker against Q, J, 8). Board has paired 2s and As, so I have two pair (aces and deuces) actually: As on board plus Ac in hand makes a pair of aces with board pair of twos isn't m"
+   }
+  ],
+  "Haiku|full_house": [
+   {
+    "tournamentId": "m06-r0",
+    "handNo": 14,
+    "street": "flop",
+    "hole": "5s5d",
+    "board": "6d6c2s",
+    "made": "two_pair",
+    "reasoning": "I have a full house, fives full of sixes, nearly the nuts; the only way to lose is to a bigger full house or quads, which are unlikely here. Sol checked, so I should bet to build the pot, choosing a half-pot bet to keep Sol paying while lea"
+   }
+  ],
+  "Haiku|flush": [
+   {
+    "tournamentId": "m07-r2",
+    "handNo": 4,
+    "street": "flop",
+    "hole": "AsKd",
+    "board": "Js6s9c",
+    "made": "high_card",
+    "reasoning": "I hold A-high with a King kicker and no pair on a J-6-9 rainbow-ish board with two spades, so I have backdoor flush potential and an overcard-ish high card. Luna Decisions is the preflop raiser and may hold a bigger ace or pair, so checking"
+   }
+  ]
+ }
+}

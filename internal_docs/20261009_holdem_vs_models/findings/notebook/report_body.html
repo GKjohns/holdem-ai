@@ -1,0 +1,289 @@
+<main class="page">
+
+<header class="col">
+  <div class="eyebrow">Hold’em AI · Bonus Sprint B5 · findings from 9,486 hands</div>
+  <h1>One model plays tournament poker. The rest play a cash game they were told about.</h1>
+  <p class="lede">Five AI players sat for 40 duplicate-seeded sit-and-gos, then a Strategy Lab tried to coach one of them with written strategies. GPT-6 Sol won, and not by luck. The more interesting story is <em>how</em> each player is broken: one reads its own cards wrong and announces them out loud, one folds the winning hand half the time on the river, one believes whatever its opponent says.</p>
+</header>
+
+<div class="felt" aria-label="Headline numbers">
+  <div class="stat"><b>+81</b><span>Sol’s bb/100 [+44, +111], the only player whose CI clears zero on the plus side</span></div>
+  <div class="stat"><b>33%</b><span>of short-stack preflop spots Sol shoves. Every other model: 0–3%</span></div>
+  <div class="stat"><b>204</b><span>table-talk lines where Haiku named its own hole cards</span></div>
+  <div class="stat"><b>33→86%</b><span>Jev’s fold rate on the same 36 spots when the bettor says “I’ve got the nuts”</span></div>
+</div>
+
+<nav class="toc" aria-label="Sections">
+  <a href="#short">The short version</a><a href="#standings">Standings</a><a href="#sol">How Sol wins</a><a href="#styles">How each one plays</a>
+  <a href="#folding">Folding to bets</a><a href="#talk">Table talk</a><a href="#reasoning">Reading their own cards</a><a href="#decision">Decision models</a>
+  <a href="#depth">Stack depth and the cap</a><a href="#lab">Strategy Lab and Fable</a><a href="#cost">Cost and speed</a><a href="#methods">Methods and caveats</a>
+</nav>
+
+<section id="short">
+  <h2>The short version</h2>
+  <ol class="findings">
+    <li><b>Sol’s edge is real and general.</b> +81 bb/100 [+44, +111] over 8 matches; +77 after replacing every all-in runout with its equity; positive against all four opponents; +58 [+18, +79] on the Strategy Lab’s held-out table against a different field. About half of its winnings (672 of 1,293 bb) came out of Jev.</li>
+    <li><b>Only Sol plays the format.</b> Every seat’s prompt calls the game a “cash game”, but blinds double every 10 hands. With under 15 big blinds, Sol moves all-in 33% of the time; Luna, Luna Decisions, Haiku and Jev do it 0.8%, 2.7%, 0% and 0.9%. They limp and fold while the blinds eat them.</li>
+    <li><b>Haiku says its cards out loud.</b> 204 of its 2,724 table-talk lines (7.5%) name its actual hole cards (“Kings again, Jev.” m01-r2 #8), despite an instruction never to hint at them. It also misreads its own hand: 38 of its 64 “I have a set” claims were a pocket pair on an unpaired board, and those 32 hands cost it 141 bb.</li>
+    <li><b>Luna is honest to a fault.</b> It wins +61 bb/100 at showdown and gives back −59 without one. It folds 74% of the time to a river bet, and in heads-up river spots 25 of its 50 folds threw away the winning hand, including a better flush it didn’t notice it had (m07-r4 #2).</li>
+    <li><b>Jev believes what it hears.</b> In a controlled replay, one line of table talk moved Jev’s fold rate from 33% to 86% (“I’ve got the nuts here. Just fold.”) or down to 8% (“Honestly, I’ve got nothing.”). Sol barely moved (64% → 67% / 53%).</li>
+    <li><b>Sol’s own talk is a tell, and nobody reads it.</b> Postflop bets Sol talked through had 67% equity against random hands; its silent bets had 45% (AUC 0.73). In 15,913 decisions, exactly one reasoning text used an opponent’s talk (Sol, m06-r4 #11).</li>
+    <li><b>Nobody overbets.</b> The “twice the pot” option was picked 26 times in the whole run, all by Sol, 25 of them preflop. Yet when we rewrote real bets to 1½ pot, Luna and Luna Decisions folded half to two thirds of their strong hands. The biggest exploit at this table was never tried.</li>
+    <li><b>Decision models are deterministic; LLMs are not.</b> Asked the same view twice, Luna Decisions agreed with itself 100% of the time and Jev 97%; Luna 92%, Sol 87%, Haiku 80%. The decision models’ probabilities are flat (top option averages 64% and 55%) and don’t get more confident in easy spots.</li>
+    <li><b>The Strategy Lab measured noise.</b> The spread of card-vs-control leads (SD 37 bb/100) is smaller than the spread noise alone predicts (43), so the implied true spread between cards is about zero. Fable predicted a spread of 35. A forecast of “every card plays like the control” would have beaten Fable’s (mean error 17 vs 30).</li>
+    <li><b>bb/100 leans on the first 20 hands.</b> Blinds rise 16× over a tournament, so a chip lost at 10/20 counts 16 times as much as one lost at 160/320. Haiku’s −46 bb/100 is the second-worst rate, but it lost fewer chips (−12,030) than Luna Decisions (−23,690).</li>
+  </ol>
+</section>
+
+<section id="standings">
+  <div class="col">
+    <div class="eyebrow">B3 benchmark · 8 matches × 5 rotations · 1,913 hands · 15,913 decisions · $12.29</div>
+    <h2>Standings</h2>
+    <p>Each match deals the same deck five times, rotating the seats, so every model plays every set of cards from every seat. Confidence intervals resample whole matches. Seven of the ten pairwise gaps separate: Sol beats everyone (+79 to +143), Luna beats Jev (+64 [+24, +109]), Luna Decisions beats Jev and Haiku. Luna vs Luna Decisions, Luna vs Haiku and Haiku vs Jev are not separated.</p>
+  </div>
+  <figure>{{c_leader}}
+    <figcaption><b>bb/100 with 95% match-bootstrap intervals.</b> Dots are point estimates; bars are the interval. Sub-labels show average finish (1 = best) and tournament wins.</figcaption></figure>
+  <figure>{{c_finish}}
+    <figcaption><b>Finish positions over 40 tournaments.</b> Haiku is the bimodal one: first out in 20 of 40 tournaments, yet it won 7, more than Luna (5) or Luna Decisions (3). Sol won 23 and still busted early sometimes (13 fourth or fifth places).</figcaption></figure>
+
+  <div class="col">
+    <h3>What the duplicate design buys</h3>
+    <p>Card luck cancels across a match. The average starting-hand quality (heads-up preflop equity) varies between models by a standard deviation of 0.016 within one tournament, and 0.004 across a match’s five rotations, a fourfold drop. Pairing on matches also tightens the intervals: resampling tournaments independently would have put Haiku at −46 [−136, +20], straddling zero; resampling matches gives [−96, −4].</p>
+    <p>It also lets us compare play on identical cards. In match m04, hand #4, the same seat held {{AQ}} on a {{BOARD_M04}} board in all five rotations. Here is what each model made of it:</p>
+  </div>
+  <figure>{{c_show}}
+    <figcaption><b>Same seat, same cards, five players.</b> Sol built the biggest pot and got Jev’s river shove with {{A6}} (one pair of aces). Haiku min-raised and won 7.75 bb. Hover a bar for the line each model took.</figcaption></figure>
+</section>
+
+<section id="sol">
+  <div class="col">
+    <div class="eyebrow">Rabbit hole 1</div>
+    <h2>How Sol wins</h2>
+    <p>The question was whether Sol farms the two weak seats or plays well everywhere. The answer is both, with a strong lean on Jev.</p>
+  </div>
+  <div class="split">
+    <figure>{{c_solflow}}
+      <figcaption><b>Sol’s net chip flow from each opponent</b>, per 100 hands both were dealt. Positive against all four; Jev pays about four times the rate of anyone else.</figcaption></figure>
+    <figure>{{c_heldflow}}
+      <figcaption><b>Held-out table</b> (Strategy Lab, 3 fresh matches, no Jev and no Luna Decisions). Sol still won +58 bb/100 and took chips from every seat, the card-less Luna included.</figcaption></figure>
+  </div>
+  <div class="col">
+    <p><b>It isn’t all-in luck.</b> 202 hands ended with players all-in and cards to come. Replacing each of those runouts with the players’ equity at the moment of the all-in moves Sol from +81 to +77 bb/100. The adjustment helps Jev most (it ran 153 bb below its equity) and costs Luna most (84 bb above).</p>
+  </div>
+  <figure>{{c_luck}}
+    <figcaption><b>bb/100 with all-in luck removed.</b> The order does not change. Hover for actual vs adjusted.</figcaption></figure>
+  <div class="col">
+    <p><b>It wins without showdowns.</b> Sol makes +32 bb/100 in hands that never reach showdown and wins 29% of its hands uncontested. Luna is the mirror image: the best showdown hand at the table and a leak everywhere else.</p>
+  </div>
+  <figure>{{c_src}}
+    <figcaption><b>Where the bb come from</b>, bb/100 split by whether the hand reached showdown. Blue is won, red is lost.</figcaption></figure>
+  <div class="col">
+    <p><b>It shoves when short.</b> Sol went all-in preflop 131 times, 85% of them first in, at a median of 13.7 big blinds. It won 77% of those hands, mostly by taking the blinds. No other model treats a short stack as a reason to commit; they keep limping (Luna 50% of short-stack spots, Haiku 56%) into blinds that double every ten hands.</p>
+    <p><b>It folds well on the river.</b> In heads-up river spots, only 1 of Sol’s 15 folds gave up the winning hand. The rest of the field gave up winners 22–50% of the time (chart in the next section). Sol never misread its own made hand in 112 checkable claims.</p>
+    <p><b>Where it agrees with Luna.</b> In 259 natural same-spot pairs (same cards, seat and action history, different rotation), Sol and Luna took the same broad action 74% of the time, the most of any pair. On identical cards Sol out-earns Luna by +79 bb/100 [+26, +144], so that other quarter, mostly spots where Sol raises and Luna calls or folds, carries Sol’s edge.</p>
+  </div>
+</section>
+
+<section id="styles">
+  <div class="col">
+    <div class="eyebrow">Breadth</div>
+    <h2>How each one plays</h2>
+    <p>All numbers are from observed actions. VPIP = put money in preflop voluntarily; PFR = raised preflop; AF = postflop bets and raises per call; WTSD = reached showdown after seeing a flop; W$SD = won at showdown. “Selection” is the chance a hand a model played was stronger (preflop equity) than a hand it folded: 0.5 is random, 1.0 is perfect.</p>
+  </div>
+  <figure class="wide"><div class="table-wrap"><table>
+    <thead><tr><th></th><th>VPIP</th><th>PFR</th><th>Open-limp %</th><th>Fold to raise %</th><th>AF</th><th>Fold to bet %</th><th>Fold to river bet %</th><th>WTSD</th><th>W$SD</th><th>Selection</th></tr></thead>
+    <tbody>{{style_rows}}</tbody></table></div>
+    <figcaption><b>Style profiles, B3 main run.</b> Open-limp % = calls when first in (not big blind). Fold to bet = postflop, any size.</figcaption></figure>
+  <div class="col">
+    <ul class="tight">
+      <li><b>Sol</b>: loose-aggressive. Opens by raising 49% of the time it’s first in, bets 35% when checked to, and sizes up preflop (22.9% of its preflop raises are all-ins).</li>
+      <li><b>Luna</b>: loose-passive limper (41% open-limp), bets only 16% when checked to, and when it does bet it has it: 79% of its postflop bets had 70%+ equity against the hands still live, and only 11% had under 30%.</li>
+      <li><b>Luna Decisions</b>: the tightest (VPIP 31%), folds 76% to a single raise, best hand selection of the LLM-family seats (0.82), but almost never raises preflop (PFR 6%).</li>
+      <li><b>Haiku</b>: plays two thirds of hands, min-raises 80% of its preflop raises, and almost never folds after the flop (20%). Loses −65 bb/100 at showdown.</li>
+      <li><b>Jev</b>: calling station (AF 0.4, WTSD 68%), but with the best preflop hand selection at the table (0.87). Its leak is after the flop.</li>
+    </ul>
+    <p><b>Position.</b> Everyone loses in the big blind except Sol (+85 bb/100 there, where Luna is −77 and Jev −149). Luna and Luna Decisions widen on the button (VPIP 67% and 41%) and tighten in early position (21% and 14%), the textbook pattern. Haiku is near-flat by position (VPIP 45–82%).</p>
+    <p><b>Sizing.</b> The action menu offers min, ½ pot, pot, 2× pot and all-in. After the flop everyone lives on half pot (53–81% of bets). Haiku’s preflop raise is the minimum 80% of the time. Two-times-pot was picked 26 times in 15,913 decisions, all by Sol.</p>
+  </div>
+</section>
+
+<section id="folding">
+  <div class="col">
+    <div class="eyebrow">Rabbit hole 2 · includes a follow-up experiment</div>
+    <h2>Folding to bets</h2>
+    <p>The hunch was that the models fold too much to big bets. In the natural data it’s hard to test, because almost nobody makes big bets: each model faced 2–3 overbets in the whole run. What the data does show is a river problem. Luna folds 74% to river bets, and when it folds heads-up on the river it is holding the winner half the time.</p>
+  </div>
+  <figure>{{c_riverfold}}
+    <figcaption><b>Heads-up river folds that held the winning hand</b> (god view; exact on the river). Sol 1 of 15, Luna 25 of 50, Luna Decisions 8 of 23, Haiku 6 of 22, Jev 6 of 27. Hover for the pot-odds value forgone.</figcaption></figure>
+  <div class="hand">
+    <div class="eyebrow">m07-r4 #2 · Luna folds the best flush</div>
+    Luna raised {{L_JJ}} preflop, bet the flop, and checked the turn. The river made the board {{L_JJB}}. Luna held the J♦ for an ace-queen-jack flush; Haiku bet 300 with 4♦10♦, a worse flush. Luna’s reasoning: <q>pocket jacks are only a weak bluff-catcher.</q> Fold. Haiku’s own reasoning called its flush the nuts (<q>no higher flush is possible</q>), also wrong.
+  </div>
+  <div class="hand">
+    <div class="eyebrow">m06-r0 #7 · two pair into a pot-sized bet</div>
+    Luna called flop and turn with {{L_QJ}} on {{L_QJB}}, then folded jacks and fours to Jev’s pot-sized river bet. Jev held K♥9♥, a worse two pair. Calling 24 bb would have won a 72 bb pot.
+  </div>
+  <div class="col">
+    <h3>Experiment: the same spots at three bet sizes</h3>
+    <p>To test bet size directly, we took 36 real turn and river spots where a seat faced one bet heads-up (12 weak, 12 medium, 12 strong hands by equity against a random hand), rewrote the bet to ⅓, ¾ and 1½ times the pot with stacks and menu rebuilt, and asked all five models. 540 calls, $0.46.</p>
+  </div>
+  <figure>{{c_ladder}}
+    <figcaption><b>Fold rate on identical spots as the bet grows.</b> The dashed line is the bluff break-even: the share of the time a pure bluff of that size must work to profit. Every model folds more as the bet grows (35 or 36 of 36 spots monotone for each). Haiku folds less than break-even at every size; Luna and Luna Decisions fold above it at every size.</figcaption></figure>
+  <div class="col">
+    <p>The telling slice is the 12 strong hands. Facing 1½ pot, Luna Decisions folded 8 of 12 (67%), Luna 6 (50%), Sol 5 (42%), Jev 4 (33%), Haiku 0. So the hunch holds for the Luna family: a large bet takes away hands they should defend. Nobody in the field ever bet that big postflop, so the leak was never charged for.</p>
+  </div>
+</section>
+
+<section id="talk">
+  <div class="col">
+    <div class="eyebrow">Rabbit hole 3 · includes a follow-up experiment</div>
+    <h2>Table talk</h2>
+    <p>The LLMs get one line of optional table talk per decision; the decision models never talk. Haiku talks on 92% of its decisions and names an opponent in 60% of lines. Sol talks 33% of the time (“Your move.” 100 times), Luna 26%.</p>
+    <h3>Haiku announces its hand</h3>
+    <p>The table-talk filter removes lines that contain a card code like “Kh”. Haiku says it in words. 204 lines name a rank or suit that is in its own hand and not on the board:</p>
+    <ul class="tight">
+      <li>m01-r2 #8, holding K♥K♦: <q>Kings again, Jev. Let’s make this interesting.</q></li>
+      <li>m01-r2 #18, holding J♦J♥: <q>Jacks in the hole, Sol. Your raise just got more expensive.</q></li>
+      <li>m01-r2 #29, river, holding Q♥J♥: <q>Heart flush on the river, Sol. Your move.</q></li>
+      <li>m01-r0 #10, holding {{HK_44}} on {{HK_44B}}: <q>Set of fours on a dry board.</q> It was not a set (see next section). It lost 32 bb.</li>
+    </ul>
+    <p>The leaks are mildly informative: Haiku’s leaking lines came with 48% equity against random hands, its other lines 40%.</p>
+    <h3>Sol’s talk is a strength tell</h3>
+  </div>
+  <figure>{{c_tell}}
+    <figcaption><b>Average equity (vs random hands) of each LLM’s postflop bets, with and without table talk.</b> Sol talks on 67% of its bets, and those bets are much stronger (67% vs 45%, AUC 0.73). Luna talks on almost every bet; its 10 silent bets were its strongest.</figcaption></figure>
+  <div class="col">
+    <p><b>Nobody listens.</b> Across 15,913 decisions, one reasoning text used an opponent’s talk. In m06-r4 #11 Haiku said <q>Kings on the board, and I’m holding one.</q> (true, {{K5}} on {{K5B}}). Sol, holding {{JT}} with a gutshot, folded the turn: <q>A bluff is unlikely to work against a player who says they have a king.</q></p>
+    <h3>Experiment: the same bet, with a claim attached</h3>
+    <p>We replayed the 36 spots at ¾ pot three ways: silent, with the bettor saying <q>I’ve got the nuts here. Just fold.</q>, and with <q>Honestly, I’ve got nothing. Call me.</q> 360 more calls, $0.32.</p>
+  </div>
+  <figure class="wide"><div class="table-wrap"><table>
+    <thead><tr><th></th><th>Silent</th><th>“I’ve got the nuts”</th><th>“I’ve got nothing”</th><th>Spots that changed (of 36 × 2)</th></tr></thead>
+    <tbody>
+      <tr><th>Jev</th><td>33%</td><td><b>86%</b></td><td><b>8%</b></td><td>28</td></tr>
+      <tr><th>Haiku</th><td>19%</td><td><b>47%</b></td><td>14%</td><td>27</td></tr>
+      <tr><th>Luna Decisions</th><td>72%</td><td>83%</td><td>53%</td><td>13</td></tr>
+      <tr><th>Luna</th><td>75%</td><td>75%</td><td>64%</td><td>11</td></tr>
+      <tr><th>Sol</th><td>64%</td><td>67%</td><td>53%</td><td>9</td></tr>
+    </tbody></table></div>
+    <figcaption><b>Fold rate facing the same ¾-pot bet.</b> Jev takes the claim at face value in both directions. Sol and Luna mostly ignore it; when Luna mentions the claim it discounts it (<q>Fold rather than trust the opponent’s claim</q>). Haiku folds more to a strength claim but is not talked into folding by the weakness claim.</figcaption></figure>
+  <div class="col">
+    <p>Put the two halves together: the most talkative player at the table leaks its real cards, and the player most willing to believe talk is a decision model that never reads it for that purpose in practice, because no one at this table ever tried a verbal bluff.</p>
+  </div>
+</section>
+
+<section id="reasoning">
+  <div class="col">
+    <div class="eyebrow">Rabbit hole 4</div>
+    <h2>Reading their own cards</h2>
+    <p>We pulled every checkable claim out of the LLMs’ reasoning text and compared it to the engine: preflop, which two ranks and whether suited; postflop, positive claims of a made hand (“I have top pair / two pair / a set / a straight / a flush / a full house”). Hypotheticals (“a jack gives me a straight”) were excluded.</p>
+  </div>
+  <figure>{{c_misread}}
+    <figcaption><b>Share of checkable claims that were wrong.</b> Sol: 0 of 112 made-hand claims and 0 of 1,210 preflop hand descriptions. Luna: 9 of 138, mostly calling second pair “top pair” (m02-r4 #21: A♥10♦ on 8♥10♣J♥). Haiku: 67 of 244, and 167 of 906 preflop descriptions.</figcaption></figure>
+  <div class="col">
+    <p><b>Haiku’s phantom sets.</b> 38 of Haiku’s 64 set claims were wrong; 84% of the time it held a pocket pair on a board that didn’t pair it. It bet or raised on 74% of those decisions, and the 32 hands cost 141 bb. In m06-r0 #14 it called {{HK_55}} on {{HK_55B}} <q>a full house, fives full of sixes, nearly the nuts</q>, then corrected itself on the next decision.</p>
+    <p><b>Haiku’s preflop slips</b> are mostly suits (98 times it called an offsuit hand “suited”, 37 the reverse) and a habit of calling any bad hand “seven-deuce” (seven-deuce, three-deuce or six-deuce named for hands like Q♦7♥ and 3♣10♥). Luna made 6 preflop slips, and 4 are the same one: it called suited A5 (A♣5♣ three times, A♦5♦ once) “A5 offsuit”.</p>
+    <p><b>Pot odds.</b> Haiku states pot odds often (108 times); 79% are within 15% of the true price and 9% are off by half or more. Sol and Luna rarely state them (8 and 7 times), all close.</p>
+  </div>
+</section>
+
+<section id="decision">
+  <div class="col">
+    <div class="eyebrow">Rabbit hole 5 · includes a follow-up experiment</div>
+    <h2>Decision models</h2>
+    <p>Luna Decisions and Jev answer one typed choice question and return a probability for every option on the menu. The app always takes their choice, which is the top probability.</p>
+  </div>
+  <div class="split">
+    <figure>{{c_hist_ld}}<figcaption><b>Luna Decisions:</b> top option averages 64%; 16% of decisions are 90%+ sure.</figcaption></figure>
+    <figure>{{c_hist_jev}}<figcaption><b>Jev:</b> top option averages 55%; only 3% are 90%+ sure, and 41% are under 50%.</figcaption></figure>
+  </div>
+  <div class="col">
+    <p><b>The probabilities don’t track difficulty.</b> When a call is close (equity within 10 points of the pot odds), Luna Decisions’ top probability averages 0.69; when it’s clear (30+ points away), also 0.69. Jev: 0.57 vs 0.61. The numbers describe a spread of plausible actions, not confidence.</p>
+    <p><b>The “off-argmax” choices are rounding.</b> The SDK rejects a choice that isn’t the model’s own top probability; the app keeps it and flags it. There are 7 in the main run (the B3 notes say 6), all Jev, and in all 7 the chosen option is exactly one point below the top (0.31 vs 0.32, 0.29 vs 0.30, …). These are ties reported at two decimals.</p>
+    <h3>Experiment: ask the same view again</h3>
+    <p>We replayed 120 recorded views (40 preflop facing a bet, 40 flop/turn, 40 river) to all five models, and asked 60 of them twice. 900 calls, $0.68.</p>
+  </div>
+  <figure>{{c_agree}}
+    <figcaption><b>Exact agreement on identical views, %.</b> Diagonal: a model against itself on a second ask. Off-diagonal: two models on the same view. Luna Decisions never changed its answer; Haiku changed one in five. Luna agrees with both decision models (75% with Jev, 73% with Luna Decisions) more than with Sol (63%).</figcaption></figure>
+  <div class="col">
+    <p><b>Is Luna Decisions a compressed Luna?</b> Partly. It shares Luna’s passivity and agrees with it more than with any LLM, in the replay (73%) and in the 221 natural same-spot pairs (71% broad agreement, against 43% by chance). But Jev agrees with Luna just as often, and Luna Decisions is tighter: in the replay it folded 35% of views to Luna’s 25%, which matches its lower VPIP (31% vs 44%). The cleaner description is that the GPT-6 Luna family and Jev share a cautious, call-first default, and Luna Decisions is the most cautious of them.</p>
+    <p><b>Re-asking also bounds the noise in B3.</b> On views from the main run, Sol repeated its original choice 78% of the time (14 of 18), Luna 87%, Haiku 76%, Luna Decisions 97%, Jev 100%. A fifth of LLM decisions are coin-flips between two options.</p>
+  </div>
+</section>
+
+<section id="depth">
+  <div class="col">
+    <div class="eyebrow">Hunch: stack depth and the 50-hand cap</div>
+    <h2>Stack depth and the cap</h2>
+    <p>Blinds start at 10/20 with 1,500 chips (75 big blinds) and double every 10 hands. By hands 41–50 the average stack is 6–14 big blinds. Two artifacts follow.</p>
+  </div>
+  <figure>{{c_level}}
+    <figcaption><b>bb/100 by blind level.</b> Sol is positive at every level. Haiku swings from −131 at 20/40 to +73 at 160/320 on 68 hands. Hover a cell for its hand count.</figcaption></figure>
+  <div class="col">
+    <p><b>bb/100 weighs early hands most.</b> A pot of 1,000 chips is 50 bb at level one and 3 bb at level five. Ranked by chips instead of bb, Haiku (−12,030) moves ahead of Luna (−13,674) and Luna Decisions (−23,690). Its big losses come early (it was first out 20 times, 12 of its 33 busts before hand 15) and its wins late, when bb are cheap. Sol leads on either measure (+92,446 chips).</p>
+    <p><b>The cap decided half the tournaments.</b> 20 of 40 hit the 50-hand cap and were placed by chip count; 15 of those were heads-up at the time. Sol won 12 of the 20 capped tournaments and 11 of the 20 that finished, so the cap didn’t change who wins. The average chip leader at the cap held 72% of the chips.</p>
+    <p><b>The format mismatch is the bigger artifact.</b> The seat prompt says “cash game” and “play to win chips”. Models are never told blinds rise or that finishing order matters. Sol is the only one that plays short stacks like a tournament anyway.</p>
+  </div>
+</section>
+
+<section id="lab">
+  <div class="col">
+    <div class="eyebrow">B4 Strategy Lab · 13 cards · 7,573 hands · $13.23</div>
+    <h2>Strategy Lab and Fable’s miscalibration</h2>
+    <p>Fable wrote strategy cards for GPT-6 Luna and pre-registered a bb/100 for each. Every card it expected to win came in 19–38 below its prediction; every card it expected to lose by 15+ came in 25–56 above. Why one direction?</p>
+  </div>
+  <figure>{{c_fable}}
+    <figcaption><b>Predicted vs measured bb/100, 13 cards.</b> Whiskers are 95% CIs where a card had 3+ matches. The fitted slope is 0.23 (r = 0.39): measured results sit much flatter than the predictions. In the pilot, which Fable never saw, r was 0.12.</figcaption></figure>
+  <div class="col">
+    <p><b>Regression to the mean, with nothing to regress from.</b> Any forecaster who predicts a spread of outcomes will look one-directionally wrong if the true spread is smaller: high predictions come in low, low ones come in high. The question is how small the true spread was. A single match measures a card’s lead with an SD of about 52 bb/100 (within-card, cards with 3+ matches); two identical card-less Lunas differed by an SD of 43 per match over 17 matches. Given how many matches each card played, noise alone should spread the 13 leads by about 43. The observed spread was 37. So the implied true spread between cards is about zero, against Fable’s predicted 35.</p>
+    <p>A forecast of “every card scores what the control scored” has a mean absolute error of 17 bb/100. Fable’s was 30.</p>
+    <p><b>The cards did change how Luna played.</b> Granite Rock took Luna’s VPIP from 41% to 11%; Blitz Maniac to 84% with an 81% PFR and AF 13.9. Fable’s premise that Luna would follow the text was right for preflop ranges. What didn’t follow was the score: in 50-hand turbos with doubling blinds and 3 matches per card, very different styles produce results that sit inside each other’s noise.</p>
+  </div>
+  <figure>{{c_style}}
+    <figcaption><b>Style moved a lot; bb/100 didn’t.</b> Cards sorted by VPIP, with the control at the bottom. Pooled bb/100 per card; most have 1–4 matches.</figcaption></figure>
+  <div class="col">
+    <p>The held-out final points the same way: Bot Hunter’s training lead of +24 [+1, +55] became −24 [−59, +10] on fresh seeds against Sol and Haiku. The lab’s most useful seat was the second card-less Luna, which measured the noise floor directly.</p>
+  </div>
+</section>
+
+<section id="cost">
+  <div class="col">
+    <div class="eyebrow">Operations</div>
+    <h2>Cost and speed</h2>
+  </div>
+  <figure class="wide"><div class="table-wrap"><table>
+    <thead><tr><th></th><th>Decisions</th><th>Mean latency</th><th>p95</th><th>Input tok</th><th>Output tok</th><th>Cost</th><th>$ / 100 hands</th><th>$ / bb won</th></tr></thead>
+    <tbody>{{ops_rows}}</tbody></table></div>
+    <figcaption><b>B3 main run, pricing.ts × logged usage.</b> 0 fallbacks in 15,913 decisions. Sol is 88% of the decision spend. Decision models bill input only.</figcaption></figure>
+  <div class="col">
+    <p>Sol paid about $0.008 for each big blind it won. It also thinks harder as the hand goes on: 94 output tokens preflop, 168 on the river. Haiku’s reasoning grows faster (119 → 466 tokens) but doesn’t get more accurate. Luna’s stays flat at about 57 tokens on every street, which fits reasoning set to “none”. The decision models answer in about 0.25 s, 8–13× faster than the LLMs.</p>
+    <p><b>Gemini 3.1 Pro</b> appears only in the 90-hand pilot (one match, no CI): tight (VPIP 23%), 5.4 s per decision, and half the pilot’s spend ($0.67 of $1.34). It was dropped from the main run for budget.</p>
+  </div>
+</section>
+
+<section id="methods">
+  <div class="col">
+    <div class="eyebrow">Methods and caveats</div>
+    <h2>Methods and caveats</h2>
+    <ul class="tight">
+      <li><b>Data.</b> B3 main run (<code>data/runs/20261010_main.jsonl</code>: 40 SNGs, 8 complete matches, 1,913 hands), the B3 pilot (90 hands, the only Gemini data), and the B4 lab (<code>data/lab/20261010_lab</code>, 7,573 hands incl. 898 held-out; pilot 1,200 hands). Seven casual sessions (46 hands) were not used. “9,486 hands” in the header = B3 main + lab.</li>
+      <li><b>Official numbers</b> (standings, CIs, styles, chip flow, lab leads) come from the app’s own <code>runDetail()</code> and <code>labDetail()</code>, re-run in the notebook. Everything else is computed in <code>findings/notebook/</code>.</li>
+      <li><b>Equity.</b> “Equity vs random hands” is what the seat could estimate from its own cards (Monte Carlo, 600 boards). “God view” equity uses the opponents’ actual cards and is exact on the river. A river fold “holding the winner” is hindsight on the actual hands, not a judgment against the opponent’s range.</li>
+      <li><b>Claim checks</b> are regex extractions with negation and hypothetical filters; the counts are checkable claims only. Spot checks of every category found the flagged Haiku and Luna errors to be real; a few borderline phrasings remain.</li>
+      <li><b>Same-spot comparisons</b> match on cards, seat, board, pot, price and full action history; stacks can differ between rotations.</li>
+      <li><b>Experiments</b> replay fixed views through the app’s own <code>decide()</code> (same prompt, timeouts and schema). Ladder and talk spots are 36 turn/river heads-up spots stratified by hand strength; with n = 36 per cell, differences under ~20 points are noise. 1,800 calls, 1 fallback, $1.46 by pricing.ts; the key moved $34.38 → $35.85.</li>
+      <li><b>All-in adjustment</b> covers the 202 hands where betting closed before the river; side pots are handled layer by layer.</li>
+      <li><b>Not tested:</b> whether cards transfer to other base models, longer tournaments without a cap, or any human play.</li>
+    </ul>
+    <h3>Things that look broken or worth fixing</h3>
+    <ul class="tight">
+      <li>The seat prompt calls a tournament with rising blinds a “cash game” (<code>INSTRUCTIONS</code> in <code>server/utils/decide.ts</code>). This shapes every result above; telling seats the format is a one-line change, but it changes the benchmark.</li>
+      <li><code>cleanTableTalk()</code> only drops lines that contain a card code like “Kh”. Haiku leaks its hand in words 204 times. A rank-word check against the speaker’s hole cards would catch most of them.</li>
+      <li>The B3 notes count 6 <code>choiceNotTop</code> decisions; the run file has 7, all 1-point rounding ties.</li>
+      <li>The <code>priorTableTalk</code> window holds the last 6 lines, so “never repeat a line” is enforced only locally; Sol said “Your move.” 100 times.</li>
+      <li>bb/100 under doubling blinds over-weights the first two levels; reporting chips per tournament next to it would make /results harder to misread.</li>
+    </ul>
+  </div>
+</section>
+
+</main>

@@ -1,7 +1,7 @@
 # Hold'em AI — Bonus Sprints: Spectator, Narrator, Tournaments, Strategy Lab
 
 **Created:** October 9, 2026
-**Status:** B1–B4 complete (2026-10-10); B5 not started · optional · runs only after Sprints 1–4 of [`implementation_plan.md`](./implementation_plan.md) are done
+**Status:** B1–B5 complete (2026-10-10) · optional · runs only after Sprints 1–4 of [`implementation_plan.md`](./implementation_plan.md) are done
 **Context:** Kyle: "let them just watch the models play against each other… track their performance… an AI narrator… tournaments, a bunch of times, see the trends… then have a really powerful model like Fable plan strategies, personalities, approaches and explore: work the explore-exploit, test a few at the same time, and learn empirically what wins. Don't rely on what you think will win."
 
 **Goal:** four optional sprints that build on each other. Each one is useful on its own, so we can stop after any of them:
@@ -220,7 +220,7 @@ The control played +10 [+2, +22] bb/100 over 27 matches (6,065 hands) at these t
 
 ---
 
-## Sprint B5: Findings report `[Not Started]`
+## Sprint B5: Findings report `[Complete]`
 **Goal (Kyle, 2026-10-10):** a written report that tells the story of what happened: how each model plays, who wins and why, what surprised us. Breadth first, then follow hunches down rabbit holes.
 **Runs after B4.** Done by a dedicated analyst subagent with fresh eyes (not the agent that built B3/B4).
 
@@ -235,6 +235,14 @@ The control played +10 [+2, +22] bb/100 over 27 matches (6,065 hands) at these t
 **Deliverable:** `internal_docs/20261009_holdem_vs_models/findings/report.html` (self-contained, charts inline SVG, notable hands rendered as small hand histories) + `findings/notebook/` with the scripts that produced every number. Published as a private Artifact for Kyle to read/share.
 
 **Budget:** report follow-ups ≤ $3, taken from B4 (B4 cap becomes $22).
+
+### Results (2026-10-10)
+
+- **Deliverable:** [`findings/report.html`](./findings/report.html) (single file; inline-SVG charts; only externals are Google Fonts). Notebook: `findings/notebook/` — run `node 01_extract.ts` (flattens every run file into `cache/`, gitignored, idempotent), `node 02_official.ts` (re-runs `runDetail`/`labDetail`), `node 04_allin_ev.ts`, then `python3 -I 03_breadth.py`, `05`–`10`, `12`, `13`, `14_probe_analysis.py`, and `15_build_report.py` (writes the report from `out/*.json`). `00_check_eval.ts` validates the notebook's fast evaluator against `rankHand` (0 mismatches in 200k pairs).
+- **Experiments** (`11_probe.ts`, fixed views from the B3 run through the app's own `decide()`, cached in `cache/probe.jsonl`): replay of 120 views × 5 models (+60 re-asks), a bet-size ladder (36 spots × ⅓/¾/1½ pot), and a table-talk probe (same spots with a strength or weakness claim). 1,800 calls, 1 fallback, $1.46 by pricing.ts; key $34.38 → $35.85 (**$1.47**, cap $3).
+- **Headlines:** Sol +81 survives every check (all-in-adjusted +77, positive vs all four opponents, +58 held-out); only Sol shoves short stacks (33% vs 0–3%) in a game every prompt calls a "cash game"; Haiku names its own hole cards in 204 talk lines and 38 of its 64 "set" claims were wrong; Luna folded the winner in 25 of 50 heads-up river folds; one line of talk moves Jev's fold rate 33% → 86% / 8%; Sol's talk is a strength tell (AUC 0.73) nobody reads; decision models are deterministic on re-ask (100% / 97%) vs LLMs 80–92%; the lab's card-lead spread (SD 37) is below the noise-only spread (43), so Fable's one-directional miss is regression to a near-zero true spread.
+- **Found while doing it:** `cleanTableTalk()` only catches card codes, not rank words; the B3 notes' 6 `choiceNotTop` are 7 in the file, all 1-point rounding ties; the seat prompt's "cash game" framing; bb/100 under doubling blinds over-weights levels 1–2 (Haiku ranks above Luna Decisions by chips).
+
 
 
 ## Open Questions (for Kyle)

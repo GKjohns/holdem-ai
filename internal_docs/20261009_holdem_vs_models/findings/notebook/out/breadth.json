@@ -1,0 +1,1147 @@
+{
+ "leaderboard": [
+  {
+   "model": "openai/gpt-6-sol",
+   "hands": 1592,
+   "bb100": {
+    "value": 81.24980370603016,
+    "lo": 44.083739905787354,
+    "hi": 110.73317998849916
+   },
+   "avgFinish": {
+    "value": 2.2,
+    "lo": 1.675,
+    "hi": 2.7
+   }
+  },
+  {
+   "model": "anthropic/claude-haiku-5.5",
+   "hands": 1048,
+   "bb100": {
+    "value": -45.824188931297705,
+    "lo": -96.4819096844396,
+    "hi": -3.5389888603256163
+   },
+   "avgFinish": {
+    "value": 3.775,
+    "lo": 3.4,
+    "hi": 4.125
+   }
+  },
+  {
+   "model": "openai/gpt-6-luna",
+   "hands": 1669,
+   "bb100": {
+    "value": 1.7665892750149796,
+    "lo": -24.6931670984456,
+    "hi": 25.629208754208754
+   },
+   "avgFinish": {
+    "value": 2.675,
+    "lo": 2.2,
+    "hi": 3.1
+   }
+  },
+  {
+   "model": "openai/gpt-6-luna-decisions",
+   "hands": 1653,
+   "bb100": {
+    "value": -4.421128251663642,
+    "lo": -27.35432785299807,
+    "hi": 12.892188393367638
+   },
+   "avgFinish": {
+    "value": 2.725,
+    "lo": 2.5,
+    "hi": 2.95
+   }
+  },
+  {
+   "model": "typesafe-ai/jev",
+   "hands": 1243,
+   "bb100": {
+    "value": -61.91975060337892,
+    "lo": -103.60722222222223,
+    "hi": -30.17325017325017
+   },
+   "avgFinish": {
+    "value": 3.625,
+    "lo": 3.4,
+    "hi": 3.825
+   }
+  }
+ ],
+ "pairs": [
+  {
+   "a": "openai/gpt-6-sol",
+   "b": "anthropic/claude-haiku-5.5",
+   "bb100": {
+    "value": 127.07399263732788,
+    "lo": 63.663252737551076,
+    "hi": 187.64011325423743
+   },
+   "avgFinish": {
+    "value": -1.5749999999999997,
+    "lo": -2.25,
+    "hi": -0.7749999999999999
+   }
+  },
+  {
+   "a": "openai/gpt-6-sol",
+   "b": "openai/gpt-6-luna",
+   "bb100": {
+    "value": 79.48321443101518,
+    "lo": 28.760899520518677,
+    "hi": 130.81672732809517
+   },
+   "avgFinish": {
+    "value": -0.47499999999999964,
+    "lo": -1.375,
+    "hi": 0.3999999999999999
+   }
+  },
+  {
+   "a": "openai/gpt-6-sol",
+   "b": "openai/gpt-6-luna-decisions",
+   "bb100": {
+    "value": 85.67093195769381,
+    "lo": 35.14245581434012,
+    "hi": 135.69720127343035
+   },
+   "avgFinish": {
+    "value": -0.5249999999999999,
+    "lo": -1.15,
+    "hi": 0.10000000000000009
+   }
+  },
+  {
+   "a": "openai/gpt-6-sol",
+   "b": "typesafe-ai/jev",
+   "bb100": {
+    "value": 143.16955430940908,
+    "lo": 86.01923487154652,
+    "hi": 193.85900880611757
+   },
+   "avgFinish": {
+    "value": -1.4249999999999998,
+    "lo": -1.95,
+    "hi": -0.9250000000000003
+   }
+  },
+  {
+   "a": "anthropic/claude-haiku-5.5",
+   "b": "openai/gpt-6-luna",
+   "bb100": {
+    "value": -47.590778206312685,
+    "lo": -115.67436405337783,
+    "hi": 6.338465745571961
+   },
+   "avgFinish": {
+    "value": 1.1,
+    "lo": 0.5499999999999998,
+    "hi": 1.8499999999999996
+   }
+  },
+  {
+   "a": "anthropic/claude-haiku-5.5",
+   "b": "openai/gpt-6-luna-decisions",
+   "bb100": {
+    "value": -41.403060679634066,
+    "lo": -91.63605230610574,
+    "hi": -0.697299303207819
+   },
+   "avgFinish": {
+    "value": 1.0499999999999998,
+    "lo": 0.7749999999999999,
+    "hi": 1.35
+   }
+  },
+  {
+   "a": "anthropic/claude-haiku-5.5",
+   "b": "typesafe-ai/jev",
+   "bb100": {
+    "value": 16.095561672081217,
+    "lo": -54.78081939901497,
+    "hi": 91.17614892098644
+   },
+   "avgFinish": {
+    "value": 0.1499999999999999,
+    "lo": -0.3500000000000001,
+    "hi": 0.6499999999999999
+   }
+  },
+  {
+   "a": "openai/gpt-6-luna",
+   "b": "openai/gpt-6-luna-decisions",
+   "bb100": {
+    "value": 6.187717526678622,
+    "lo": -21.0570118624645,
+    "hi": 35.924493099509995
+   },
+   "avgFinish": {
+    "value": -0.050000000000000266,
+    "lo": -0.6749999999999998,
+    "hi": 0.4249999999999998
+   }
+  },
+  {
+   "a": "openai/gpt-6-luna",
+   "b": "typesafe-ai/jev",
+   "bb100": {
+    "value": 63.6863398783939,
+    "lo": 24.101365628747168,
+    "hi": 109.22868684509443
+   },
+   "avgFinish": {
+    "value": -0.9500000000000002,
+    "lo": -1.4249999999999998,
+    "hi": -0.4750000000000001
+   }
+  },
+  {
+   "a": "openai/gpt-6-luna-decisions",
+   "b": "typesafe-ai/jev",
+   "bb100": {
+    "value": 57.498622351715284,
+    "lo": 14.587295724220812,
+    "hi": 109.44065289723115
+   },
+   "avgFinish": {
+    "value": -0.8999999999999999,
+    "lo": -1.3249999999999997,
+    "hi": -0.4750000000000001
+   }
+  }
+ ],
+ "finishes": {
+  "openai/gpt-6-sol": [
+   23,
+   3,
+   1,
+   9,
+   4
+  ],
+  "anthropic/claude-haiku-5.5": [
+   7,
+   2,
+   4,
+   7,
+   20
+  ],
+  "openai/gpt-6-luna": [
+   5,
+   15,
+   11,
+   6,
+   3
+  ],
+  "openai/gpt-6-luna-decisions": [
+   3,
+   14,
+   15,
+   7,
+   1
+  ],
+  "typesafe-ai/jev": [
+   2,
+   6,
+   9,
+   11,
+   12
+  ]
+ },
+ "plackettLuce": {
+  "openai/gpt-6-sol": 0.5845996720611365,
+  "anthropic/claude-haiku-5.5": -0.826636004154471,
+  "openai/gpt-6-luna": 0.33121665598800193,
+  "openai/gpt-6-luna-decisions": 0.36358363032451557,
+  "typesafe-ai/jev": -0.45276395421918325
+ },
+ "flow": {
+  "openai/gpt-6-sol": {
+   "openai/gpt-6-sol": 0,
+   "anthropic/claude-haiku-5.5": 118.33153709451872,
+   "openai/gpt-6-luna": 273.01539564220184,
+   "openai/gpt-6-luna-decisions": 230.20306726327942,
+   "typesafe-ai/jev": 671.946875
+  },
+  "anthropic/claude-haiku-5.5": {
+   "openai/gpt-6-sol": -118.33153709451872,
+   "anthropic/claude-haiku-5.5": 0,
+   "openai/gpt-6-luna": -241.51869226327946,
+   "openai/gpt-6-luna-decisions": -53.03675348735834,
+   "typesafe-ai/jev": -67.35051715484354
+  },
+  "openai/gpt-6-luna": {
+   "openai/gpt-6-sol": -273.01539564220184,
+   "anthropic/claude-haiku-5.5": 241.51869226327946,
+   "openai/gpt-6-luna": 0,
+   "openai/gpt-6-luna-decisions": -81.11631377592113,
+   "typesafe-ai/jev": 142.0973921548435
+  },
+  "openai/gpt-6-luna-decisions": {
+   "openai/gpt-6-sol": -230.20306726327942,
+   "anthropic/claude-haiku-5.5": 53.03675348735834,
+   "openai/gpt-6-luna": 81.11631377592113,
+   "openai/gpt-6-luna-decisions": 0,
+   "typesafe-ai/jev": 22.96875
+  },
+  "typesafe-ai/jev": {
+   "openai/gpt-6-sol": -671.946875,
+   "anthropic/claude-haiku-5.5": 67.35051715484354,
+   "openai/gpt-6-luna": -142.0973921548435,
+   "openai/gpt-6-luna-decisions": -22.96875,
+   "typesafe-ai/jev": 0
+  }
+ },
+ "style_official": [
+  {
+   "modelId": "openai/gpt-6-sol",
+   "hands": 1592,
+   "vpip": 55.15075376884422,
+   "pfr": 35.74120603015075,
+   "af": 2.899408284023669,
+   "wtsd": 48.58247422680412,
+   "wsd": 47.48010610079575,
+   "counts": {
+    "vpip": 878,
+    "pfr": 569,
+    "bets": 490,
+    "calls": 169,
+    "sawFlop": 776,
+    "showdowns": 377,
+    "wonAtShowdown": 179
+   },
+   "avgMs": 3104,
+   "costUsd": 10.632237999999987,
+   "decisions": 3361
+  },
+  {
+   "modelId": "anthropic/claude-haiku-5.5",
+   "hands": 1048,
+   "vpip": 66.69847328244275,
+   "pfr": 24.236641221374043,
+   "af": 1.8757396449704142,
+   "wtsd": 59.269662921348306,
+   "wsd": 35.78199052132701,
+   "counts": {
+    "vpip": 699,
+    "pfr": 254,
+    "bets": 634,
+    "calls": 338,
+    "sawFlop": 712,
+    "showdowns": 422,
+    "wonAtShowdown": 151
+   },
+   "avgMs": 2481,
+   "costUsd": 0.8818192999999994,
+   "decisions": 2971
+  },
+  {
+   "modelId": "openai/gpt-6-luna",
+   "hands": 1669,
+   "vpip": 43.85859796285201,
+   "pfr": 13.061713600958658,
+   "af": 0.8995983935742972,
+   "wtsd": 50.06337135614702,
+   "wsd": 61.77215189873417,
+   "counts": {
+    "vpip": 732,
+    "pfr": 218,
+    "bets": 224,
+    "calls": 249,
+    "sawFlop": 789,
+    "showdowns": 395,
+    "wonAtShowdown": 244
+   },
+   "avgMs": 1968,
+   "costUsd": 0.4842587000000011,
+   "decisions": 3676
+  },
+  {
+   "modelId": "openai/gpt-6-luna-decisions",
+   "hands": 1653,
+   "vpip": 31.03448275862069,
+   "pfr": 6.412583182093163,
+   "af": 1.6645569620253164,
+   "wtsd": 53.28185328185329,
+   "wsd": 48.55072463768116,
+   "counts": {
+    "vpip": 513,
+    "pfr": 106,
+    "bets": 263,
+    "calls": 158,
+    "sawFlop": 518,
+    "showdowns": 276,
+    "wonAtShowdown": 134
+   },
+   "avgMs": 244,
+   "costUsd": 0.16455560000000027,
+   "decisions": 2973
+  },
+  {
+   "modelId": "typesafe-ai/jev",
+   "hands": 1243,
+   "vpip": 47.62670957361223,
+   "pfr": 19.14722445695897,
+   "af": 0.4170731707317073,
+   "wtsd": 67.59776536312849,
+   "wsd": 47.93388429752066,
+   "counts": {
+    "vpip": 592,
+    "pfr": 238,
+    "bets": 171,
+    "calls": 410,
+    "sawFlop": 537,
+    "showdowns": 363,
+    "wonAtShowdown": 174
+   },
+   "avgMs": 255,
+   "costUsd": 0.12297923400000016,
+   "decisions": 2932
+  }
+ ],
+ "preflop": {
+  "openai/gpt-6-sol": {
+   "unopened_n": 900,
+   "open_raise": 49.111111111111114,
+   "limp": 21.11111111111111,
+   "open_fold": 29.77777777777778,
+   "vs_raise_n": 424,
+   "vs_raise_fold": 54.95283018867924,
+   "vs_raise_call": 32.783018867924525,
+   "vs_raise_3bet": 12.264150943396226,
+   "preflop_allin_n": 131,
+   "preflop_decisions": 1605,
+   "eqHU_played": 0.5412548974943052,
+   "eqHU_folded": 0.4464766214177979,
+   "selection_auc": 0.7843300453175839
+  },
+  "openai/gpt-6-luna": {
+   "unopened_n": 727,
+   "open_raise": 22.97111416781293,
+   "limp": 40.852819807427785,
+   "open_fold": 36.17606602475929,
+   "vs_raise_n": 756,
+   "vs_raise_fold": 65.21164021164022,
+   "vs_raise_call": 30.29100529100529,
+   "vs_raise_3bet": 4.497354497354498,
+   "preflop_allin_n": 4,
+   "preflop_decisions": 1739,
+   "eqHU_played": 0.5534445355191256,
+   "eqHU_folded": 0.45645849889624723,
+   "selection_auc": 0.7844538233271813
+  },
+  "openai/gpt-6-luna-decisions": {
+   "unopened_n": 862,
+   "open_raise": 8.584686774941995,
+   "limp": 31.786542923433874,
+   "open_fold": 59.62877030162413,
+   "vs_raise_n": 695,
+   "vs_raise_fold": 76.40287769784173,
+   "vs_raise_call": 20.0,
+   "vs_raise_3bet": 3.597122302158273,
+   "preflop_allin_n": 15,
+   "preflop_decisions": 1726,
+   "eqHU_played": 0.5747345029239765,
+   "eqHU_folded": 0.4669418149466192,
+   "selection_auc": 0.8156854175771576
+  },
+  "anthropic/claude-haiku-5.5": {
+   "unopened_n": 503,
+   "open_raise": 41.35188866799205,
+   "limp": 38.56858846918489,
+   "open_fold": 20.07952286282306,
+   "vs_raise_n": 421,
+   "vs_raise_fold": 31.35391923990499,
+   "vs_raise_call": 62.47030878859857,
+   "vs_raise_3bet": 6.175771971496437,
+   "preflop_allin_n": 0,
+   "preflop_decisions": 1115,
+   "eqHU_played": 0.5277828326180258,
+   "eqHU_folded": 0.44865,
+   "selection_auc": 0.7378570074288571
+  },
+  "typesafe-ai/jev": {
+   "unopened_n": 786,
+   "open_raise": 27.989821882951652,
+   "limp": 30.15267175572519,
+   "open_fold": 41.85750636132315,
+   "vs_raise_n": 423,
+   "vs_raise_fold": 63.356973995271865,
+   "vs_raise_call": 32.6241134751773,
+   "vs_raise_3bet": 4.0189125295508275,
+   "preflop_allin_n": 6,
+   "preflop_decisions": 1363,
+   "eqHU_played": 0.5595836148648649,
+   "eqHU_folded": 0.43917591125198097,
+   "selection_auc": 0.8698802308647792
+  }
+ },
+ "position": {
+  "openai/gpt-6-sol": {
+   "button": {
+    "n": 437,
+    "vpip": 71.1670480549199,
+    "pfr": 55.60640732265446,
+    "bb100": 90.98613272311214
+   },
+   "cutoff": {
+    "n": 242,
+    "vpip": 42.97520661157025,
+    "pfr": 39.256198347107436,
+    "bb100": 49.57384297520661
+   },
+   "early": {
+    "n": 127,
+    "vpip": 25.984251968503937,
+    "pfr": 25.984251968503937,
+    "bb100": 87.50984251968504
+   },
+   "big blind": {
+    "n": 384,
+    "vpip": 46.875,
+    "pfr": 24.739583333333332,
+    "bb100": 84.54828124999999
+   },
+   "small blind": {
+    "n": 351,
+    "vpip": 71.22507122507122,
+    "pfr": 29.344729344729345,
+    "bb100": 90.74524216524217
+   }
+  },
+  "openai/gpt-6-luna": {
+   "big blind": {
+    "n": 442,
+    "vpip": 30.76923076923077,
+    "pfr": 5.656108597285068,
+    "bb100": -76.45364253393666
+   },
+   "small blind": {
+    "n": 360,
+    "vpip": 38.611111111111114,
+    "pfr": 8.333333333333334,
+    "bb100": -26.602416666666663
+   },
+   "button": {
+    "n": 457,
+    "vpip": 66.73960612691467,
+    "pfr": 17.72428884026258,
+    "bb100": 54.60956236323851
+   },
+   "cutoff": {
+    "n": 247,
+    "vpip": 50.607287449392715,
+    "pfr": 27.125506072874494,
+    "bb100": 41.28291497975709
+   },
+   "early": {
+    "n": 132,
+    "vpip": 20.454545454545453,
+    "pfr": 11.363636363636363,
+    "bb100": 81.39204545454545
+   }
+  },
+  "openai/gpt-6-luna-decisions": {
+   "early": {
+    "n": 132,
+    "vpip": 13.636363636363637,
+    "pfr": 6.818181818181818,
+    "bb100": 46.42515151515151
+   },
+   "big blind": {
+    "n": 434,
+    "vpip": 30.64516129032258,
+    "pfr": 5.0691244239631335,
+    "bb100": -93.62834101382488
+   },
+   "small blind": {
+    "n": 374,
+    "vpip": 28.342245989304814,
+    "pfr": 2.6737967914438503,
+    "bb100": -28.80176470588235
+   },
+   "button": {
+    "n": 441,
+    "vpip": 40.816326530612244,
+    "pfr": 9.750566893424036,
+    "bb100": 37.828820861678004
+   },
+   "cutoff": {
+    "n": 256,
+    "vpip": 29.6875,
+    "pfr": 8.59375,
+    "bb100": 82.4291796875
+   }
+  },
+  "anthropic/claude-haiku-5.5": {
+   "small blind": {
+    "n": 209,
+    "vpip": 72.2488038277512,
+    "pfr": 13.397129186602871,
+    "bb100": 54.40043062200957
+   },
+   "button": {
+    "n": 262,
+    "vpip": 82.06106870229007,
+    "pfr": 26.717557251908396,
+    "bb100": 62.06347328244275
+   },
+   "cutoff": {
+    "n": 178,
+    "vpip": 82.02247191011236,
+    "pfr": 52.247191011235955,
+    "bb100": -11.292134831460674
+   },
+   "early": {
+    "n": 130,
+    "vpip": 45.38461538461539,
+    "pfr": 25.384615384615383,
+    "bb100": -209.0576923076923
+   },
+   "big blind": {
+    "n": 252,
+    "vpip": 50.79365079365079,
+    "pfr": 11.904761904761905,
+    "bb100": -187.14658730158732
+   }
+  },
+  "typesafe-ai/jev": {
+   "cutoff": {
+    "n": 220,
+    "vpip": 62.27272727272727,
+    "pfr": 37.27272727272727,
+    "bb100": -80.16618181818183
+   },
+   "early": {
+    "n": 129,
+    "vpip": 41.86046511627907,
+    "pfr": 40.310077519379846,
+    "bb100": 55.62015503875969
+   },
+   "big blind": {
+    "n": 285,
+    "vpip": 26.31578947368421,
+    "pfr": 2.1052631578947367,
+    "bb100": -149.26757894736843
+   },
+   "small blind": {
+    "n": 282,
+    "vpip": 48.93617021276596,
+    "pfr": 3.5460992907801416,
+    "bb100": -47.24290780141844
+   },
+   "button": {
+    "n": 307,
+    "vpip": 61.237785016286644,
+    "pfr": 28.664495114006513,
+    "bb100": -35.90700325732899
+   }
+  }
+ },
+ "postflop": {
+  "openai/gpt-6-sol": {
+   "checked_to_n": 1350,
+   "bet_when_checked_to": 35.18518518518518,
+   "facing_n": 406,
+   "fold_to_bet": 54.679802955665025,
+   "call_bet": 41.6256157635468,
+   "raise_bet": 3.6945812807881775,
+   "fold_to_bet_flop": 59.6,
+   "facing_n_flop": 250,
+   "fold_to_bet_turn": 48.148148148148145,
+   "facing_n_turn": 108,
+   "fold_to_bet_river": 43.75,
+   "facing_n_river": 48
+  },
+  "openai/gpt-6-luna": {
+   "checked_to_n": 1324,
+   "bet_when_checked_to": 15.93655589123867,
+   "facing_n": 613,
+   "fold_to_bet": 57.25938009787928,
+   "call_bet": 40.61990212071778,
+   "raise_bet": 2.1207177814029365,
+   "fold_to_bet_flop": 54.3046357615894,
+   "facing_n_flop": 302,
+   "fold_to_bet_turn": 52.94117647058823,
+   "facing_n_turn": 204,
+   "fold_to_bet_river": 73.83177570093459,
+   "facing_n_river": 107
+  },
+  "openai/gpt-6-luna-decisions": {
+   "checked_to_n": 927,
+   "bet_when_checked_to": 28.26321467098166,
+   "facing_n": 320,
+   "fold_to_bet": 50.3125,
+   "call_bet": 49.375,
+   "raise_bet": 0.3125,
+   "fold_to_bet_flop": 41.27906976744186,
+   "facing_n_flop": 172,
+   "fold_to_bet_turn": 61.111111111111114,
+   "facing_n_turn": 90,
+   "fold_to_bet_river": 60.3448275862069,
+   "facing_n_river": 58
+  },
+  "anthropic/claude-haiku-5.5": {
+   "checked_to_n": 1408,
+   "bet_when_checked_to": 43.75,
+   "facing_n": 448,
+   "fold_to_bet": 20.535714285714285,
+   "call_bet": 75.44642857142857,
+   "raise_bet": 4.017857142857143,
+   "fold_to_bet_flop": 10.42654028436019,
+   "facing_n_flop": 211,
+   "fold_to_bet_turn": 27.564102564102566,
+   "facing_n_turn": 156,
+   "fold_to_bet_river": 33.333333333333336,
+   "facing_n_river": 81
+  },
+  "typesafe-ai/jev": {
+   "checked_to_n": 1040,
+   "bet_when_checked_to": 16.346153846153847,
+   "facing_n": 529,
+   "fold_to_bet": 22.3062381852552,
+   "call_bet": 77.50472589792061,
+   "raise_bet": 0.1890359168241966,
+   "fold_to_bet_flop": 16.228070175438596,
+   "facing_n_flop": 228,
+   "fold_to_bet_turn": 23.626373626373628,
+   "facing_n_turn": 182,
+   "fold_to_bet_river": 31.932773109243698,
+   "facing_n_river": 119
+  }
+ },
+ "sizing": {
+  "openai/gpt-6-sol": {
+   "preflop": {
+    "n": 572,
+    "raise_min": 15.734265734265735,
+    "raise_half_pot": 22.027972027972027,
+    "raise_pot": 34.96503496503497,
+    "raise_2x_pot": 4.370629370629371,
+    "all_in": 22.902097902097903,
+    "median_add_frac_pot": 1.5714,
+    "allin_median_bb": 13.7188
+   },
+   "postflop": {
+    "n": 490,
+    "raise_min": 17.142857142857142,
+    "raise_half_pot": 53.46938775510204,
+    "raise_pot": 22.448979591836736,
+    "raise_2x_pot": 0.20408163265306123,
+    "all_in": 6.73469387755102,
+    "median_add_frac_pot": 0.5,
+    "allin_median_bb": 14.8125
+   }
+  },
+  "openai/gpt-6-luna": {
+   "preflop": {
+    "n": 218,
+    "raise_min": 29.81651376146789,
+    "raise_half_pot": 23.853211009174313,
+    "raise_pot": 44.4954128440367,
+    "raise_2x_pot": 0.0,
+    "all_in": 1.834862385321101,
+    "median_add_frac_pot": 1.5,
+    "allin_median_bb": 3.21875
+   },
+   "postflop": {
+    "n": 224,
+    "raise_min": 29.017857142857142,
+    "raise_half_pot": 61.160714285714285,
+    "raise_pot": 5.803571428571429,
+    "raise_2x_pot": 0.0,
+    "all_in": 4.017857142857143,
+    "median_add_frac_pot": 0.5,
+    "allin_median_bb": 2.6875
+   }
+  },
+  "openai/gpt-6-luna-decisions": {
+   "preflop": {
+    "n": 111,
+    "raise_min": 12.612612612612613,
+    "raise_half_pot": 17.117117117117118,
+    "raise_pot": 56.75675675675676,
+    "raise_2x_pot": 0.0,
+    "all_in": 13.513513513513514,
+    "median_add_frac_pot": 1.5714,
+    "allin_median_bb": 2.5
+   },
+   "postflop": {
+    "n": 263,
+    "raise_min": 21.29277566539924,
+    "raise_half_pot": 71.10266159695817,
+    "raise_pot": 2.661596958174905,
+    "raise_2x_pot": 0.0,
+    "all_in": 4.942965779467681,
+    "median_add_frac_pot": 0.5,
+    "allin_median_bb": 2.5
+   }
+  },
+  "anthropic/claude-haiku-5.5": {
+   "preflop": {
+    "n": 256,
+    "raise_min": 79.6875,
+    "raise_half_pot": 10.9375,
+    "raise_pot": 9.375,
+    "raise_2x_pot": 0.0,
+    "all_in": 0.0,
+    "median_add_frac_pot": 1.3333,
+    "allin_median_bb": null
+   },
+   "postflop": {
+    "n": 634,
+    "raise_min": 13.091482649842272,
+    "raise_half_pot": 81.23028391167192,
+    "raise_pot": 4.416403785488959,
+    "raise_2x_pot": 0.0,
+    "all_in": 1.2618296529968454,
+    "median_add_frac_pot": 0.5,
+    "allin_median_bb": 0.75
+   }
+  },
+  "typesafe-ai/jev": {
+   "preflop": {
+    "n": 241,
+    "raise_min": 48.96265560165975,
+    "raise_half_pot": 0.0,
+    "raise_pot": 48.54771784232365,
+    "raise_2x_pot": 0.0,
+    "all_in": 2.4896265560165975,
+    "median_add_frac_pot": 1.5714,
+    "allin_median_bb": 10.6969
+   },
+   "postflop": {
+    "n": 171,
+    "raise_min": 5.2631578947368425,
+    "raise_half_pot": 59.06432748538012,
+    "raise_pot": 16.374269005847953,
+    "raise_2x_pot": 0.0,
+    "all_in": 19.29824561403509,
+    "median_add_frac_pot": 0.5,
+    "allin_median_bb": 17.5
+   }
+  }
+ },
+ "ops": {
+  "openai/gpt-6-sol": {
+   "decisions": 3361,
+   "lat_mean": 3103.574828919964,
+   "lat_p50": 3054.0,
+   "lat_p95": 4980.0,
+   "lat_max": 13812.0,
+   "in_tok": 1027.9363284736685,
+   "out_tok": 110.75423980958048,
+   "cost": 10.6305,
+   "cost_per_decision": 0.0031628979470395713,
+   "cost_per_100_hands": 0.6677449748743718,
+   "bb_won": 1293.496875,
+   "usd_per_bb_won": 0.008218419545853173,
+   "fallbacks": 0.0,
+   "decisions_per_hand": 2.111180904522613
+  },
+  "openai/gpt-6-luna": {
+   "decisions": 3676,
+   "lat_mean": 1968.1569640914038,
+   "lat_p50": 1812.5,
+   "lat_p95": 2845.75,
+   "lat_max": 13354.0,
+   "in_tok": 1031.7973340587596,
+   "out_tok": 57.110990206746465,
+   "cost": 0.382,
+   "cost_per_decision": 0.00010391730141458107,
+   "cost_per_100_hands": 0.022887956860395447,
+   "bb_won": 29.48437500000001,
+   "usd_per_bb_won": 0.012956014838367775,
+   "fallbacks": 0.0,
+   "decisions_per_hand": 2.2025164769322947
+  },
+  "openai/gpt-6-luna-decisions": {
+   "decisions": 2973,
+   "lat_mean": 244.4611503531786,
+   "lat_p50": 201.0,
+   "lat_p95": 368.4000000000001,
+   "lat_max": 9701.0,
+   "in_tok": 553.5001681802893,
+   "out_tok": 0.0,
+   "cost": 0.22160000000000002,
+   "cost_per_decision": 7.453750420450724e-05,
+   "cost_per_100_hands": 0.01340592861464005,
+   "bb_won": -73.08125000000001,
+   "usd_per_bb_won": null,
+   "fallbacks": 0.0,
+   "decisions_per_hand": 1.7985480943738656
+  },
+  "anthropic/claude-haiku-5.5": {
+   "decisions": 2971,
+   "lat_mean": 2480.986873106698,
+   "lat_p50": 1925.0,
+   "lat_p95": 5386.5,
+   "lat_max": 13873.0,
+   "in_tok": 1815.77347694379,
+   "out_tok": 230.46314372265232,
+   "cost": 0.8633,
+   "cost_per_decision": 0.000290575563783238,
+   "cost_per_100_hands": 0.08237595419847328,
+   "bb_won": -480.23749999999995,
+   "usd_per_bb_won": null,
+   "fallbacks": 0.0,
+   "decisions_per_hand": 2.8349236641221376
+  },
+  "typesafe-ai/jev": {
+   "decisions": 2932,
+   "lat_mean": 255.24522510231924,
+   "lat_p50": 206.0,
+   "lat_p95": 366.34999999999945,
+   "lat_max": 8417.0,
+   "in_tok": 998.6620054570259,
+   "out_tok": 67.89665757162346,
+   "cost": 0.012700000000000001,
+   "cost_per_decision": 4.331514324693043e-06,
+   "cost_per_100_hands": 0.0010217216411906678,
+   "bb_won": -769.6625,
+   "usd_per_bb_won": null,
+   "fallbacks": 0.0,
+   "decisions_per_hand": 2.35880933226066
+  }
+ },
+ "run_cost": 12.1101,
+ "think": {
+  "openai/gpt-6-sol": {
+   "preflop": {
+    "out_tok": 94.3644859813084,
+    "lat": 2856.892211838006
+   },
+   "flop": {
+    "out_tok": 102.29757785467127,
+    "lat": 2965.3148788927338
+   },
+   "turn": {
+    "out_tok": 135.67917448405254,
+    "lat": 3490.7410881801125
+   },
+   "river": {
+    "out_tok": 167.92415730337078,
+    "lat": 3972.7808988764045
+   },
+   "facing_half_stack_out_tok": 196.05882352941177,
+   "checked_to_out_tok": 117.24111675126903,
+   "close_spot_out_tok": 109.0,
+   "clear_spot_out_tok": 120.51807228915662
+  },
+  "anthropic/claude-haiku-5.5": {
+   "preflop": {
+    "out_tok": 119.28699551569507,
+    "lat": 1715.9156950672646
+   },
+   "flop": {
+    "out_tok": 182.9102402022756,
+    "lat": 2212.1150442477874
+   },
+   "turn": {
+    "out_tok": 322.76121794871796,
+    "lat": 3105.3990384615386
+   },
+   "river": {
+    "out_tok": 466.24943310657596,
+    "lat": 4014.090702947846
+   },
+   "facing_half_stack_out_tok": 399.875,
+   "checked_to_out_tok": 267.1546526867628,
+   "close_spot_out_tok": 175.7722095671982,
+   "clear_spot_out_tok": 311.6020942408377
+  },
+  "openai/gpt-6-luna": {
+   "preflop": {
+    "out_tok": 57.020701552616444,
+    "lat": 1941.6193214491086
+   },
+   "flop": {
+    "out_tok": 56.14027149321267,
+    "lat": 1993.5339366515836
+   },
+   "turn": {
+    "out_tok": 57.2032,
+    "lat": 1983.8176
+   },
+   "river": {
+    "out_tok": 59.348130841121495,
+    "lat": 2000.6985981308412
+   },
+   "facing_half_stack_out_tok": 58.27927927927928,
+   "checked_to_out_tok": 55.79625918503674,
+   "close_spot_out_tok": 57.990801576872535,
+   "clear_spot_out_tok": 62.75
+  }
+ },
+ "by_level": {
+  "openai/gpt-6-sol": {
+   "0": {
+    "n": 397,
+    "bb100": 108.38790931989925,
+    "chips": 8606.0,
+    "avg_stack_bb": 80.68047858942064
+   },
+   "1": {
+    "n": 390,
+    "bb100": 111.69871794871794,
+    "chips": 17425.0,
+    "avg_stack_bb": 50.51064102564102
+   },
+   "2": {
+    "n": 334,
+    "bb100": 65.98428143712574,
+    "chips": 17631.0,
+    "avg_stack_bb": 34.42275449101797
+   },
+   "3": {
+    "n": 280,
+    "bb100": 39.09596428571428,
+    "chips": 17515.0,
+    "avg_stack_bb": 24.45320285714286
+   },
+   "4": {
+    "n": 191,
+    "bb100": 51.16,
+    "chips": 31269.0,
+    "avg_stack_bb": 13.84418219895288
+   }
+  },
+  "openai/gpt-6-luna": {
+   "0": {
+    "n": 400,
+    "bb100": 40.4,
+    "chips": 3232.0,
+    "avg_stack_bb": 77.30225
+   },
+   "1": {
+    "n": 391,
+    "bb100": -4.597186700767264,
+    "chips": -719.0,
+    "avg_stack_bb": 40.92237851662404
+   },
+   "2": {
+    "n": 354,
+    "bb100": -36.86440677966102,
+    "chips": -10440.0,
+    "avg_stack_bb": 20.473764124293783
+   },
+   "3": {
+    "n": 306,
+    "bb100": 22.430588235294117,
+    "chips": 10982.0,
+    "avg_stack_bb": 11.269717320261439
+   },
+   "4": {
+    "n": 218,
+    "bb100": -23.980871559633027,
+    "chips": -16729.0,
+    "avg_stack_bb": 8.386833486238531
+   }
+  },
+  "openai/gpt-6-luna-decisions": {
+   "0": {
+    "n": 400,
+    "bb100": -19.3,
+    "chips": -1544.0,
+    "avg_stack_bb": 74.274375
+   },
+   "1": {
+    "n": 400,
+    "bb100": 35.175,
+    "chips": 5628.0,
+    "avg_stack_bb": 38.0261875
+   },
+   "2": {
+    "n": 384,
+    "bb100": -9.456380208333334,
+    "chips": -2905.0,
+    "avg_stack_bb": 20.958430989583334
+   },
+   "3": {
+    "n": 277,
+    "bb100": -16.28393501805054,
+    "chips": -7217.0,
+    "avg_stack_bb": 12.919916967509025
+   },
+   "4": {
+    "n": 192,
+    "bb100": -28.7303125,
+    "chips": -17652.0,
+    "avg_stack_bb": 6.942496875000001
+   }
+  },
+  "anthropic/claude-haiku-5.5": {
+   "0": {
+    "n": 392,
+    "bb100": -33.469387755102034,
+    "chips": -2624.0,
+    "avg_stack_bb": 75.68686224489795
+   },
+   "1": {
+    "n": 281,
+    "bb100": -131.37900355871886,
+    "chips": -14767.0,
+    "avg_stack_bb": 41.47446619217082
+   },
+   "2": {
+    "n": 180,
+    "bb100": 40.01388888888889,
+    "chips": 5762.0,
+    "avg_stack_bb": 30.449583333333333
+   },
+   "3": {
+    "n": 127,
+    "bb100": -79.7392125984252,
+    "chips": -16203.0,
+    "avg_stack_bb": 19.14493937007875
+   },
+   "4": {
+    "n": 68,
+    "bb100": 72.61955882352942,
+    "chips": 15802.0,
+    "avg_stack_bb": 14.212686764705882
+   }
+  },
+  "typesafe-ai/jev": {
+   "0": {
+    "n": 376,
+    "bb100": -101.99468085106383,
+    "chips": -7670.0,
+    "avg_stack_bb": 73.59029255319149
+   },
+   "1": {
+    "n": 324,
+    "bb100": -58.38734567901235,
+    "chips": -7567.0,
+    "avg_stack_bb": 38.38086419753086
+   },
+   "2": {
+    "n": 244,
+    "bb100": -51.47540983606557,
+    "chips": -10048.0,
+    "avg_stack_bb": 21.418545081967217
+   },
+   "3": {
+    "n": 189,
+    "bb100": -16.78904761904762,
+    "chips": -5077.0,
+    "avg_stack_bb": 11.44501798941799
+   },
+   "4": {
+    "n": 110,
+    "bb100": -36.051272727272725,
+    "chips": -12690.0,
+    "avg_stack_bb": 6.405262727272727
+   }
+  }
+ },
+ "chips_total": {
+  "openai/gpt-6-sol": 92446.0,
+  "openai/gpt-6-luna": -13674.0,
+  "openai/gpt-6-luna-decisions": -23690.0,
+  "anthropic/claude-haiku-5.5": -12030.0,
+  "typesafe-ai/jev": -43052.0
+ }
+}

@@ -1,0 +1,905 @@
+{
+ "fold_by_size": {
+  "openai/gpt-6-sol": {
+   "small (<40% pot)": {
+    "n": 116,
+    "fold": 56.03448275862069,
+    "alpha": 20.94829986474022,
+    "folded_best_now": 3.076923076923077
+   },
+   "medium (40\u201375%)": {
+    "n": 271,
+    "fold": 52.76752767527675,
+    "alpha": 33.27855532901448,
+    "folded_best_now": 13.286713286713287
+   },
+   "pot-ish (75\u2013125%)": {
+    "n": 17,
+    "fold": 70.58823529411765,
+    "alpha": 50.038223469531765,
+    "folded_best_now": 8.333333333333334
+   },
+   "overbet (>125%)": {
+    "n": 2,
+    "fold": 100.0,
+    "alpha": 60.56086457027452,
+    "folded_best_now": 50.0
+   },
+   "facing all-in": {
+    "n": 19,
+    "fold": 52.63157894736842
+   }
+  },
+  "openai/gpt-6-luna": {
+   "small (<40% pot)": {
+    "n": 129,
+    "fold": 47.286821705426355,
+    "alpha": 18.148591800895616,
+    "folded_best_now": 16.39344262295082
+   },
+   "medium (40\u201375%)": {
+    "n": 418,
+    "fold": 56.698564593301434,
+    "alpha": 33.41737348561963,
+    "folded_best_now": 18.9873417721519
+   },
+   "pot-ish (75\u2013125%)": {
+    "n": 63,
+    "fold": 79.36507936507937,
+    "alpha": 49.91519623118245,
+    "folded_best_now": 38.0
+   },
+   "overbet (>125%)": {
+    "n": 3,
+    "fold": 100.0,
+    "alpha": 60.36630892539693,
+    "folded_best_now": 33.333333333333336
+   },
+   "facing all-in": {
+    "n": 27,
+    "fold": 59.25925925925926
+   }
+  },
+  "openai/gpt-6-luna-decisions": {
+   "small (<40% pot)": {
+    "n": 84,
+    "fold": 41.666666666666664,
+    "alpha": 17.983138885102388,
+    "folded_best_now": 17.142857142857142
+   },
+   "medium (40\u201375%)": {
+    "n": 207,
+    "fold": 50.72463768115942,
+    "alpha": 33.36243427855559,
+    "folded_best_now": 22.857142857142858
+   },
+   "pot-ish (75\u2013125%)": {
+    "n": 27,
+    "fold": 70.37037037037037,
+    "alpha": 50.0,
+    "folded_best_now": 31.57894736842105
+   },
+   "overbet (>125%)": {
+    "n": 2,
+    "fold": 100.0,
+    "alpha": 62.500468744140704,
+    "folded_best_now": 0.0
+   },
+   "facing all-in": {
+    "n": 33,
+    "fold": 30.303030303030305
+   }
+  },
+  "anthropic/claude-haiku-5.5": {
+   "small (<40% pot)": {
+    "n": 114,
+    "fold": 19.29824561403509,
+    "alpha": 17.20004992194564,
+    "folded_best_now": 4.545454545454546
+   },
+   "medium (40\u201375%)": {
+    "n": 266,
+    "fold": 18.796992481203006,
+    "alpha": 33.38035275078469,
+    "folded_best_now": 10.0
+   },
+   "pot-ish (75\u2013125%)": {
+    "n": 65,
+    "fold": 29.23076923076923,
+    "alpha": 50.0965355868148,
+    "folded_best_now": 10.526315789473685
+   },
+   "overbet (>125%)": {
+    "n": 3,
+    "fold": 33.333333333333336,
+    "alpha": 63.960903378727586,
+    "folded_best_now": 0.0
+   },
+   "facing all-in": {
+    "n": 58,
+    "fold": 37.93103448275862
+   }
+  },
+  "typesafe-ai/jev": {
+   "small (<40% pot)": {
+    "n": 112,
+    "fold": 24.107142857142858,
+    "alpha": 18.961077689318866,
+    "folded_best_now": 7.407407407407407
+   },
+   "medium (40\u201375%)": {
+    "n": 377,
+    "fold": 20.954907161803714,
+    "alpha": 33.260903473501386,
+    "folded_best_now": 13.924050632911392
+   },
+   "pot-ish (75\u2013125%)": {
+    "n": 37,
+    "fold": 27.027027027027028,
+    "alpha": 49.967974833614385,
+    "folded_best_now": 20.0
+   },
+   "overbet (>125%)": {
+    "n": 3,
+    "fold": 66.66666666666667,
+    "alpha": 63.889201384982684,
+    "folded_best_now": 0.0
+   },
+   "facing all-in": {
+    "n": 25,
+    "fold": 36.0
+   }
+  }
+ },
+ "preflop_vs_big": {
+  "openai/gpt-6-sol": {
+   "n": 34,
+   "fold": 23.529411764705884,
+   "call_eq_mean": 0.3114615384615385,
+   "fold_eq_mean": 0.1831375
+  },
+  "openai/gpt-6-luna": {
+   "n": 149,
+   "fold": 63.758389261744966,
+   "call_eq_mean": 0.44149814814814803,
+   "fold_eq_mean": 0.31579578947368425
+  },
+  "openai/gpt-6-luna-decisions": {
+   "n": 128,
+   "fold": 69.53125,
+   "call_eq_mean": 0.47084615384615386,
+   "fold_eq_mean": 0.3418561797752809
+  },
+  "anthropic/claude-haiku-5.5": {
+   "n": 69,
+   "fold": 26.08695652173913,
+   "call_eq_mean": 0.33073529411764707,
+   "fold_eq_mean": 0.2128
+  },
+  "typesafe-ai/jev": {
+   "n": 88,
+   "fold": 63.63636363636363,
+   "call_eq_mean": 0.400878125,
+   "fold_eq_mean": 0.3286375
+  }
+ },
+ "quality": {
+  "openai/gpt-6-sol": {
+   "river_hu": {
+    "n": 37,
+    "folds": 15,
+    "calls": 21,
+    "bad_fold": 1,
+    "bad_call": 9,
+    "bad_fold_rate": 6.666666666666667,
+    "bad_call_rate": 42.857142857142854,
+    "bb_lost_bad_folds": 131.25,
+    "bb_lost_bad_calls": 55.5
+   },
+   "river_all": {
+    "n": 48,
+    "folds": 21,
+    "calls": 26,
+    "bad_fold": 1,
+    "bad_call": 13,
+    "bad_fold_rate": 4.761904761904762,
+    "bad_call_rate": 50.0,
+    "bb_lost_bad_folds": 131.25,
+    "bb_lost_bad_calls": 69.5625
+   },
+   "folded_winner_examples": [
+    {
+     "tournamentId": "m07-r1",
+     "handNo": 5.0,
+     "hole": "KdAc",
+     "board": "Td6c2cJc8s",
+     "made": "high_card",
+     "pot": 2625.0,
+     "toCall": 585.0,
+     "bb": 20.0,
+     "facingAgg": "typesafe-ai/jev"
+    }
+   ],
+   "called_loser_examples": [
+    {
+     "tournamentId": "m04-r4",
+     "handNo": 7.0,
+     "hole": "4d7d",
+     "board": "3s3h7hKc2c",
+     "made": "two_pair",
+     "pot": 750.0,
+     "toCall": 250.0,
+     "bb": 20.0,
+     "facingAgg": "anthropic/claude-haiku-5.5"
+    },
+    {
+     "tournamentId": "m03-r3",
+     "handNo": 19.0,
+     "hole": "As7h",
+     "board": "3hAc8hJdKd",
+     "made": "pair",
+     "pot": 1320.0,
+     "toCall": 440.0,
+     "bb": 40.0,
+     "facingAgg": "anthropic/claude-haiku-5.5"
+    },
+    {
+     "tournamentId": "m07-r4",
+     "handNo": 16.0,
+     "hole": "3d6d",
+     "board": "TdKsAd9sQd",
+     "made": "flush",
+     "pot": 720.0,
+     "toCall": 360.0,
+     "bb": 40.0,
+     "facingAgg": "anthropic/claude-haiku-5.5"
+    },
+    {
+     "tournamentId": "m08-r2",
+     "handNo": 6.0,
+     "hole": "8hAh",
+     "board": "4sTd5c8sJd",
+     "made": "pair",
+     "pot": 540.0,
+     "toCall": 180.0,
+     "bb": 20.0,
+     "facingAgg": "anthropic/claude-haiku-5.5"
+    }
+   ]
+  },
+  "openai/gpt-6-luna": {
+   "river_hu": {
+    "n": 66,
+    "folds": 50,
+    "calls": 15,
+    "bad_fold": 25,
+    "bad_call": 5,
+    "bad_fold_rate": 50.0,
+    "bad_call_rate": 33.333333333333336,
+    "bb_lost_bad_folds": 314.8375,
+    "bb_lost_bad_calls": 8.1875
+   },
+   "river_all": {
+    "n": 107,
+    "folds": 79,
+    "calls": 26,
+    "bad_fold": 31,
+    "bad_call": 10,
+    "bad_fold_rate": 39.24050632911393,
+    "bad_call_rate": 38.46153846153846,
+    "bb_lost_bad_folds": 375.9625,
+    "bb_lost_bad_calls": 22.0625
+   },
+   "folded_winner_examples": [
+    {
+     "tournamentId": "m06-r0",
+     "handNo": 7.0,
+     "hole": "QhJc",
+     "board": "9d4cJs4d3d",
+     "made": "two_pair",
+     "pot": 960.0,
+     "toCall": 480.0,
+     "bb": 20.0,
+     "facingAgg": "typesafe-ai/jev"
+    },
+    {
+     "tournamentId": "m07-r4",
+     "handNo": 2.0,
+     "hole": "JcJd",
+     "board": "6cQd2d3dAd",
+     "made": "flush",
+     "pot": 900.0,
+     "toCall": 300.0,
+     "bb": 20.0,
+     "facingAgg": "anthropic/claude-haiku-5.5"
+    },
+    {
+     "tournamentId": "m01-r3",
+     "handNo": 21.0,
+     "hole": "4sJs",
+     "board": "3hTs8d4h3c",
+     "made": "two_pair",
+     "pot": 1640.0,
+     "toCall": 920.0,
+     "bb": 80.0,
+     "facingAgg": "openai/gpt-6-sol"
+    },
+    {
+     "tournamentId": "m05-r2",
+     "handNo": 35.0,
+     "hole": "QdKh",
+     "board": "AhQh6dTdTs",
+     "made": "two_pair",
+     "pot": 2560.0,
+     "toCall": 1280.0,
+     "bb": 160.0,
+     "facingAgg": "openai/gpt-6-sol"
+    }
+   ],
+   "called_loser_examples": [
+    {
+     "tournamentId": "m04-r1",
+     "handNo": 30.0,
+     "hole": "9sJd",
+     "board": "8h8s4h4s7c",
+     "made": "two_pair",
+     "pot": 840.0,
+     "toCall": 280.0,
+     "bb": 80.0,
+     "facingAgg": "anthropic/claude-haiku-5.5"
+    },
+    {
+     "tournamentId": "m07-r1",
+     "handNo": 29.0,
+     "hole": "5d3c",
+     "board": "Js5sAh4s5c",
+     "made": "trips",
+     "pot": 320.0,
+     "toCall": 160.0,
+     "bb": 80.0,
+     "facingAgg": "anthropic/claude-haiku-5.5"
+    },
+    {
+     "tournamentId": "m07-r1",
+     "handNo": 16.0,
+     "hole": "3d6d",
+     "board": "TdKsAd9sQd",
+     "made": "flush",
+     "pot": 180.0,
+     "toCall": 60.0,
+     "bb": 40.0,
+     "facingAgg": "openai/gpt-6-luna-decisions"
+    },
+    {
+     "tournamentId": "m03-r4",
+     "handNo": 36.0,
+     "hole": "QsQd",
+     "board": "ThKh6hKsAd",
+     "made": "two_pair",
+     "pot": 2080.0,
+     "toCall": 160.0,
+     "bb": 160.0,
+     "facingAgg": "openai/gpt-6-sol"
+    }
+   ]
+  },
+  "openai/gpt-6-luna-decisions": {
+   "river_hu": {
+    "n": 39,
+    "folds": 23,
+    "calls": 16,
+    "bad_fold": 8,
+    "bad_call": 12,
+    "bad_fold_rate": 34.78260869565217,
+    "bad_call_rate": 75.0,
+    "bb_lost_bad_folds": 106.34375,
+    "bb_lost_bad_calls": 44.5
+   },
+   "river_all": {
+    "n": 58,
+    "folds": 35,
+    "calls": 23,
+    "bad_fold": 12,
+    "bad_call": 14,
+    "bad_fold_rate": 34.285714285714285,
+    "bad_call_rate": 60.869565217391305,
+    "bb_lost_bad_folds": 182.84375,
+    "bb_lost_bad_calls": 45.6875
+   },
+   "folded_winner_examples": [
+    {
+     "tournamentId": "m04-r1",
+     "handNo": 10.0,
+     "hole": "QhTs",
+     "board": "Qs7c3h7hJh",
+     "made": "two_pair",
+     "pot": 875.0,
+     "toCall": 292.0,
+     "bb": 20.0,
+     "facingAgg": "anthropic/claude-haiku-5.5"
+    },
+    {
+     "tournamentId": "m08-r1",
+     "handNo": 21.0,
+     "hole": "KsTc",
+     "board": "AdTsTh2s7h",
+     "made": "trips",
+     "pot": 1680.0,
+     "toCall": 560.0,
+     "bb": 80.0,
+     "facingAgg": "openai/gpt-6-sol"
+    },
+    {
+     "tournamentId": "m06-r4",
+     "handNo": 49.0,
+     "hole": "4hAs",
+     "board": "7h9d8hQc4c",
+     "made": "pair",
+     "pot": 2560.0,
+     "toCall": 1280.0,
+     "bb": 320.0,
+     "facingAgg": "openai/gpt-6-sol"
+    },
+    {
+     "tournamentId": "m07-r4",
+     "handNo": 29.0,
+     "hole": "QsJs",
+     "board": "Ah4c4s5cJd",
+     "made": "two_pair",
+     "pot": 720.0,
+     "toCall": 240.0,
+     "bb": 80.0,
+     "facingAgg": "anthropic/claude-haiku-5.5"
+    }
+   ],
+   "called_loser_examples": [
+    {
+     "tournamentId": "m06-r3",
+     "handNo": 9.0,
+     "hole": "AcTc",
+     "board": "3d9h5c3c4d",
+     "made": "pair",
+     "pot": 1320.0,
+     "toCall": 440.0,
+     "bb": 20.0,
+     "facingAgg": "anthropic/claude-haiku-5.5"
+    },
+    {
+     "tournamentId": "m07-r0",
+     "handNo": 25.0,
+     "hole": "Ac9s",
+     "board": "KsAd9c3h8h",
+     "made": "two_pair",
+     "pot": 1920.0,
+     "toCall": 640.0,
+     "bb": 80.0,
+     "facingAgg": "anthropic/claude-haiku-5.5"
+    },
+    {
+     "tournamentId": "m04-r2",
+     "handNo": 40.0,
+     "hole": "AdKh",
+     "board": "5s3cQd7sQs",
+     "made": "pair",
+     "pot": 1920.0,
+     "toCall": 640.0,
+     "bb": 160.0,
+     "facingAgg": "openai/gpt-6-sol"
+    },
+    {
+     "tournamentId": "m06-r3",
+     "handNo": 33.0,
+     "hole": "7dQs",
+     "board": "JdQhJsTdKc",
+     "made": "two_pair",
+     "pot": 960.0,
+     "toCall": 320.0,
+     "bb": 160.0,
+     "facingAgg": "openai/gpt-6-luna"
+    }
+   ]
+  },
+  "anthropic/claude-haiku-5.5": {
+   "river_hu": {
+    "n": 62,
+    "folds": 22,
+    "calls": 40,
+    "bad_fold": 6,
+    "bad_call": 30,
+    "bad_fold_rate": 27.272727272727273,
+    "bad_call_rate": 75.0,
+    "bb_lost_bad_folds": 356.125,
+    "bb_lost_bad_calls": 194.465625
+   },
+   "river_all": {
+    "n": 81,
+    "folds": 27,
+    "calls": 52,
+    "bad_fold": 6,
+    "bad_call": 40,
+    "bad_fold_rate": 22.22222222222222,
+    "bad_call_rate": 76.92307692307692,
+    "bb_lost_bad_folds": 356.125,
+    "bb_lost_bad_calls": 266.090625
+   },
+   "folded_winner_examples": [
+    {
+     "tournamentId": "m03-r0",
+     "handNo": 10.0,
+     "hole": "TcAc",
+     "board": "3dJs4h5h3c",
+     "made": "pair",
+     "pot": 2250.0,
+     "toCall": 775.0,
+     "bb": 20.0,
+     "facingAgg": "typesafe-ai/jev"
+    },
+    {
+     "tournamentId": "m04-r2",
+     "handNo": 7.0,
+     "hole": "7cQc",
+     "board": "3s3h7hKc2c",
+     "made": "two_pair",
+     "pot": 2015.0,
+     "toCall": 860.0,
+     "bb": 20.0,
+     "facingAgg": "openai/gpt-6-sol"
+    },
+    {
+     "tournamentId": "m06-r4",
+     "handNo": 2.0,
+     "hole": "TcAs",
+     "board": "9hJd6dKc4h",
+     "made": "high_card",
+     "pot": 1540.0,
+     "toCall": 820.0,
+     "bb": 20.0,
+     "facingAgg": "openai/gpt-6-sol"
+    },
+    {
+     "tournamentId": "m02-r3",
+     "handNo": 20.0,
+     "hole": "AdQc",
+     "board": "9d9h8cAc5d",
+     "made": "two_pair",
+     "pot": 1685.0,
+     "toCall": 645.0,
+     "bb": 40.0,
+     "facingAgg": "typesafe-ai/jev"
+    }
+   ],
+   "called_loser_examples": [
+    {
+     "tournamentId": "m03-r4",
+     "handNo": 2.0,
+     "hole": "2s9s",
+     "board": "4sKc5s6dTs",
+     "made": "flush",
+     "pot": 1080.0,
+     "toCall": 360.0,
+     "bb": 20.0,
+     "facingAgg": "openai/gpt-6-luna"
+    },
+    {
+     "tournamentId": "m07-r2",
+     "handNo": 2.0,
+     "hole": "9sAc",
+     "board": "6cQd2d3dAd",
+     "made": "pair",
+     "pot": 810.0,
+     "toCall": 270.0,
+     "bb": 20.0,
+     "facingAgg": "openai/gpt-6-sol"
+    },
+    {
+     "tournamentId": "m08-r0",
+     "handNo": 4.0,
+     "hole": "7c7d",
+     "board": "6hKh7h2d4h",
+     "made": "trips",
+     "pot": 780.0,
+     "toCall": 260.0,
+     "bb": 20.0,
+     "facingAgg": "openai/gpt-6-sol"
+    },
+    {
+     "tournamentId": "m07-r3",
+     "handNo": 4.0,
+     "hole": "TdJh",
+     "board": "Js6s9c8d8h",
+     "made": "two_pair",
+     "pot": 2485.0,
+     "toCall": 245.0,
+     "bb": 20.0,
+     "facingAgg": "typesafe-ai/jev"
+    }
+   ]
+  },
+  "typesafe-ai/jev": {
+   "river_hu": {
+    "n": 95,
+    "folds": 27,
+    "calls": 68,
+    "bad_fold": 6,
+    "bad_call": 36,
+    "bad_fold_rate": 22.22222222222222,
+    "bad_call_rate": 52.94117647058823,
+    "bb_lost_bad_folds": 74.5,
+    "bb_lost_bad_calls": 238.4375
+   },
+   "river_all": {
+    "n": 119,
+    "folds": 38,
+    "calls": 81,
+    "bad_fold": 8,
+    "bad_call": 48,
+    "bad_fold_rate": 21.05263157894737,
+    "bad_call_rate": 59.25925925925926,
+    "bb_lost_bad_folds": 83.4998,
+    "bb_lost_bad_calls": 303.8625
+   },
+   "folded_winner_examples": [
+    {
+     "tournamentId": "m07-r3",
+     "handNo": 13.0,
+     "hole": "Qs8s",
+     "board": "7d5s2d6s7h",
+     "made": "pair",
+     "pot": 800.0,
+     "toCall": 400.0,
+     "bb": 40.0,
+     "facingAgg": "openai/gpt-6-sol"
+    },
+    {
+     "tournamentId": "m05-r1",
+     "handNo": 15.0,
+     "hole": "Qh9s",
+     "board": "6sTsJs3c5s",
+     "made": "flush",
+     "pot": 720.0,
+     "toCall": 240.0,
+     "bb": 40.0,
+     "facingAgg": "anthropic/claude-haiku-5.5"
+    },
+    {
+     "tournamentId": "m02-r4",
+     "handNo": 15.0,
+     "hole": "Ad2d",
+     "board": "7h3d4dJh6d",
+     "made": "flush",
+     "pot": 480.0,
+     "toCall": 160.0,
+     "bb": 40.0,
+     "facingAgg": "openai/gpt-6-luna"
+    },
+    {
+     "tournamentId": "m04-r1",
+     "handNo": 3.0,
+     "hole": "3s3h",
+     "board": "6d5h2dAd6s",
+     "made": "two_pair",
+     "pot": 240.0,
+     "toCall": 80.0,
+     "bb": 20.0,
+     "facingAgg": "openai/gpt-6-luna"
+    }
+   ],
+   "called_loser_examples": [
+    {
+     "tournamentId": "m02-r0",
+     "handNo": 5.0,
+     "hole": "5h8c",
+     "board": "4s5d3c8hJd",
+     "made": "two_pair",
+     "pot": 1440.0,
+     "toCall": 720.0,
+     "bb": 20.0,
+     "facingAgg": "openai/gpt-6-sol"
+    },
+    {
+     "tournamentId": "m04-r1",
+     "handNo": 5.0,
+     "hole": "8hTs",
+     "board": "8sKhJsThQs",
+     "made": "two_pair",
+     "pot": 1500.0,
+     "toCall": 500.0,
+     "bb": 20.0,
+     "facingAgg": "anthropic/claude-haiku-5.5"
+    },
+    {
+     "tournamentId": "m07-r1",
+     "handNo": 15.0,
+     "hole": "KsAh",
+     "board": "4h7h6h3d2s",
+     "made": "high_card",
+     "pot": 2520.0,
+     "toCall": 840.0,
+     "bb": 40.0,
+     "facingAgg": "anthropic/claude-haiku-5.5"
+    },
+    {
+     "tournamentId": "m04-r3",
+     "handNo": 3.0,
+     "hole": "9hKh",
+     "board": "6d5h2dAd6s",
+     "made": "pair",
+     "pot": 960.0,
+     "toCall": 320.0,
+     "bb": 20.0,
+     "facingAgg": "anthropic/claude-haiku-5.5"
+    }
+   ]
+  }
+ },
+ "bettor": {
+  "openai/gpt-6-sol": {
+   "raise_half_pot": {
+    "n": 257,
+    "eqActual_mean": 0.6460163424124514,
+    "won_hand": 81.71206225680933,
+    "bb_per_bet_hand": 6.587718287937744
+   },
+   "raise_min": {
+    "n": 83,
+    "eqActual_mean": 0.4400060240963855,
+    "won_hand": 73.49397590361446,
+    "bb_per_bet_hand": 1.23855421686747
+   },
+   "raise_pot": {
+    "n": 108,
+    "eqActual_mean": 0.49292870370370373,
+    "won_hand": 76.85185185185185,
+    "bb_per_bet_hand": 5.658044444444444
+   },
+   "all_in": {
+    "n": 26,
+    "eqActual_mean": 0.6705461538461539,
+    "won_hand": 92.3076923076923,
+    "bb_per_bet_hand": 18.554326923076925
+   },
+   "raise_2x_pot": {
+    "n": 1,
+    "eqActual_mean": 0.0,
+    "won_hand": 100.0,
+    "bb_per_bet_hand": 2.75
+   },
+   "_bluff_share": 33.26315789473684,
+   "_value_share": 50.31578947368421
+  },
+  "openai/gpt-6-luna": {
+   "raise_min": {
+    "n": 62,
+    "eqActual_mean": 0.7594145161290322,
+    "won_hand": 77.41935483870968,
+    "bb_per_bet_hand": 4.043598387096774
+   },
+   "raise_half_pot": {
+    "n": 132,
+    "eqActual_mean": 0.7983757575757575,
+    "won_hand": 84.84848484848484,
+    "bb_per_bet_hand": 7.861434090909091
+   },
+   "raise_pot": {
+    "n": 10,
+    "eqActual_mean": 0.9430799999999999,
+    "won_hand": 100.0,
+    "bb_per_bet_hand": 17.625
+   },
+   "all_in": {
+    "n": 7,
+    "eqActual_mean": 0.9951285714285714,
+    "won_hand": 100.0,
+    "bb_per_bet_hand": 9.177685714285714
+   },
+   "_bluff_share": 10.90047393364929,
+   "_value_share": 78.67298578199052
+  },
+  "openai/gpt-6-luna-decisions": {
+   "all_in": {
+    "n": 12,
+    "eqActual_mean": 0.6811000000000001,
+    "won_hand": 66.66666666666667,
+    "bb_per_bet_hand": 7.8862
+   },
+   "raise_min": {
+    "n": 56,
+    "eqActual_mean": 0.6298482142857144,
+    "won_hand": 71.42857142857143,
+    "bb_per_bet_hand": 0.6986607142857143
+   },
+   "raise_half_pot": {
+    "n": 187,
+    "eqActual_mean": 0.6782652406417113,
+    "won_hand": 75.40106951871658,
+    "bb_per_bet_hand": 5.982486631016043
+   },
+   "raise_pot": {
+    "n": 7,
+    "eqActual_mean": 0.6921428571428573,
+    "won_hand": 71.42857142857143,
+    "bb_per_bet_hand": -0.9821428571428571
+   },
+   "_bluff_share": 21.374045801526716,
+   "_value_share": 62.213740458015266
+  },
+  "anthropic/claude-haiku-5.5": {
+   "raise_half_pot": {
+    "n": 501,
+    "eqActual_mean": 0.5166203592814372,
+    "won_hand": 69.06187624750498,
+    "bb_per_bet_hand": 2.8492143712574842
+   },
+   "raise_pot": {
+    "n": 26,
+    "eqActual_mean": 0.7432038461538462,
+    "won_hand": 88.46153846153847,
+    "bb_per_bet_hand": 1.1591346153846154
+   },
+   "raise_min": {
+    "n": 81,
+    "eqActual_mean": 0.5584037037037037,
+    "won_hand": 65.4320987654321,
+    "bb_per_bet_hand": 1.882406172839506
+   },
+   "all_in": {
+    "n": 8,
+    "eqActual_mean": 0.7339374999999999,
+    "won_hand": 75.0,
+    "bb_per_bet_hand": 3.6171875
+   },
+   "_bluff_share": 37.98701298701299,
+   "_value_share": 46.103896103896105
+  },
+  "typesafe-ai/jev": {
+   "raise_half_pot": {
+    "n": 101,
+    "eqActual_mean": 0.5196772277227724,
+    "won_hand": 74.25742574257426,
+    "bb_per_bet_hand": 4.965222772277228
+   },
+   "raise_pot": {
+    "n": 28,
+    "eqActual_mean": 0.7016535714285713,
+    "won_hand": 89.28571428571429,
+    "bb_per_bet_hand": 8.357142857142858
+   },
+   "all_in": {
+    "n": 32,
+    "eqActual_mean": 0.594671875,
+    "won_hand": 78.125,
+    "bb_per_bet_hand": 8.00536875
+   },
+   "raise_min": {
+    "n": 9,
+    "eqActual_mean": 0.4158555555555556,
+    "won_hand": 55.55555555555556,
+    "bb_per_bet_hand": 0.0034666666666666795
+   },
+   "_bluff_share": 35.88235294117647,
+   "_value_share": 48.8235294117647
+  }
+ },
+ "fold_vs_aggressor": {
+  "Haiku": {
+   "n": 836,
+   "fold": 42.58373205741627
+  },
+  "Jev": {
+   "n": 212,
+   "fold": 39.62264150943396
+  },
+  "Luna Decisions": {
+   "n": 382,
+   "fold": 42.931937172774866
+  },
+  "Sol": {
+   "n": 594,
+   "fold": 42.92929292929293
+  },
+  "Luna": {
+   "n": 292,
+   "fold": 29.10958904109589
+  }
+ }
+}

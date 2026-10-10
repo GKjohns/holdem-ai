@@ -1,0 +1,644 @@
+{
+ "lab_rows": [
+  {
+   "cardId": "g0c04",
+   "label": "Balanced Solid",
+   "gen": 0,
+   "pred_bb100": 38,
+   "actual_bb100": 18.5921486090776,
+   "lo": 13.707696506550219,
+   "hi": 27.323717948717945,
+   "pred_lead": 42
+  },
+  {
+   "cardId": "g0c05",
+   "label": "Bot Hunter",
+   "gen": 0,
+   "pred_bb100": 55,
+   "actual_bb100": 22.4624187432286,
+   "lo": 2.9790717539863327,
+   "hi": 40.13429752066116,
+   "pred_lead": 60
+  },
+  {
+   "cardId": "g0c07",
+   "label": "Silver Tongue",
+   "gen": 0,
+   "pred_bb100": -45,
+   "actual_bb100": 11.08019406392694,
+   "lo": 0.921474358974359,
+   "hi": 25.218413978494624,
+   "pred_lead": -40
+  },
+  {
+   "cardId": "g0c08",
+   "label": "Table Reader",
+   "gen": 0,
+   "pred_bb100": 30,
+   "actual_bb100": -5.449660633484163,
+   "lo": null,
+   "hi": null,
+   "pred_lead": 35
+  },
+  {
+   "cardId": "g0c06",
+   "label": "Quiet Trapper",
+   "gen": 0,
+   "pred_bb100": -5,
+   "actual_bb100": -12.337662337662337,
+   "lo": null,
+   "hi": null,
+   "pred_lead": 0
+  },
+  {
+   "cardId": "g0c01",
+   "label": "Granite Rock",
+   "gen": 0,
+   "pred_bb100": 12,
+   "actual_bb100": -23.081140350877195,
+   "lo": null,
+   "hi": null,
+   "pred_lead": 18
+  },
+  {
+   "cardId": "g0c02",
+   "label": "Blitz Maniac",
+   "gen": 0,
+   "pred_bb100": -70,
+   "actual_bb100": -44.6109693877551,
+   "lo": -106.86201780415429,
+   "hi": 30.33940397350993,
+   "pred_lead": -65
+  },
+  {
+   "cardId": "g0c03",
+   "label": "Happy Station",
+   "gen": 0,
+   "pred_bb100": -20,
+   "actual_bb100": 12.101883561643827,
+   "lo": null,
+   "hi": null,
+   "pred_lead": -15
+  },
+  {
+   "cardId": "g1c05",
+   "label": "Small Ball Chatter",
+   "gen": 1,
+   "pred_bb100": -15,
+   "actual_bb100": 19.48002049180328,
+   "lo": null,
+   "hi": null,
+   "pred_lead": -20
+  },
+  {
+   "cardId": "g1c01",
+   "label": "Solid Hunter",
+   "gen": 1,
+   "pred_bb100": 28,
+   "actual_bb100": 2.913900115473441,
+   "lo": -8.50537330316742,
+   "hi": 14.817954009433961,
+   "pred_lead": 30
+  },
+  {
+   "cardId": "g1c04",
+   "label": "Blind Pressure Shover",
+   "gen": 1,
+   "pred_bb100": 0,
+   "actual_bb100": 16.02547268907563,
+   "lo": null,
+   "hi": null,
+   "pred_lead": -5
+  },
+  {
+   "cardId": "g1c02",
+   "label": "Sticky Hunter",
+   "gen": 1,
+   "pred_bb100": 22,
+   "actual_bb100": -4.881108202443281,
+   "lo": -47.39491150442478,
+   "hi": 45.18960674157304,
+   "pred_lead": 24
+  },
+  {
+   "cardId": "g1c03",
+   "label": "Silver Value",
+   "gen": 1,
+   "pred_bb100": 14,
+   "actual_bb100": -23.725124378109452,
+   "lo": null,
+   "hi": null,
+   "pred_lead": 12
+  }
+ ],
+ "lab_calib": {
+  "n": 13,
+  "r": 0.39106980269684427,
+  "slope": 0.23146572242043445,
+  "intercept": -1.662624523277026,
+  "sd_pred": 34.64471691696167,
+  "sd_actual": 20.505455481185095,
+  "mean_err_pred_pos": -30.30979515673349,
+  "mean_err_pred_neg": 28.142693278391324,
+  "n_pred_pos_below": 7,
+  "n_pred_pos": 7,
+  "n_pred_neg_above": 4,
+  "n_pred_neg": 5,
+  "mae": 29.506371527191643,
+  "mae_if_predicted_control": 16.993377179508766
+ },
+ "pilot_rows": [
+  {
+   "cardId": "g0c03",
+   "label": "Patient Caller",
+   "gen": 0,
+   "pred_bb100": -15,
+   "actual_bb100": 54.29487179487179,
+   "lo": -10,
+   "hi": 115.37499999999999,
+   "pred_lead": -20
+  },
+  {
+   "cardId": "g0c01",
+   "label": "Stone Wall Nit",
+   "gen": 0,
+   "pred_bb100": 30,
+   "actual_bb100": -7.5,
+   "lo": null,
+   "hi": null,
+   "pred_lead": 25
+  },
+  {
+   "cardId": "g0c04",
+   "label": "Bot Hunter",
+   "gen": 0,
+   "pred_bb100": 60,
+   "actual_bb100": -50.76923076923077,
+   "lo": -79.47368421052632,
+   "hi": -23.5,
+   "pred_lead": 50
+  },
+  {
+   "cardId": "g0c02",
+   "label": "Rowdy Maniac",
+   "gen": 0,
+   "pred_bb100": -45,
+   "actual_bb100": -20.783132530120483,
+   "lo": null,
+   "hi": null,
+   "pred_lead": -50
+  },
+  {
+   "cardId": "g1c01",
+   "label": "Jev Trapper",
+   "gen": 1,
+   "pred_bb100": 45,
+   "actual_bb100": 67.47422680412372,
+   "lo": 49.60526315789473,
+   "hi": 84.62121212121212,
+   "pred_lead": 60
+  },
+  {
+   "cardId": "g1c02",
+   "label": "Patient Value Taker",
+   "gen": 1,
+   "pred_bb100": 35,
+   "actual_bb100": 26.105527638190956,
+   "lo": 9,
+   "hi": 43.38383838383839,
+   "pred_lead": 45
+  },
+  {
+   "cardId": "g1c04",
+   "label": "Preflop Hammer",
+   "gen": 1,
+   "pred_bb100": -30,
+   "actual_bb100": -34.01898734177215,
+   "lo": null,
+   "hi": null,
+   "pred_lead": -35
+  },
+  {
+   "cardId": "g1c03",
+   "label": "Quiet Rock Caller",
+   "gen": 1,
+   "pred_bb100": 15,
+   "actual_bb100": -18.975,
+   "lo": null,
+   "hi": null,
+   "pred_lead": 15
+  }
+ ],
+ "pilot_calib": {
+  "n": 8,
+  "r": 0.11944662907106192,
+  "slope": 0.1348102843989413,
+  "intercept": 0.3776623222704509,
+  "sd_pred": 37.79054114457743,
+  "sd_actual": 42.65129655738957,
+  "mean_err_pred_pos": -33.73289526538322,
+  "mean_err_pred_neg": 29.830917307659718,
+  "n_pred_pos_below": 4,
+  "n_pred_pos": 5,
+  "n_pred_neg_above": 2,
+  "n_pred_neg": 3,
+  "mae": 38.892957067710874,
+  "mae_if_predicted_control": 37.490122109788736
+ },
+ "control_bb100": {
+  "value": 10.084089035449297,
+  "lo": 1.6332244999173413,
+  "hi": 22.0404441480763
+ },
+ "per_match_leads": {
+  "g0c01": [
+   -29.574039510541056
+  ],
+  "g0c02": [
+   29.744541588188834,
+   -51.12074712643678,
+   -161.5539116704374
+  ],
+  "g0c03": [
+   -109.73136154400754
+  ],
+  "g0c04": [
+   19.88619794871795,
+   22.865155242168534,
+   40.50144001262477
+  ],
+  "g0c05": [
+   20.884032091669432,
+   1.8403508085550335,
+   0.4741923303834813,
+   73.13168588423702
+  ],
+  "g0c06": [
+   -29.27048172092225
+  ],
+  "g0c07": [
+   20.67157722385142,
+   -1.8925838754943232,
+   6.385595849013571
+  ],
+  "g0c08": [
+   -28.252406472204264
+  ],
+  "g1c01": [
+   20.00520302911607,
+   -20.471313559322034,
+   -23.193779136906034,
+   31.848090676755277
+  ],
+  "g1c02": [
+   28.121819507530486,
+   5.597670809792842,
+   -105.30995850622406
+  ],
+  "g1c03": [
+   -28.950964714243906
+  ],
+  "g1c04": [
+   -13.564828271557587
+  ],
+  "g1c05": [
+   10.525936073059361
+  ]
+ },
+ "noise": {
+  "within_card_sd_per_match": 52.47065291302268,
+  "cards_used": 6,
+  "control2_minus_control_per_match_sd": 43.056196695979835,
+  "control2_matches": 17,
+  "control2_mean": -7.748641699696801
+ },
+ "spread": {
+  "observed_sd_of_leads": 37.142167814609564,
+  "expected_sd_from_noise_alone": 43.252090375939986,
+  "implied_true_sd": 0.0,
+  "predicted_sd_of_leads": 34.837351013546154
+ },
+ "style": [
+  {
+   "cardId": "g0c01",
+   "name": "Granite Rock",
+   "axes": {
+    "looseness": "tight",
+    "aggression": "balanced",
+    "bluffing": "rare",
+    "sizing": "pot",
+    "showdown": "folds_easily",
+    "adaptation": "fixed",
+    "talk": "silent"
+   },
+   "hands": 228,
+   "vpip": 11.403508771929824,
+   "pfr": 9.649122807017543,
+   "af": 9,
+   "wtsd": 57.14285714285714,
+   "wsd": 37.5,
+   "d_vpip": -29.816606644393346,
+   "d_pfr": -4.349228388365804,
+   "pred_bb100": 12,
+   "pooled_bb100": -23.081140350877195,
+   "pooled_lead": -29.574050014742742
+  },
+  {
+   "cardId": "g0c02",
+   "name": "Blitz Maniac",
+   "axes": {
+    "looseness": "loose",
+    "aggression": "aggressive",
+    "bluffing": "frequent",
+    "sizing": "overbet",
+    "showdown": "sticky",
+    "adaptation": "fixed",
+    "talk": "needling"
+   },
+   "hands": 392,
+   "vpip": 83.6734693877551,
+   "pfr": 81.37755102040816,
+   "af": 13.875,
+   "wtsd": 58.57988165680473,
+   "wsd": 42.42424242424242,
+   "d_vpip": 42.45335397143194,
+   "d_pfr": 67.37919982502481,
+   "pred_bb100": -70,
+   "pooled_bb100": -44.6109693877551,
+   "pooled_lead": -48.773623470960025
+  },
+  {
+   "cardId": "g0c03",
+   "name": "Happy Station",
+   "axes": {
+    "looseness": "loose",
+    "aggression": "passive",
+    "bluffing": "rare",
+    "sizing": "small",
+    "showdown": "sticky",
+    "adaptation": "fixed",
+    "talk": "friendly"
+   },
+   "hands": 146,
+   "vpip": 82.1917808219178,
+   "pfr": 0.684931506849315,
+   "af": 0.38461538461538464,
+   "wtsd": 75.177304964539,
+   "wsd": 35.84905660377358,
+   "d_vpip": 40.971665405594635,
+   "d_pfr": -13.313419688534031,
+   "pred_bb100": -20,
+   "pooled_bb100": 12.101883561643827,
+   "pooled_lead": -109.73136542621043
+  },
+  {
+   "cardId": "g0c04",
+   "name": "Balanced Solid",
+   "axes": {
+    "looseness": "medium",
+    "aggression": "balanced",
+    "bluffing": "sometimes",
+    "sizing": "mixed",
+    "showdown": "selective",
+    "adaptation": "situational",
+    "talk": "silent"
+   },
+   "hands": 2925,
+   "vpip": 29.2991452991453,
+   "pfr": 20.410256410256412,
+   "af": 3.6930693069306932,
+   "wtsd": 51.82679296346414,
+   "wsd": 44.38642297650131,
+   "d_vpip": -11.920970117177866,
+   "d_pfr": 6.411905214873066,
+   "pred_bb100": 38,
+   "pooled_bb100": 18.39807692307692,
+   "pooled_lead": 12.781223647675851
+  },
+  {
+   "cardId": "g0c05",
+   "name": "Bot Hunter",
+   "axes": {
+    "looseness": "medium",
+    "aggression": "aggressive",
+    "bluffing": "rare",
+    "sizing": "pot",
+    "showdown": "selective",
+    "adaptation": "targets_opponents",
+    "talk": "silent"
+   },
+   "hands": 923,
+   "vpip": 32.71939328277356,
+   "pfr": 25.46045503791983,
+   "af": 3.1538461538461537,
+   "wtsd": 54.32098765432099,
+   "wsd": 49.24242424242424,
+   "d_vpip": -8.500722133549608,
+   "d_pfr": 11.462103842536482,
+   "pred_bb100": 55,
+   "pooled_bb100": 22.4624187432286,
+   "pooled_lead": 24.01086548879073
+  },
+  {
+   "cardId": "g0c06",
+   "name": "Quiet Trapper",
+   "axes": {
+    "looseness": "tight",
+    "aggression": "passive",
+    "bluffing": "rare",
+    "sizing": "overbet",
+    "showdown": "sticky",
+    "adaptation": "fixed",
+    "talk": "deceptive"
+   },
+   "hands": 231,
+   "vpip": 14.285714285714285,
+   "pfr": 2.1645021645021645,
+   "af": 0.5454545454545454,
+   "wtsd": 63.26530612244898,
+   "wsd": 58.06451612903226,
+   "d_vpip": -26.934401130608883,
+   "d_pfr": -11.833849030881183,
+   "pred_bb100": -5,
+   "pooled_bb100": -12.337662337662337,
+   "pooled_lead": -29.27048172092225
+  },
+  {
+   "cardId": "g0c07",
+   "name": "Silver Tongue",
+   "axes": {
+    "looseness": "loose",
+    "aggression": "aggressive",
+    "bluffing": "frequent",
+    "sizing": "mixed",
+    "showdown": "folds_easily",
+    "adaptation": "situational",
+    "talk": "deceptive"
+   },
+   "hands": 657,
+   "vpip": 34.70319634703196,
+   "pfr": 24.200913242009133,
+   "af": 11.4,
+   "wtsd": 41.70616113744076,
+   "wsd": 46.590909090909086,
+   "d_vpip": -6.516919069291205,
+   "d_pfr": 10.202562046625786,
+   "pred_bb100": -45,
+   "pooled_bb100": 11.08019406392694,
+   "pooled_lead": 7.391916458950268
+  },
+  {
+   "cardId": "g0c08",
+   "name": "Table Reader",
+   "axes": {
+    "looseness": "medium",
+    "aggression": "balanced",
+    "bluffing": "sometimes",
+    "sizing": "pot",
+    "showdown": "selective",
+    "adaptation": "targets_opponents",
+    "talk": "friendly"
+   },
+   "hands": 221,
+   "vpip": 23.52941176470588,
+   "pfr": 16.289592760180994,
+   "af": 3.6666666666666665,
+   "wtsd": 51.724137931034484,
+   "wsd": 30,
+   "d_vpip": -17.690703651617287,
+   "d_pfr": 2.291241564797648,
+   "pred_bb100": 30,
+   "pooled_bb100": -5.449660633484163,
+   "pooled_lead": -28.252395008484164
+  },
+  {
+   "cardId": "g1c01",
+   "name": "Solid Hunter",
+   "axes": {
+    "looseness": "medium",
+    "aggression": "aggressive",
+    "bluffing": "rare",
+    "sizing": "pot",
+    "showdown": "selective",
+    "adaptation": "targets_opponents",
+    "talk": "silent"
+   },
+   "hands": 866,
+   "vpip": 30.369515011547342,
+   "pfr": 20.785219399538107,
+   "af": 2.6785714285714284,
+   "wtsd": 45.497630331753555,
+   "wsd": 45.83333333333333,
+   "d_vpip": -10.850600404775825,
+   "d_pfr": 6.786868204154761,
+   "pred_bb100": 28,
+   "pooled_bb100": 2.913900115473441,
+   "pooled_lead": 1.5838946450139224
+  },
+  {
+   "cardId": "g1c02",
+   "name": "Sticky Hunter",
+   "axes": {
+    "looseness": "medium",
+    "aggression": "aggressive",
+    "bluffing": "rare",
+    "sizing": "pot",
+    "showdown": "sticky",
+    "adaptation": "targets_opponents",
+    "talk": "silent"
+   },
+   "hands": 573,
+   "vpip": 31.064572425828967,
+   "pfr": 22.862129144851657,
+   "af": 1.8888888888888888,
+   "wtsd": 64.38356164383562,
+   "wsd": 40.42553191489361,
+   "d_vpip": -10.155542990494201,
+   "d_pfr": 8.86377794946831,
+   "pred_bb100": 22,
+   "pooled_bb100": -4.881108202443281,
+   "pooled_lead": -20.08037084289272
+  },
+  {
+   "cardId": "g1c03",
+   "name": "Silver Value",
+   "axes": {
+    "looseness": "loose",
+    "aggression": "aggressive",
+    "bluffing": "sometimes",
+    "sizing": "mixed",
+    "showdown": "folds_easily",
+    "adaptation": "situational",
+    "talk": "deceptive"
+   },
+   "hands": 201,
+   "vpip": 39.800995024875625,
+   "pfr": 27.860696517412936,
+   "af": 5.2,
+   "wtsd": 52.23880597014925,
+   "wsd": 42.857142857142854,
+   "d_vpip": -1.4191203914475423,
+   "d_pfr": 13.86234532202959,
+   "pred_bb100": 14,
+   "pooled_bb100": -23.725124378109452,
+   "pooled_lead": -28.950964714243906
+  },
+  {
+   "cardId": "g1c04",
+   "name": "Blind Pressure Shover",
+   "axes": {
+    "looseness": "tight",
+    "aggression": "aggressive",
+    "bluffing": "rare",
+    "sizing": "overbet",
+    "showdown": "sticky",
+    "adaptation": "situational",
+    "talk": "needling"
+   },
+   "hands": 238,
+   "vpip": 16.386554621848738,
+   "pfr": 15.546218487394958,
+   "af": 11,
+   "wtsd": 62.16216216216216,
+   "wsd": 56.52173913043478,
+   "d_vpip": -24.83356079447443,
+   "d_pfr": 1.5478672920116114,
+   "pred_bb100": 0,
+   "pooled_bb100": 16.02547268907563,
+   "pooled_lead": -13.56477627357997
+  },
+  {
+   "cardId": "g1c05",
+   "name": "Small Ball Chatter",
+   "axes": {
+    "looseness": "loose",
+    "aggression": "aggressive",
+    "bluffing": "sometimes",
+    "sizing": "small",
+    "showdown": "folds_easily",
+    "adaptation": "fixed",
+    "talk": "friendly"
+   },
+   "hands": 244,
+   "vpip": 48.77049180327869,
+   "pfr": 26.229508196721312,
+   "af": 2.2083333333333335,
+   "wtsd": 57.52212389380531,
+   "wsd": 56.92307692307692,
+   "d_vpip": 7.55037638695552,
+   "d_pfr": 12.231157001337966,
+   "pred_bb100": -15,
+   "pooled_bb100": 19.48002049180328,
+   "pooled_lead": 10.525967980387755
+  }
+ ],
+ "control_style": {
+  "vpip": 41.22011541632317,
+  "pfr": 13.998351195383346,
+  "af": 1.567391304347826,
+  "wtsd": 62.13379973764758,
+  "wsd": 52.35749472202674,
+  "hands": 6065
+ },
+ "style_vs_result_r": 0.6531345330234162
+}

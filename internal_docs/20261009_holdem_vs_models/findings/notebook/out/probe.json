@@ -1,0 +1,437 @@
+{
+ "calls": 1800,
+ "cost_pricing": 1.461628602,
+ "fallbacks": 1,
+ "cost_by_exp": {
+  "replay": 0.68378471,
+  "ladder": 0.45704818,
+  "talk": 0.320795712
+ },
+ "self_agreement": {
+  "Sol": {
+   "n": 60,
+   "exact": 86.66666666666667,
+   "coarse": 90.0
+  },
+  "Luna": {
+   "n": 60,
+   "exact": 91.66666666666667,
+   "coarse": 91.66666666666667
+  },
+  "Luna Decisions": {
+   "n": 60,
+   "exact": 100.0,
+   "coarse": 100.0
+  },
+  "Haiku": {
+   "n": 60,
+   "exact": 80.0,
+   "coarse": 85.0
+  },
+  "Jev": {
+   "n": 60,
+   "exact": 96.66666666666667,
+   "coarse": 96.66666666666667
+  }
+ },
+ "agreement_with_original": {
+  "Sol": {
+   "n": 18,
+   "exact": 77.77777777777777,
+   "coarse": 77.77777777777777
+  },
+  "Luna": {
+   "n": 23,
+   "exact": 86.95652173913044,
+   "coarse": 86.95652173913044
+  },
+  "Luna Decisions": {
+   "n": 31,
+   "exact": 96.7741935483871,
+   "coarse": 96.7741935483871
+  },
+  "Haiku": {
+   "n": 25,
+   "exact": 76.0,
+   "coarse": 84.0
+  },
+  "Jev": {
+   "n": 23,
+   "exact": 100.0,
+   "coarse": 100.0
+  }
+ },
+ "cross_agreement": {
+  "Sol|Luna": {
+   "n": 120,
+   "exact": 63.333333333333336,
+   "coarse": 68.33333333333333
+  },
+  "Sol|Luna Decisions": {
+   "n": 120,
+   "exact": 61.666666666666664,
+   "coarse": 65.0
+  },
+  "Sol|Haiku": {
+   "n": 120,
+   "exact": 48.333333333333336,
+   "coarse": 56.666666666666664
+  },
+  "Sol|Jev": {
+   "n": 120,
+   "exact": 57.5,
+   "coarse": 60.833333333333336
+  },
+  "Luna|Luna Decisions": {
+   "n": 120,
+   "exact": 73.33333333333333,
+   "coarse": 75.0
+  },
+  "Luna|Haiku": {
+   "n": 120,
+   "exact": 60.833333333333336,
+   "coarse": 63.333333333333336
+  },
+  "Luna|Jev": {
+   "n": 120,
+   "exact": 75.0,
+   "coarse": 76.66666666666667
+  },
+  "Luna Decisions|Haiku": {
+   "n": 120,
+   "exact": 53.333333333333336,
+   "coarse": 56.666666666666664
+  },
+  "Luna Decisions|Jev": {
+   "n": 120,
+   "exact": 65.83333333333333,
+   "coarse": 67.5
+  },
+  "Haiku|Jev": {
+   "n": 120,
+   "exact": 57.5,
+   "coarse": 61.666666666666664
+  }
+ },
+ "replay_profile": {
+  "Sol": {
+   "fold": 23.333333333333332,
+   "passive": 43.333333333333336,
+   "aggressive": 33.333333333333336,
+   "n": 120
+  },
+  "Luna": {
+   "fold": 25.0,
+   "passive": 67.5,
+   "aggressive": 7.5,
+   "n": 120
+  },
+  "Luna Decisions": {
+   "fold": 35.0,
+   "passive": 50.0,
+   "aggressive": 15.0,
+   "n": 120
+  },
+  "Haiku": {
+   "fold": 11.666666666666666,
+   "passive": 58.333333333333336,
+   "aggressive": 30.0,
+   "n": 120
+  },
+  "Jev": {
+   "fold": 20.0,
+   "passive": 71.66666666666667,
+   "aggressive": 8.333333333333334,
+   "n": 120
+  }
+ },
+ "ladder": {
+  "Sol": {
+   "size_0.33": {
+    "n": 36,
+    "fold": 36.111111111111114,
+    "raise": 16.666666666666668,
+    "max_fold_alpha": 24.81203007518797,
+    "fold_weak": 83.33333333333333,
+    "fold_medium": 25.0,
+    "fold_strong": 0.0
+   },
+   "size_0.75": {
+    "n": 36,
+    "fold": 63.888888888888886,
+    "raise": 11.11111111111111,
+    "max_fold_alpha": 42.857142857142854,
+    "fold_weak": 100.0,
+    "fold_medium": 91.66666666666667,
+    "fold_strong": 0.0
+   },
+   "size_1.5": {
+    "n": 36,
+    "fold": 77.77777777777777,
+    "raise": 11.11111111111111,
+    "max_fold_alpha": 60.0,
+    "fold_weak": 100.0,
+    "fold_medium": 91.66666666666667,
+    "fold_strong": 41.666666666666664
+   },
+   "mean_p_fold": null,
+   "spots": 36,
+   "monotone_spots": 35,
+   "spots_changing_with_size": 15
+  },
+  "Luna": {
+   "size_0.33": {
+    "n": 36,
+    "fold": 52.77777777777778,
+    "raise": 0.0,
+    "max_fold_alpha": 24.81203007518797,
+    "fold_weak": 75.0,
+    "fold_medium": 66.66666666666667,
+    "fold_strong": 16.666666666666668
+   },
+   "size_0.75": {
+    "n": 36,
+    "fold": 75.0,
+    "raise": 2.7777777777777777,
+    "max_fold_alpha": 42.857142857142854,
+    "fold_weak": 83.33333333333333,
+    "fold_medium": 100.0,
+    "fold_strong": 41.666666666666664
+   },
+   "size_1.5": {
+    "n": 36,
+    "fold": 80.55555555555556,
+    "raise": 0.0,
+    "max_fold_alpha": 60.0,
+    "fold_weak": 100.0,
+    "fold_medium": 91.66666666666667,
+    "fold_strong": 50.0
+   },
+   "mean_p_fold": null,
+   "spots": 36,
+   "monotone_spots": 35,
+   "spots_changing_with_size": 12
+  },
+  "Luna Decisions": {
+   "size_0.33": {
+    "n": 36,
+    "fold": 47.22222222222222,
+    "raise": 0.0,
+    "max_fold_alpha": 24.81203007518797,
+    "fold_weak": 83.33333333333333,
+    "fold_medium": 41.666666666666664,
+    "fold_strong": 16.666666666666668
+   },
+   "size_0.75": {
+    "n": 36,
+    "fold": 72.22222222222223,
+    "raise": 0.0,
+    "max_fold_alpha": 42.857142857142854,
+    "fold_weak": 91.66666666666667,
+    "fold_medium": 75.0,
+    "fold_strong": 50.0
+   },
+   "size_1.5": {
+    "n": 36,
+    "fold": 86.11111111111111,
+    "raise": 0.0,
+    "max_fold_alpha": 60.0,
+    "fold_weak": 100.0,
+    "fold_medium": 91.66666666666667,
+    "fold_strong": 66.66666666666667
+   },
+   "mean_p_fold": {
+    "size_0.33": 0.4180555555555555,
+    "size_0.75": 0.6022222222222222,
+    "size_1.5": 0.7455555555555555
+   },
+   "spots": 36,
+   "monotone_spots": 36,
+   "spots_changing_with_size": 14
+  },
+  "Haiku": {
+   "size_0.33": {
+    "n": 36,
+    "fold": 8.333333333333334,
+    "raise": 25.0,
+    "max_fold_alpha": 24.81203007518797,
+    "fold_weak": 25.0,
+    "fold_medium": 0.0,
+    "fold_strong": 0.0
+   },
+   "size_0.75": {
+    "n": 36,
+    "fold": 19.444444444444443,
+    "raise": 2.7777777777777777,
+    "max_fold_alpha": 42.857142857142854,
+    "fold_weak": 50.0,
+    "fold_medium": 8.333333333333334,
+    "fold_strong": 0.0
+   },
+   "size_1.5": {
+    "n": 36,
+    "fold": 33.333333333333336,
+    "raise": 5.555555555555555,
+    "max_fold_alpha": 60.0,
+    "fold_weak": 66.66666666666667,
+    "fold_medium": 33.333333333333336,
+    "fold_strong": 0.0
+   },
+   "mean_p_fold": null,
+   "spots": 36,
+   "monotone_spots": 35,
+   "spots_changing_with_size": 9
+  },
+  "Jev": {
+   "size_0.33": {
+    "n": 36,
+    "fold": 22.22222222222222,
+    "raise": 0.0,
+    "max_fold_alpha": 24.81203007518797,
+    "fold_weak": 41.666666666666664,
+    "fold_medium": 16.666666666666668,
+    "fold_strong": 8.333333333333334
+   },
+   "size_0.75": {
+    "n": 36,
+    "fold": 33.333333333333336,
+    "raise": 0.0,
+    "max_fold_alpha": 42.857142857142854,
+    "fold_weak": 50.0,
+    "fold_medium": 33.333333333333336,
+    "fold_strong": 16.666666666666668
+   },
+   "size_1.5": {
+    "n": 36,
+    "fold": 58.333333333333336,
+    "raise": 0.0,
+    "max_fold_alpha": 60.0,
+    "fold_weak": 75.0,
+    "fold_medium": 66.66666666666667,
+    "fold_strong": 33.333333333333336
+   },
+   "mean_p_fold": {
+    "size_0.33": 0.3130555555555556,
+    "size_0.75": 0.3808333333333333,
+    "size_1.5": 0.47611111111111104
+   },
+   "spots": 36,
+   "monotone_spots": 36,
+   "spots_changing_with_size": 13
+  }
+ },
+ "talk": {
+  "Sol": {
+   "silent": 63.888888888888886,
+   "talk_strong": 66.66666666666667,
+   "talk_strong_n": 36,
+   "talk_strong_changed_vs_silent": 2,
+   "talk_weak": 52.77777777777778,
+   "talk_weak_n": 36,
+   "talk_weak_changed_vs_silent": 7,
+   "reasoning_mentions_talk": 7,
+   "examples": [
+    {
+     "variant": "talk_weak",
+     "spot": "m08-r3#17#6",
+     "menuId": "fold",
+     "reasoning": "I have nine-high with no meaningful draw, so calling or raising this turn bet is unlikely to be profitable."
+    },
+    {
+     "variant": "talk_strong",
+     "spot": "m07-r0#30#7",
+     "menuId": "fold",
+     "reasoning": "I have only jack-high and no meaningful draw. Calling 360 against a second bet is unlikely to be profitable."
+    },
+    {
+     "variant": "talk_weak",
+     "spot": "m05-r3#17#10",
+     "menuId": "fold",
+     "reasoning": "I have king-high with no meaningful draw, and the turn bet is large relative to my opponent\u2019s remaining stack. Calling or bluff-raising is unlikely to be profitable."
+    }
+   ]
+  },
+  "Luna": {
+   "silent": 75.0,
+   "talk_strong": 75.0,
+   "talk_strong_n": 36,
+   "talk_strong_changed_vs_silent": 3,
+   "talk_weak": 63.888888888888886,
+   "talk_weak_n": 36,
+   "talk_weak_changed_vs_silent": 8,
+   "reasoning_mentions_talk": 8,
+   "examples": [
+    {
+     "variant": "talk_strong",
+     "spot": "m07-r0#30#7",
+     "menuId": "fold",
+     "reasoning": "With only jack-high and no meaningful draw, calling a sizable turn bet is unprofitable. Fold rather than trust the opponent\u2019s claim or invest more."
+    },
+    {
+     "variant": "talk_weak",
+     "spot": "m06-r4#9#13",
+     "menuId": "fold",
+     "reasoning": "With ace-high and no meaningful draw on the completed board, a call is unlikely to beat a real bet; the opponent's claimed bluff isn't enough to justify paying 270. Fold rather than turn a bluff-catcher into a costly gue"
+    },
+    {
+     "variant": "talk_strong",
+     "spot": "m05-r0#19#9",
+     "menuId": "fold",
+     "reasoning": "With only king-high and no meaningful draw, calling 300 is unlikely to be profitable against a turn bet. Fold and preserve the remaining stack."
+    }
+   ]
+  },
+  "Luna Decisions": {
+   "silent": 72.22222222222223,
+   "talk_strong": 83.33333333333333,
+   "talk_strong_n": 36,
+   "talk_strong_changed_vs_silent": 6,
+   "talk_weak": 52.77777777777778,
+   "talk_weak_n": 36,
+   "talk_weak_changed_vs_silent": 7,
+   "reasoning_mentions_talk": 0,
+   "examples": []
+  },
+  "Haiku": {
+   "silent": 19.444444444444443,
+   "talk_strong": 47.22222222222222,
+   "talk_strong_n": 36,
+   "talk_strong_changed_vs_silent": 16,
+   "talk_weak": 13.88888888888889,
+   "talk_weak_n": 36,
+   "talk_weak_changed_vs_silent": 11,
+   "reasoning_mentions_talk": 35,
+   "examples": [
+    {
+     "variant": "talk_strong",
+     "spot": "m02-r0#22#9",
+     "menuId": "fold",
+     "reasoning": "My hand is Q-high with no pair; the board has A-J-9-7-3 with a club and spade flush-ish texture, so I have only ace-high equity at best against a bet that could be a bluff or a made hand. Sol's claim of the nuts is table"
+    },
+    {
+     "variant": "talk_weak",
+     "spot": "m08-r3#17#6",
+     "menuId": "call",
+     "reasoning": "I hold 5-9 with no pair on a board of 2 T K 6 and no straight or flush draw, so I have almost nothing to bet with. Sol's bet of 75 into 100 is a small bet that could be a bluff, but calling keeps the pot manageable and l"
+    },
+    {
+     "variant": "talk_strong",
+     "spot": "m08-r3#17#6",
+     "menuId": "fold",
+     "reasoning": "I have nothing: king-high on the board with no pair and no real draw, so I can't beat a value bet. Folding saves chips against a likely strong hand."
+    }
+   ]
+  },
+  "Jev": {
+   "silent": 33.333333333333336,
+   "talk_strong": 86.11111111111111,
+   "talk_strong_n": 36,
+   "talk_strong_changed_vs_silent": 19,
+   "talk_weak": 8.333333333333334,
+   "talk_weak_n": 36,
+   "talk_weak_changed_vs_silent": 9,
+   "reasoning_mentions_talk": 0,
+   "examples": []
+  }
+ }
+}

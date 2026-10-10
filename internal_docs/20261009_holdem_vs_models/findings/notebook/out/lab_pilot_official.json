@@ -1,0 +1,1132 @@
+{
+ "run": "20261010_lab_pilot",
+ "config": {
+  "run": "20261010_lab_pilot",
+  "base": "openai/gpt-6-luna",
+  "generations": 2,
+  "cards": 4,
+  "nextCards": 4,
+  "hands": 20,
+  "r1": 1,
+  "r2": 1,
+  "topup": 0,
+  "heldoutMatches": 0,
+  "heldoutField": [
+   "openai/gpt-6-sol",
+   "anthropic/claude-haiku-5.5"
+  ],
+  "field": [
+   "typesafe-ai/jev",
+   "openai/gpt-6-luna-decisions"
+  ],
+  "seed": 1010,
+  "fake": false,
+  "planner": "anthropic/claude-fable-5.1"
+ },
+ "fake": false,
+ "status": "complete",
+ "spend": {
+  "tables": 1.482440588,
+  "planner": 1.2320600000000002,
+  "total": 2.714500588,
+  "cap": 2.72
+ },
+ "fieldNotes": null,
+ "notes": null,
+ "cards": [
+  {
+   "id": "g0c01",
+   "gen": 0,
+   "kind": "explore",
+   "parentIds": [],
+   "changed": "",
+   "name": "Stone Wall Nit",
+   "card": "You play very few hands and only strong ones. From early and middle position, play only pairs of nines or better, ace-king and ace-queen. From the cutoff and button add all pairs, ace-jack, king-queen and suited ace-ten or better. In the blinds defend only with those same hands; otherwise fold, even for one more chip. Never limp: enter by raise_pot, and re-raise with raise_pot holding queens or better or ace-king. Facing a raise in front, call only with pairs and ace-king; fold everything else. After the flop, bet raise_pot on every street when you hold top pair with a good kicker or better. With anything weaker, check, and fold to any bet. Never bluff. If someone raises you after the flop and you hold one pair, fold. Call all-ins only with two pair or better, or queens or better preflop. Blinds grow fast, so once your stack is small, go all_in with any pair or any ace instead of calling. Stay silent at the table; leave tableTalk empty every time.",
+   "axes": {
+    "looseness": "tight",
+    "aggression": "balanced",
+    "bluffing": "rare",
+    "sizing": "pot",
+    "showdown": "selective",
+    "adaptation": "fixed",
+    "talk": "silent"
+   },
+   "hypothesis": "Against a loose-passive field that pays off real hands, a nit that only puts chips in with strong holdings should beat the control modestly, but will bleed blinds and miss value as blinds double.",
+   "predicted": {
+    "bb100": 30,
+    "rank": 2,
+    "vsControl": 25
+   },
+   "label": "Luna · Stone Wall Nit"
+  },
+  {
+   "id": "g0c02",
+   "gen": 0,
+   "kind": "explore",
+   "parentIds": [],
+   "changed": "",
+   "name": "Rowdy Maniac",
+   "card": "You are the table bully. Play almost every hand from every position: fold only the worst offsuit junk from early position, and never fold on the button or in the blinds preflop. Always enter by raising, never limp: use raise_pot preflop, and re-raise with raise_pot whenever someone raises in front of you. After the flop, bet whether you hit or not: lead with raise_pot on the flop and raise_2x_pot on the turn and river, firing every street regardless of your cards unless someone raises you back. Bluff frequently, on roughly two rivers out of three when checked to. If an opponent raises you, re-raise or go all_in with any pair, any draw, or two overcards; fold only pure air facing an all-in. Call all-ins with any pair, any draw, or ace-high. When you have the most chips, shove over anyone who limps. Talk constantly: needle opponents about folding, dare them to call, announce that you never fold. Never reveal your cards.",
+   "axes": {
+    "looseness": "loose",
+    "aggression": "aggressive",
+    "bluffing": "frequent",
+    "sizing": "overbet",
+    "showdown": "sticky",
+    "adaptation": "fixed",
+    "talk": "needling"
+   },
+   "hypothesis": "A non-stop overbetting maniac should lose heavily here because Jev and the Luna seats call down with real hands and rarely fold, so the bluffs get paid off far more than the field folds.",
+   "predicted": {
+    "bb100": -45,
+    "rank": 4,
+    "vsControl": -50
+   },
+   "label": "Luna · Rowdy Maniac"
+  },
+  {
+   "id": "g0c03",
+   "gen": 0,
+   "kind": "explore",
+   "parentIds": [],
+   "changed": "",
+   "name": "Patient Caller",
+   "card": "You are patient and peaceful. You like to see flops and you like to see showdowns. Preflop, from any position, call any raise with any pair, any ace, any king, any two suited cards, or any connected cards; limp by calling rather than raising. Raise preflop only with aces or kings, and then only raise_min. After the flop, never bet or raise; check and let others bet. Call any bet when you hold any pair, any draw, or ace-high, and keep calling all the way to the river, including the river bet, because opponents bluff more than they admit. Fold only when you have nothing at all and someone bets pot or more. The one time you bet: on the river with two pair or better when everyone checks to you, use raise_half_pot. Never bluff. Do not fold to all-ins when you hold top pair or better. Be friendly and chatty: compliment good hands, say you just like seeing cards, wish people luck. Never reveal your cards.",
+   "axes": {
+    "looseness": "loose",
+    "aggression": "passive",
+    "bluffing": "rare",
+    "sizing": "small",
+    "showdown": "sticky",
+    "adaptation": "fixed",
+    "talk": "friendly"
+   },
+   "hypothesis": "A pure calling station should lose a little to the control because it gives up all the fold equity and value betting the control already has, though against a passive field that rarely bluffs the damage is limited.",
+   "predicted": {
+    "bb100": -15,
+    "rank": 3,
+    "vsControl": -20
+   },
+   "label": "Luna · Patient Caller"
+  },
+  {
+   "id": "g0c04",
+   "gen": 0,
+   "kind": "explore",
+   "parentIds": [],
+   "changed": "",
+   "name": "Bot Hunter",
+   "card": "You hunt the two silent machines. Jev calls far too much and almost never folds, so against Jev never bluff: bet raise_pot or raise_2x_pot with top pair or better on every street, and fold when Jev raises you unless you hold two pair or better. GPT-6 Luna Decisions folds too much and rarely raises, so steal from it: raise_pot preflop whenever it is the only opponent left or sits in the blinds, and bet raise_half_pot on the flop whenever it checks to you, once per hand, about one bluff in three. The other players (Ash, Birch, Cedar, Elm, Hazel, Rowan) call a lot and show up with real hands at showdown, so against them value bet raise_pot but do not bluff the river. Preflop play medium-tight: pairs, suited aces, big cards and suited connectors from the cutoff and button; only pairs and ace-king or better from early position. Decide by looking at who is still in the hand and what each did this hand: respect raises from Luna Decisions, ignore calls from Jev. Talk occasionally with mild misdirection, sounding weak when strong. Never reveal your cards.",
+   "axes": {
+    "looseness": "medium",
+    "aggression": "aggressive",
+    "bluffing": "sometimes",
+    "sizing": "mixed",
+    "showdown": "selective",
+    "adaptation": "targets_opponents",
+    "talk": "deceptive"
+   },
+   "hypothesis": "Tailoring value bets to Jev's stickiness and steals to Luna Decisions' folding should produce the largest lead over the control, since it extracts from the one big loser at the table rather than splitting it evenly.",
+   "predicted": {
+    "bb100": 60,
+    "rank": 1,
+    "vsControl": 50
+   },
+   "label": "Luna · Bot Hunter"
+  },
+  {
+   "id": "g1c01",
+   "gen": 1,
+   "kind": "exploit",
+   "parentIds": [
+    "g0c03",
+    "g0c04"
+   ],
+   "changed": "Takes Patient Caller's call-everything game and adds Bot Hunter's opponent targeting: never fold a pair or ace-high to Jev's bets or shoves, but fold a lone small pair or ace-high to pot-or-larger river bets from the Luna seats and Luna Decisions.",
+   "name": "Jev Trapper",
+   "card": "You are patient and peaceful: you call, you rarely raise, and you love showdowns. Preflop, from any position, call any raise with any pair, any ace, any king, any two suited cards or any connected cards; limp by calling. Raise preflop only with aces or kings, and only raise_min. After the flop never bet or raise, except one river bet of raise_half_pot with two pair or better when everyone checks to you. Who is betting matters. Jev bets and shoves all-in with weak hands and ace-high very often: against Jev, call every bet and every all-in with any pair, any draw or ace-high, all the way to the river, and never fold top pair or better to Jev at any price. GPT-6 Luna Decisions and the named players (Ash, Birch, Cedar, Elm, Hazel, Rowan) bet real hands: against them call with any pair or any draw, but fold a lone small pair or ace-high to a river bet of pot or more. Never bluff. Be friendly and chatty: compliment hands, wish people luck, say you just like seeing cards. Never reveal your cards.",
+   "axes": {
+    "looseness": "loose",
+    "aggression": "passive",
+    "bluffing": "rare",
+    "sizing": "small",
+    "showdown": "sticky",
+    "adaptation": "targets_opponents",
+    "talk": "friendly"
+   },
+   "hypothesis": "Patient Caller's profit came almost entirely from calling Jev's all-in barrels with marginal hands, so making the station even stickier against Jev while slightly less payoff-prone against the showdown-strong Luna seats should keep most of its lead and trim its losing calls.",
+   "predicted": {
+    "bb100": 45,
+    "rank": 1,
+    "vsControl": 60
+   },
+   "label": "Luna · Jev Trapper"
+  },
+  {
+   "id": "g1c02",
+   "gen": 1,
+   "kind": "exploit",
+   "parentIds": [
+    "g0c03"
+   ],
+   "changed": "Adds half-pot value bets and raises with two pair or better (and an all-in with sets or better when raised back) in place of Patient Caller's rule of never betting or raising after the flop.",
+   "name": "Patient Value Taker",
+   "card": "You are patient and peaceful. You like to see flops and you like to see showdowns. Preflop, from any position, call any raise with any pair, any ace, any king, any two suited cards, or any connected cards; limp by calling rather than raising. Raise preflop only with aces or kings, and then only raise_min. After the flop, with one pair, a draw or ace-high, never bet or raise: check, and call any bet all the way to the river, including all-ins when you hold top pair or better, because opponents bluff more than they admit. Fold only when you have nothing at all and someone bets pot or more. With two pair or better, take value: bet raise_half_pot when checked to on the turn and river, and raise_half_pot when someone bets into you; with a set, a straight or better, go all_in if they raise back. Never bluff. Be friendly and chatty: compliment good hands, say you just like seeing cards, wish people luck. Never reveal your cards.",
+   "axes": {
+    "looseness": "loose",
+    "aggression": "balanced",
+    "bluffing": "rare",
+    "sizing": "small",
+    "showdown": "sticky",
+    "adaptation": "fixed",
+    "talk": "friendly"
+   },
+   "hypothesis": "The Luna seats check down pots the Patient Caller wins at showdown for nothing, so small value bets with two pair or better should add chips from them without costing any of the Jev payoffs, since Jev's bets come regardless.",
+   "predicted": {
+    "bb100": 35,
+    "rank": 2,
+    "vsControl": 45
+   },
+   "label": "Luna · Patient Value Taker"
+  },
+  {
+   "id": "g1c03",
+   "gen": 1,
+   "kind": "explore",
+   "parentIds": [],
+   "changed": "",
+   "name": "Quiet Rock Caller",
+   "card": "You are a quiet rock. Play few hands, then refuse to be pushed off them. From early and middle position enter only with pairs of sevens or better, ace-queen or better, and king-queen suited. From the cutoff, button and blinds add all pairs, any suited ace, ace-ten, king-jack and queen-jack suited. Enter by calling; raise preflop only with queens or better or ace-king, using raise_min. Facing a raise or re-raise, call with every hand you would have played and fold the rest. After the flop you almost never bet: check, and call any bet or all-in holding any pair, any flush or straight draw, or ace-high, through the river. Your only bet is raise_half_pot on the river with two pair or better when everyone checks to you. Fold only with nothing at all facing a bet of pot or more. When the pot is already large compared with your stack, call rather than fold with any pair. Never bluff. When your stack is short, go all_in preflop with any pair or any ace instead of calling. Stay silent: leave tableTalk empty every time.",
+   "axes": {
+    "looseness": "tight",
+    "aggression": "passive",
+    "bluffing": "rare",
+    "sizing": "small",
+    "showdown": "sticky",
+    "adaptation": "situational",
+    "talk": "silent"
+   },
+   "hypothesis": "If Patient Caller's win came from stickiness rather than looseness, a tight hand selection with the same never-fold showdown should beat the control by a similar margin while losing fewer small pots; if it came from volume of hands against Jev, this card will fall well short of the Caller.",
+   "predicted": {
+    "bb100": 15,
+    "rank": 3,
+    "vsControl": 15
+   },
+   "label": "Luna · Quiet Rock Caller"
+  },
+  {
+   "id": "g1c04",
+   "gen": 1,
+   "kind": "explore",
+   "parentIds": [],
+   "changed": "",
+   "name": "Preflop Hammer",
+   "card": "You win pots before the flop and refuse to fold after it. From early and middle position open only pairs of eights or better, ace-jack or better and king-queen. From the cutoff and button add all pairs, any ace, king-ten or better, queen-jack and suited connectors. In the blinds defend those same hands. Never limp or call preflop: open with raise_2x_pot, and if anyone has raised in front of you or re-raises you, go all_in with any hand you would have opened. After the flop, bet raise_2x_pot with top pair or better, and bet the same with a flush draw or open-ended straight draw as if you had made it; that is your only bluff, and you never bluff the river with a missed draw, just check. With weaker hands check, call bets smaller than the pot holding any pair, and fold to pot or more. Once in with two pair or better, go all_in at the first raise and call any all-in. Once the blinds have doubled, shove all_in preflop with every hand you would open instead of raising. Stay silent: leave tableTalk empty every time.",
+   "axes": {
+    "looseness": "medium",
+    "aggression": "aggressive",
+    "bluffing": "sometimes",
+    "sizing": "overbet",
+    "showdown": "sticky",
+    "adaptation": "situational",
+    "talk": "silent"
+   },
+   "hypothesis": "Oversized preflop pressure should lose here: the control folds premiums to re-raises but Jev calls and four-bets with any ace, so the hammer will get its stack in against Jev's wide calls as a coinflip while paying double-sized opens into a field that rarely folds.",
+   "predicted": {
+    "bb100": -30,
+    "rank": 4,
+    "vsControl": -35
+   },
+   "label": "Luna · Preflop Hammer"
+  }
+ ],
+ "gens": [
+  {
+   "gen": 0,
+   "championIn": "control-2",
+   "championInLabel": "Luna (no card, seat 2)",
+   "championOut": "g0c03",
+   "championWhy": "best pooled lead over the control: g0c03 +83 over 2 matches · g0c04 −43 over 2 matches",
+   "predictionsWrittenAt": "2026-10-10T07:39:16.432Z",
+   "firstHandAt": "2026-10-10T07:39:24.453Z",
+   "rounds": [
+    {
+     "round": 1,
+     "kind": "equal",
+     "matches": {
+      "g0c01": 1,
+      "g0c02": 1,
+      "g0c03": 1,
+      "g0c04": 1
+     }
+    },
+    {
+     "round": 2,
+     "kind": "halving",
+     "matches": {
+      "g0c01": 1,
+      "g0c02": 1,
+      "g0c03": 2,
+      "g0c04": 2
+     },
+     "ranking": [
+      {
+       "cardId": "g0c03",
+       "lead": 161.375,
+       "se": 80
+      },
+      {
+       "cardId": "g0c04",
+       "lead": 19.401315789473685,
+       "se": 80
+      },
+      {
+       "cardId": "g0c01",
+       "lead": -10.125,
+       "se": 80
+      },
+      {
+       "cardId": "g0c02",
+       "lead": -50.78313253012048,
+       "se": 80
+      }
+     ]
+    }
+   ],
+   "memo": {
+    "gen": 0,
+    "headline": "The calling station won and the targeted aggressor lost: against this field, refusing to fold to Jev's all-in barrels is worth far more than any value we tried to extract by betting, and my pre-registered ranking was close to inverted.",
+    "confirmed": [
+     "Rowdy Maniac lost as predicted (lead −51 vs predicted −50, bb/100 −21 vs −45): Jev calls down everything, e.g. g0-g0c02 m01-r2 #6 where Jev called a 480 river bluff with pair of aces (call 50%, fold 35%), and the maniac's W$SD was 37% (10/27).",
+     "Jev never folds to pressure: WTSD 77% (185/241) across all gen-0 tables, higher than the prior 68%, and W$SD only 46% (85/185), so showing down against it is profitable for whoever holds a real hand.",
+     "The field is passive postflop except for Jev's shoves: control AF 1.6 (80 bets/raises, 51 calls), and in g0-g0c02 m01-r1 #3 Jev checked down K-high behind, so there is little fold equity to buy."
+    ],
+    "refuted": [
+     "Patient Caller: I predicted −15 bb/100, lead −20, rank 3; it posted +54 [−10, +115] and lead +83 [+1, +161] over 2 matches, the only card whose lead CI excludes zero. Its two biggest hands were Jev shoving air into it: g0-g0c03 m01-r2 #4 (+88.5 bb, Jev shoved A♥Q♥ high card into a set) and g0-g0c03 m02-r4 #3 (+87.5 bb, Jev shoved A♠J♥ ace-high into a pair of nines).",
+     "Bot Hunter: I predicted +60 bb/100, lead +50, rank 1; it posted −51 [−79, −24], a negative own-rate CI, lead −43 [−108, +19]. Its premise that Luna Decisions checks and folds postflop is wrong: Luna Decisions had AF 4.5 (138 bets/raises, 31 calls) across gen-0 tables, so there was no steal spot.",
+     "Selective showdown versus Jev is a leak, shown by a same-seed pair: in g0-g0c04 m01-r3 #11 Bot Hunter held A♥T♦ (two pair, tens and nines) and folded to Jev's 1330 river shove with A♠4♥ (−22.3 bb), while in g0-g0c03 m01-r3 #11 Patient Caller held the same cards, called and won +30.3 bb. Bot Hunter also folded jacks to a half-pot river bet in g0-g0c04 m02-r0 #4 (−33.5 bb)."
+    ],
+    "noise": [
+     "Stone Wall Nit: 1 match, 100 hands, bb/100 −8, lead −10, no CI; VPIP 9% (9/100) means it reached showdown twice (WTSD 15%, 2/13), far too few hands to judge; predicted +30/+25 is neither confirmed nor refuted.",
+     "Rowdy Maniac: 1 match, 83 hands, lead −51 with no CI; it won +35 bb and +34 bb pots (g0-g0c02 m01-r1 #3 and #18) and lost −39 bb and −35.5 bb pots, so the result is a handful of coinflips.",
+     "Bot Hunter's lead CI [−108, +19] spans zero, and its worst hand g0-g0c04 m01-r4 #15 (−40.5 bb) was a cooler, top two pair into Jev's rivered ace-high straight, so the negative own-rate partly reflects run-bad, not just the folding leak.",
+     "The card-less champion seat ran lead +4 [−66, +79] over 6 matches: two identical players differ by ±70 bb/100, so any single-card lead under about 70 is inside the baseline noise band."
+    ],
+    "surprises": [
+     "Jev is a shove-happy bettor despite AF 0.5 (80 bets/raises, 152 calls): its decision probabilities put all-in at 53%, 49% and 55% on flop, turn and river with ace-high in the Patient Caller hands, and it 4-bet to 990 preflop with A♥Q♥ and A♠J♥ (pot 27–28%).",
+     "The control folds premium hands to Jev's re-raises: it folded A♦K♣ to a 4-bet in g0-g0c01 m01-r2 #4 and g0-g0c03 m01-r2 #4, and folded A♠K♦ on the flop in g0-g0c03 m02-r4 #3, so Jev's aggression actually pushes the control off its best preflop hands.",
+     "Luna Decisions is not the tight-passive folder the scouting report described: PFR 10% (62/600) is low but AF 4.5 is the highest at the table, and it limp-called 120 with J♠9♠ in g0-g0c04 m01-r4 #15, so it is tight-passive preflop and aggressive postflop.",
+     "Patient Caller's W$SD was only 48% (39/81) yet it won +54 bb/100, because the pots it won were Jev's whole stacks and the pots it lost were small checked-down ones."
+    ]
+   },
+   "rows": [
+    {
+     "cardId": "g0c03",
+     "label": "Luna · Patient Caller",
+     "gen": 0,
+     "kind": "explore",
+     "matches": 2,
+     "hands": 195,
+     "bb100": {
+      "value": 54.29487179487179,
+      "lo": -10,
+      "hi": 115.37499999999999
+     },
+     "lead": {
+      "value": 82.9823717948718,
+      "lo": 1.375,
+      "hi": 161.375
+     },
+     "predicted": {
+      "bb100": -15,
+      "rank": 3,
+      "vsControl": -20
+     },
+     "verdict": "refuted",
+     "survived": true
+    },
+    {
+     "cardId": "g0c01",
+     "label": "Luna · Stone Wall Nit",
+     "gen": 0,
+     "kind": "explore",
+     "matches": 1,
+     "hands": 100,
+     "bb100": {
+      "value": -7.5,
+      "lo": null,
+      "hi": null
+     },
+     "lead": {
+      "value": -10.125,
+      "lo": null,
+      "hi": null
+     },
+     "predicted": {
+      "bb100": 30,
+      "rank": 2,
+      "vsControl": 25
+     },
+     "verdict": "inconclusive",
+     "survived": false
+    },
+    {
+     "cardId": "g0c04",
+     "label": "Luna · Bot Hunter",
+     "gen": 0,
+     "kind": "explore",
+     "matches": 2,
+     "hands": 195,
+     "bb100": {
+      "value": -50.76923076923077,
+      "lo": -79.47368421052632,
+      "hi": -23.5
+     },
+     "lead": {
+      "value": -43.39423076923077,
+      "lo": -107.625,
+      "hi": 19.401315789473685
+     },
+     "predicted": {
+      "bb100": 60,
+      "rank": 1,
+      "vsControl": 50
+     },
+     "verdict": "inconclusive",
+     "survived": true
+    },
+    {
+     "cardId": "g0c02",
+     "label": "Luna · Rowdy Maniac",
+     "gen": 0,
+     "kind": "explore",
+     "matches": 1,
+     "hands": 83,
+     "bb100": {
+      "value": -20.783132530120483,
+      "lo": null,
+      "hi": null
+     },
+     "lead": {
+      "value": -50.78313253012048,
+      "lo": null,
+      "hi": null
+     },
+     "predicted": {
+      "bb100": -45,
+      "rank": 4,
+      "vsControl": -50
+     },
+     "verdict": "inconclusive",
+     "survived": false
+    }
+   ],
+   "champion": {
+    "id": "control-2",
+    "label": "Luna (no card, seat 2)",
+    "matches": 6,
+    "hands": 597,
+    "bb100": {
+     "value": -3.0276381909547743,
+     "lo": -33.94053601340033,
+     "hi": 38.17420435510888
+    },
+    "control": {
+     "value": -6.583333333333333,
+     "lo": -52.79166666666667,
+     "hi": 36.583333333333336
+    },
+    "lead": {
+     "value": 3.5556951423785588,
+     "lo": -65.71388190954774,
+     "hi": 78.59181323283082
+    }
+   },
+   "hands": 600
+  },
+  {
+   "gen": 1,
+   "championIn": "g0c03",
+   "championInLabel": "Luna · Patient Caller",
+   "championOut": "g1c01",
+   "championWhy": "best pooled lead over the control: g1c01 +4 over 2 matches · g1c02 −40 over 2 matches · g0c03 −82 over 8 matches",
+   "predictionsWrittenAt": "2026-10-10T07:52:00.384Z",
+   "firstHandAt": "2026-10-10T07:52:05.502Z",
+   "rounds": [
+    {
+     "round": 1,
+     "kind": "equal",
+     "matches": {
+      "g1c01": 1,
+      "g1c02": 1,
+      "g1c03": 1,
+      "g1c04": 1
+     }
+    },
+    {
+     "round": 2,
+     "kind": "halving",
+     "matches": {
+      "g1c01": 2,
+      "g1c02": 2,
+      "g1c03": 1,
+      "g1c04": 1
+     },
+     "ranking": [
+      {
+       "cardId": "g1c01",
+       "lead": 33.37121212121213,
+       "se": 80
+      },
+      {
+       "cardId": "g1c02",
+       "lead": -9.566161616161622,
+       "se": 80
+      },
+      {
+       "cardId": "g1c04",
+       "lead": -47.093987341772156,
+       "se": 80
+      },
+      {
+       "cardId": "g1c03",
+       "lead": -136.54999999999998,
+       "se": 80
+      }
+     ]
+    }
+   ],
+   "memo": null,
+   "rows": [
+    {
+     "cardId": "g1c01",
+     "label": "Luna · Jev Trapper",
+     "gen": 1,
+     "kind": "exploit",
+     "matches": 2,
+     "hands": 194,
+     "bb100": {
+      "value": 67.47422680412372,
+      "lo": 49.60526315789473,
+      "hi": 84.62121212121212
+     },
+     "lead": {
+      "value": 4.48672680412372,
+      "lo": -25.11973684210526,
+      "hi": 33.37121212121213
+     },
+     "predicted": {
+      "bb100": 45,
+      "rank": 1,
+      "vsControl": 60
+     },
+     "verdict": "inconclusive",
+     "survived": true
+    },
+    {
+     "cardId": "g1c02",
+     "label": "Luna · Patient Value Taker",
+     "gen": 1,
+     "kind": "exploit",
+     "matches": 2,
+     "hands": 199,
+     "bb100": {
+      "value": 26.105527638190956,
+      "lo": 9,
+      "hi": 43.38383838383839
+     },
+     "lead": {
+      "value": -39.54447236180905,
+      "lo": -69.35,
+      "hi": -9.566161616161622
+     },
+     "predicted": {
+      "bb100": 35,
+      "rank": 2,
+      "vsControl": 45
+     },
+     "verdict": "refuted",
+     "survived": true
+    },
+    {
+     "cardId": "g1c04",
+     "label": "Luna · Preflop Hammer",
+     "gen": 1,
+     "kind": "explore",
+     "matches": 1,
+     "hands": 79,
+     "bb100": {
+      "value": -34.01898734177215,
+      "lo": null,
+      "hi": null
+     },
+     "lead": {
+      "value": -47.093987341772156,
+      "lo": null,
+      "hi": null
+     },
+     "predicted": {
+      "bb100": -30,
+      "rank": 4,
+      "vsControl": -35
+     },
+     "verdict": "inconclusive",
+     "survived": false
+    },
+    {
+     "cardId": "g1c03",
+     "label": "Luna · Quiet Rock Caller",
+     "gen": 1,
+     "kind": "explore",
+     "matches": 1,
+     "hands": 100,
+     "bb100": {
+      "value": -18.975,
+      "lo": null,
+      "hi": null
+     },
+     "lead": {
+      "value": -136.54999999999998,
+      "lo": null,
+      "hi": null
+     },
+     "predicted": {
+      "bb100": 15,
+      "rank": 3,
+      "vsControl": 15
+     },
+     "verdict": "inconclusive",
+     "survived": false
+    }
+   ],
+   "champion": {
+    "id": "g0c03",
+    "label": "Luna · Patient Caller",
+    "matches": 6,
+    "hands": 564,
+    "bb100": {
+     "value": -73.82978723404256,
+     "lo": -121.77849264705883,
+     "hi": -16.093750000000007
+    },
+    "control": {
+     "value": 64.65416666666665,
+     "lo": 40.59166666666667,
+     "hi": 89.6125
+    },
+    "lead": {
+     "value": -138.4839539007092,
+     "lo": -192.11732866043616,
+     "hi": -58.840353181552835
+    }
+   },
+   "hands": 600
+  }
+ ],
+ "pooled": [
+  {
+   "cardId": "g1c01",
+   "label": "Luna · Jev Trapper",
+   "gen": 1,
+   "matches": 2,
+   "hands": 194,
+   "bb100": {
+    "value": 67.47422680412372,
+    "lo": 49.60526315789473,
+    "hi": 84.62121212121212
+   },
+   "control": {
+    "value": 62.9875,
+    "lo": 51.24999999999999,
+    "hi": 74.725
+   },
+   "lead": {
+    "value": 4.48672680412372,
+    "lo": -25.11973684210526,
+    "hi": 33.37121212121213
+   }
+  },
+  {
+   "cardId": "g0c01",
+   "label": "Luna · Stone Wall Nit",
+   "gen": 0,
+   "matches": 1,
+   "hands": 100,
+   "bb100": {
+    "value": -7.5,
+    "lo": null,
+    "hi": null
+   },
+   "control": {
+    "value": 2.625,
+    "lo": null,
+    "hi": null
+   },
+   "lead": {
+    "value": -10.125,
+    "lo": null,
+    "hi": null
+   }
+  },
+  {
+   "cardId": "g1c02",
+   "label": "Luna · Patient Value Taker",
+   "gen": 1,
+   "matches": 2,
+   "hands": 199,
+   "bb100": {
+    "value": 26.105527638190956,
+    "lo": 9,
+    "hi": 43.38383838383839
+   },
+   "control": {
+    "value": 65.65,
+    "lo": 52.95000000000001,
+    "hi": 78.35
+   },
+   "lead": {
+    "value": -39.54447236180905,
+    "lo": -69.35,
+    "hi": -9.566161616161622
+   }
+  },
+  {
+   "cardId": "g0c04",
+   "label": "Luna · Bot Hunter",
+   "gen": 0,
+   "matches": 2,
+   "hands": 195,
+   "bb100": {
+    "value": -50.76923076923077,
+    "lo": -79.47368421052632,
+    "hi": -23.5
+   },
+   "control": {
+    "value": -7.375,
+    "lo": -98.875,
+    "hi": 84.125
+   },
+   "lead": {
+    "value": -43.39423076923077,
+    "lo": -107.625,
+    "hi": 19.401315789473685
+   }
+  },
+  {
+   "cardId": "g1c04",
+   "label": "Luna · Preflop Hammer",
+   "gen": 1,
+   "matches": 1,
+   "hands": 79,
+   "bb100": {
+    "value": -34.01898734177215,
+    "lo": null,
+    "hi": null
+   },
+   "control": {
+    "value": 13.075000000000003,
+    "lo": null,
+    "hi": null
+   },
+   "lead": {
+    "value": -47.093987341772156,
+    "lo": null,
+    "hi": null
+   }
+  },
+  {
+   "cardId": "g0c02",
+   "label": "Luna · Rowdy Maniac",
+   "gen": 0,
+   "matches": 1,
+   "hands": 83,
+   "bb100": {
+    "value": -20.783132530120483,
+    "lo": null,
+    "hi": null
+   },
+   "control": {
+    "value": 30,
+    "lo": null,
+    "hi": null
+   },
+   "lead": {
+    "value": -50.78313253012048,
+    "lo": null,
+    "hi": null
+   }
+  },
+  {
+   "cardId": "g0c03",
+   "label": "Luna · Patient Caller",
+   "gen": 0,
+   "matches": 8,
+   "hands": 759,
+   "bb100": {
+    "value": -40.91238471673254,
+    "lo": -99.1327913279133,
+    "hi": 20.602564102564095
+   },
+   "control": {
+    "value": 41.318749999999994,
+    "lo": 9.2125,
+    "hi": 74.578125
+   },
+   "lead": {
+    "value": -82.23113471673253,
+    "lo": -169.51046195652174,
+    "hi": 9.440645478374837
+   }
+  },
+  {
+   "cardId": "g1c03",
+   "label": "Luna · Quiet Rock Caller",
+   "gen": 1,
+   "matches": 1,
+   "hands": 100,
+   "bb100": {
+    "value": -18.975,
+    "lo": null,
+    "hi": null
+   },
+   "control": {
+    "value": 117.57499999999999,
+    "lo": null,
+    "hi": null
+   },
+   "lead": {
+    "value": -136.54999999999998,
+    "lo": null,
+    "hi": null
+   }
+  }
+ ],
+ "control": {
+  "bb100": {
+   "value": 29.03541666666667,
+   "lo": -5.383333333333334,
+   "hi": 59.99375
+  },
+  "matches": 12,
+  "hands": 1200
+ },
+ "scatter": [
+  {
+   "cardId": "g0c03",
+   "label": "Luna · Patient Caller",
+   "gen": 0,
+   "predicted": -15,
+   "actual": 54.29487179487179,
+   "lo": -10,
+   "hi": 115.37499999999999
+  },
+  {
+   "cardId": "g0c01",
+   "label": "Luna · Stone Wall Nit",
+   "gen": 0,
+   "predicted": 30,
+   "actual": -7.5,
+   "lo": null,
+   "hi": null
+  },
+  {
+   "cardId": "g0c04",
+   "label": "Luna · Bot Hunter",
+   "gen": 0,
+   "predicted": 60,
+   "actual": -50.76923076923077,
+   "lo": -79.47368421052632,
+   "hi": -23.5
+  },
+  {
+   "cardId": "g0c02",
+   "label": "Luna · Rowdy Maniac",
+   "gen": 0,
+   "predicted": -45,
+   "actual": -20.783132530120483,
+   "lo": null,
+   "hi": null
+  },
+  {
+   "cardId": "g1c01",
+   "label": "Luna · Jev Trapper",
+   "gen": 1,
+   "predicted": 45,
+   "actual": 67.47422680412372,
+   "lo": 49.60526315789473,
+   "hi": 84.62121212121212
+  },
+  {
+   "cardId": "g1c02",
+   "label": "Luna · Patient Value Taker",
+   "gen": 1,
+   "predicted": 35,
+   "actual": 26.105527638190956,
+   "lo": 9,
+   "hi": 43.38383838383839
+  },
+  {
+   "cardId": "g1c04",
+   "label": "Luna · Preflop Hammer",
+   "gen": 1,
+   "predicted": -30,
+   "actual": -34.01898734177215,
+   "lo": null,
+   "hi": null
+  },
+  {
+   "cardId": "g1c03",
+   "label": "Luna · Quiet Rock Caller",
+   "gen": 1,
+   "predicted": 15,
+   "actual": -18.975,
+   "lo": null,
+   "hi": null
+  }
+ ],
+ "heldout": null,
+ "styles": [
+  {
+   "seatId": "control",
+   "hands": 1200,
+   "vpip": 44.083333333333336,
+   "pfr": 17.916666666666668,
+   "af": 2.1354166666666665,
+   "wtsd": 64.28571428571429,
+   "wsd": 50.150150150150154,
+   "counts": {
+    "vpip": 529,
+    "pfr": 215,
+    "bets": 205,
+    "calls": 96,
+    "sawFlop": 518,
+    "showdowns": 333,
+    "wonAtShowdown": 167
+   },
+   "decisions": 2762,
+   "avgMs": 1874,
+   "costUsd": 0.3650538,
+   "label": "Luna (control, no card)"
+  },
+  {
+   "seatId": "g1c01",
+   "hands": 194,
+   "vpip": 40.20618556701031,
+   "pfr": 4.639175257731959,
+   "af": 0.3,
+   "wtsd": 70.2127659574468,
+   "wsd": 51.515151515151516,
+   "counts": {
+    "vpip": 78,
+    "pfr": 9,
+    "bets": 15,
+    "calls": 50,
+    "sawFlop": 94,
+    "showdowns": 66,
+    "wonAtShowdown": 34
+   },
+   "decisions": 490,
+   "avgMs": 1955,
+   "costUsd": 0.08233819999999994,
+   "label": "Luna · Jev Trapper"
+  },
+  {
+   "seatId": "g0c01",
+   "hands": 100,
+   "vpip": 9,
+   "pfr": 8,
+   "af": null,
+   "wtsd": 15.384615384615385,
+   "wsd": 100,
+   "counts": {
+    "vpip": 9,
+    "pfr": 8,
+    "bets": 4,
+    "calls": 0,
+    "sawFlop": 13,
+    "showdowns": 2,
+    "wonAtShowdown": 2
+   },
+   "decisions": 128,
+   "avgMs": 1587,
+   "costUsd": 0.018491699999999996,
+   "label": "Luna · Stone Wall Nit"
+  },
+  {
+   "seatId": "g1c02",
+   "hands": 199,
+   "vpip": 43.71859296482412,
+   "pfr": 3.015075376884422,
+   "af": 0.5370370370370371,
+   "wtsd": 76.47058823529412,
+   "wsd": 39.743589743589745,
+   "counts": {
+    "vpip": 87,
+    "pfr": 6,
+    "bets": 29,
+    "calls": 54,
+    "sawFlop": 102,
+    "showdowns": 78,
+    "wonAtShowdown": 31
+   },
+   "decisions": 528,
+   "avgMs": 2021,
+   "costUsd": 0.08688550000000003,
+   "label": "Luna · Patient Value Taker"
+  },
+  {
+   "seatId": "g0c04",
+   "hands": 195,
+   "vpip": 32.30769230769231,
+   "pfr": 14.358974358974358,
+   "af": 3.125,
+   "wtsd": 44.827586206896555,
+   "wsd": 38.46153846153847,
+   "counts": {
+    "vpip": 63,
+    "pfr": 28,
+    "bets": 25,
+    "calls": 8,
+    "sawFlop": 58,
+    "showdowns": 26,
+    "wonAtShowdown": 10
+   },
+   "decisions": 351,
+   "avgMs": 1777,
+   "costUsd": 0.05577050000000001,
+   "label": "Luna · Bot Hunter"
+  },
+  {
+   "seatId": "g1c04",
+   "hands": 79,
+   "vpip": 37.9746835443038,
+   "pfr": 37.9746835443038,
+   "af": 6,
+   "wtsd": 62.5,
+   "wsd": 46.666666666666664,
+   "counts": {
+    "vpip": 30,
+    "pfr": 30,
+    "bets": 6,
+    "calls": 1,
+    "sawFlop": 24,
+    "showdowns": 15,
+    "wonAtShowdown": 7
+   },
+   "decisions": 120,
+   "avgMs": 1753,
+   "costUsd": 0.017838200000000005,
+   "label": "Luna · Preflop Hammer"
+  },
+  {
+   "seatId": "g0c02",
+   "hands": 83,
+   "vpip": 89.1566265060241,
+   "pfr": 87.95180722891565,
+   "af": 8,
+   "wtsd": 54,
+   "wsd": 37.03703703703704,
+   "counts": {
+    "vpip": 74,
+    "pfr": 73,
+    "bets": 40,
+    "calls": 5,
+    "sawFlop": 50,
+    "showdowns": 27,
+    "wonAtShowdown": 10
+   },
+   "decisions": 208,
+   "avgMs": 1826,
+   "costUsd": 0.033587199999999984,
+   "label": "Luna · Rowdy Maniac"
+  },
+  {
+   "seatId": "g0c03",
+   "hands": 759,
+   "vpip": 50.59288537549407,
+   "pfr": 3.0303030303030303,
+   "af": 0.2939068100358423,
+   "wtsd": 74.76851851851852,
+   "wsd": 43.962848297213625,
+   "counts": {
+    "vpip": 384,
+    "pfr": 23,
+    "bets": 82,
+    "calls": 279,
+    "sawFlop": 432,
+    "showdowns": 323,
+    "wonAtShowdown": 142
+   },
+   "decisions": 2237,
+   "avgMs": 1838,
+   "costUsd": 0.36694079999999996,
+   "label": "Luna · Patient Caller"
+  },
+  {
+   "seatId": "g1c03",
+   "hands": 100,
+   "vpip": 33,
+   "pfr": 6,
+   "af": 0.14285714285714285,
+   "wtsd": 78.94736842105263,
+   "wsd": 43.333333333333336,
+   "counts": {
+    "vpip": 33,
+    "pfr": 6,
+    "bets": 3,
+    "calls": 21,
+    "sawFlop": 38,
+    "showdowns": 30,
+    "wonAtShowdown": 13
+   },
+   "decisions": 230,
+   "avgMs": 1835,
+   "costUsd": 0.034165900000000006,
+   "label": "Luna · Quiet Rock Caller"
+  },
+  {
+   "seatId": "typesafe-ai/jev",
+   "hands": 1059,
+   "vpip": 48.81964117091596,
+   "pfr": 17.94145420207743,
+   "af": 0.7226027397260274,
+   "wtsd": 77.1484375,
+   "wsd": 41.51898734177215,
+   "counts": {
+    "vpip": 517,
+    "pfr": 190,
+    "bets": 211,
+    "calls": 292,
+    "sawFlop": 512,
+    "showdowns": 395,
+    "wonAtShowdown": 164
+   },
+   "decisions": 2719,
+   "avgMs": 238,
+   "costUsd": 0.1177265880000001,
+   "label": "Jev"
+  },
+  {
+   "seatId": "openai/gpt-6-luna-decisions",
+   "hands": 1200,
+   "vpip": 30.583333333333336,
+   "pfr": 10.916666666666666,
+   "af": 5.254237288135593,
+   "wtsd": 64.07035175879398,
+   "wsd": 49.411764705882355,
+   "counts": {
+    "vpip": 367,
+    "pfr": 131,
+    "bets": 310,
+    "calls": 59,
+    "sawFlop": 398,
+    "showdowns": 255,
+    "wonAtShowdown": 126
+   },
+   "decisions": 2346,
+   "avgMs": 231,
+   "costUsd": 0.13824879999999992,
+   "label": "GPT-6 Luna Decisions"
+  }
+ ]
+}
