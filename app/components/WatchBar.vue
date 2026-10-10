@@ -10,7 +10,11 @@ defineProps<{
   /** Session spend cap, USD. */
   cap: number
   capped: boolean
+  /** Stopped with the Stop button: no AI turns run until a pace is picked again. */
+  stopped?: boolean
 }>()
+
+const emit = defineEmits<{ stop: [] }>()
 
 const pace = defineModel<Pace>('pace', { required: true })
 
@@ -42,6 +46,7 @@ const PACES: { value: Pace, label: string }[] = [
       class="text-[12.5px]"
       :class="capped ? 'text-warning font-medium' : 'text-muted'"
     >{{ capped ? `Paused at the $${cap.toFixed(2)} cap` : `Session cap $${cap.toFixed(2)}` }}</span>
+    <span class="stat-label">Pace</span>
     <UFieldGroup
       size="sm"
       aria-label="Pace"
@@ -58,5 +63,14 @@ const PACES: { value: Pace, label: string }[] = [
         @click="pace = p.value"
       />
     </UFieldGroup>
+    <UButton
+      label="Stop"
+      icon="i-lucide-square"
+      color="error"
+      variant="soft"
+      size="sm"
+      :disabled="!!finished || stopped"
+      @click="emit('stop')"
+    />
   </UCard>
 </template>

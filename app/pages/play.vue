@@ -100,6 +100,23 @@ watch(summaryOpen, (open) => {
   }
 })
 watch(leaveRequests, () => openSummary(null))
+
+// Stop (Watch mode): abort the in-flight /api/decide (an aborted request is dropped, not logged as a fallback,
+// same as beforeunload), deal nothing more, and show the summary. Picking a pace afterwards resumes the table.
+const stopped = ref(false)
+function stopTable() {
+  stopped.value = true
+  pausedFor = null
+  pace.value = 'pause'
+  table.stop()
+  openSummary(null)
+}
+watch(pace, (p) => {
+  if (stopped.value && p !== 'pause') {
+    stopped.value = false
+    table.resume()
+  }
+})
 watch(finished, (why) => {
   if (!why) return
   const h = human.value
@@ -126,6 +143,10 @@ const startingStackLabel = computed(() => {
 function playAgain() {
   summaryOpen.value = false
   pausedFor = null
+  if (stopped.value) {
+    stopped.value = false
+    pace.value = '1x'
+  }
   table.reset()
 }
 function newTable() {
@@ -174,6 +195,8 @@ onBeforeUnmount(() => {
           :finished="finished"
           :cap="costCap"
           :capped="capped"
+          :stopped="stopped"
+          @stop="stopTable"
         />
       </section>
       <aside class="min-w-0">
