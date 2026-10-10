@@ -203,6 +203,16 @@ export interface Decision {
   choiceNotTop?: boolean
   model: string
   latencyMs: number
-  /** `input` counts every prompt token; v2 also logs how many of them were cache reads / writes. */
-  usage: { input: number, output: number, cacheRead?: number, cacheWrite?: number }
+  /**
+   * Language models only (2026-10-12): the provider's unified finish reason ('stop', 'length', ...).
+   * 'length' means the answer hit maxOutputTokens. Runs before 2026-10-12 don't log it.
+   */
+  finishReason?: string
+  /** cleanTableTalk() dropped a non-empty line (it named the speaker's own cards). Logged from 2026-10-12. */
+  tableTalkDropped?: boolean
+  /**
+   * `input` counts every prompt token; v2 also logs how many of them were cache reads / writes.
+   * `reasoning` (from 2026-10-12, when the provider reports it) is the part of `output` spent thinking.
+   */
+  usage: { input: number, output: number, cacheRead?: number, cacheWrite?: number, reasoning?: number }
 }

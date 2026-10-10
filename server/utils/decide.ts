@@ -7,7 +7,7 @@
  * positions, the action so far, and the menu (chip amounts + resulting pot).
  * No odds, equity, or hand strength — that's the model's job.
  */
-import { generateText, Output, experimental_decide as decideWithModel, Experimental_DecisionRefusalError, InvalidResponseDataError } from 'ai'
+import { generateText, Output, experimental_decide as decideWithModel, Experimental_DecisionRefusalError, InvalidResponseDataError, NoObjectGeneratedError } from 'ai'
 import type { Experimental_DecisionModel, LanguageModel } from 'ai'
 import { z } from 'zod'
 import { buildMenu, raiseToAction } from '../../shared/utils/menu.ts'
@@ -200,10 +200,11 @@ const LLM_SCHEMA = z.object({
 })
 
 /** Prompt-token usage with the cache split (v2). `inputTokens` already includes cached tokens. */
-function usageOf(usage: { inputTokens?: number, outputTokens?: number, inputTokenDetails?: { cacheReadTokens?: number, cacheWriteTokens?: number } } | undefined): Decision['usage'] {
+export function usageOf(usage: { inputTokens?: number, outputTokens?: number, inputTokenDetails?: { cacheReadTokens?: number, cacheWriteTokens?: number }, outputTokenDetails?: { reasoningTokens?: number } } | undefined): Decision['usage'] {
   const read = usage?.inputTokenDetails?.cacheReadTokens ?? 0
   const write = usage?.inputTokenDetails?.cacheWriteTokens ?? 0
-  return { input: usage?.inputTokens ?? 0, output: usage?.outputTokens ?? 0, ...(read ? { cacheRead: read } : {}), ...(write ? { cacheWrite: write } : {}) }
+  const thought = usage?.outputTokenDetails?.reasoningTokens ?? 0
+  return { input: usage?.inputTokens ?? 0, output: usage?.outputTokens ?? 0, ...(read ? { cacheRead: read } : {}), ...(write ? { cacheWrite: write } : {}), ...(thought ? { reasoning: thought } : {}) }
 }
 
 /** Anthropic prompt-cache breakpoint; other providers ignore it. */
@@ -214,37 +215,50 @@ async function decideWithLlm(option: ModelOption, input: DecideInput, menu: Menu
   const reasoning = input.reasoning === 'unset' ? undefined : (input.reasoning ?? option.reasoning)
   const parts = promptParts(input.view, menu, input.strategyCard)
   const started = Date.now()
-  const { output, usage } = await generateText({
-    model: (input.model as LanguageModel | undefined) ?? option.id,
-    instructions: instructionsFor(input.view.game?.type),
-    // The shared part (table details + remembered hands) is the same for every seat at the table and
-    // only grows within a memory block, so it ends in an explicit cache breakpoint. v1's gateway
-    // `caching: 'auto'` put the breakpoint at the very end, so every Anthropic call was a 1.25× write.
-    messages: [{
-      role: 'user',
-      content: [
-        // Breakpoints after the table details (so a new memory block reuses system + header) and
-        // after the last remembered hand.
-        ...parts.shared.map((text, i) => ({ type: 'text' as const, text, ...(i === 0 || i === parts.shared.length - 1 ? { providerOptions: CACHE_HERE } : {}) })),
-        { type: 'text' as const, text: parts.seat }
-      ]
-    }],
-    output: Output.object({ schema }),
-    // Reasoning models think in output tokens; a low cap starves the JSON. v2: 8000, so a model
-    // that thinks longer is never cut off into a fallback.
-    // No temperature: the Claude 5 and GPT-6 families reject it.
-    maxOutputTokens: 8000,
-    abortSignal: signal,
-    maxRetries: 1,
-    // Prompt caches live per provider; letting the gateway alternate Anthropic backends turned
-    // cache reads into fresh writes (measured 2026-10-11), so Claude models prefer Anthropic itself.
-    ...(option.vendor === 'Anthropic' ? { providerOptions: { gateway: { order: ['anthropic'] } } } : {}),
-    ...(reasoning ? { reasoning } : {})
-  })
+  let result
+  try {
+    const r = await generateText({
+      model: (input.model as LanguageModel | undefined) ?? option.id,
+      instructions: instructionsFor(input.view.game?.type),
+      // The shared part (table details + remembered hands) is the same for every seat at the table and
+      // only grows within a memory block, so it ends in an explicit cache breakpoint. v1's gateway
+      // `caching: 'auto'` put the breakpoint at the very end, so every Anthropic call was a 1.25× write.
+      messages: [{
+        role: 'user',
+        content: [
+          // Breakpoints after the table details (so a new memory block reuses system + header) and
+          // after the last remembered hand.
+          ...parts.shared.map((text, i) => ({ type: 'text' as const, text, ...(i === 0 || i === parts.shared.length - 1 ? { providerOptions: CACHE_HERE } : {}) })),
+          { type: 'text' as const, text: parts.seat }
+        ]
+      }],
+      output: Output.object({ schema }),
+      // Reasoning models think in output tokens; a low cap starves the JSON. v2: 8000, so a model
+      // that thinks longer is never cut off into a fallback.
+      // No temperature: the Claude 5 and GPT-6 families reject it.
+      maxOutputTokens: 8000,
+      abortSignal: signal,
+      maxRetries: 1,
+      // Prompt caches live per provider; letting the gateway alternate Anthropic backends turned
+      // cache reads into fresh writes (measured 2026-10-11), so Claude models prefer Anthropic itself.
+      ...(option.vendor === 'Anthropic' ? { providerOptions: { gateway: { order: ['anthropic'] } } } : {}),
+      ...(reasoning ? { reasoning } : {})
+    })
+    // Read inside the try: the structured output is parsed (and can throw) here.
+    result = { output: r.output, usage: r.usage, finishReason: r.finishReason }
+  } catch (err) {
+    // An answer that doesn't parse (e.g. cut off at maxOutputTokens) is logged with its finish reason
+    // and usage, so truncation is visible in the run file instead of hiding as a generic model error.
+    if (!NoObjectGeneratedError.isInstance(err)) throw err
+    const why = err.finishReason === 'length' ? 'Truncated at the output cap' : 'Unparseable answer'
+    console.error('[decide] no object', option.id, err.finishReason)
+    return { ...fallbackDecision(menu, option.id, started, why), usage: usageOf(err.usage), ...(err.finishReason ? { finishReason: err.finishReason } : {}) }
+  }
+  const { output, usage, finishReason } = result
   const usageOut = usageOf(usage)
   const chosen = output ? menu.find(o => o.id === output.choice) : undefined
   if (!output || !chosen) {
-    return { ...fallbackDecision(menu, option.id, started, 'Illegal choice', output?.choice), usage: usageOut }
+    return { ...fallbackDecision(menu, option.id, started, 'Illegal choice', output?.choice), usage: usageOut, finishReason }
   }
   let action = chosen.action
   let requested: string | undefined
@@ -263,6 +277,8 @@ async function decideWithLlm(option: ModelOption, input: DecideInput, menu: Menu
     ...(requested ? { requested } : {}),
     model: option.id,
     latencyMs: Date.now() - started,
+    finishReason,
+    ...(output.tableTalk.trim() && !tableTalk ? { tableTalkDropped: true } : {}),
     usage: usageOut
   }
 }

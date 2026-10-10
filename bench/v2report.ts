@@ -4,7 +4,8 @@
  * bet sizing) computed the SAME way on v1 and v2 run files, cost and latency, and notable hands.
  * Analysis only (god view of finished hands); nothing here reaches a seated model.
  *
- *   node bench/v2report.ts            → prints a summary, writes internal_docs/20261011_v2_fairness/out/*.json
+ *   node bench/v2report.ts [personaSlug]  → prints a summary, writes internal_docs/20261011_v2_fairness/out/*.json
+ *   V2_OUT=/tmp/x node bench/v2report.ts 20261012_v2B_sol   → same, written elsewhere
  */
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -16,7 +17,8 @@ import type { ParsedRun, RunHandLine, TournamentLine } from '../shared/utils/run
 import type { Card } from '../shared/utils/types.ts'
 
 const ROOT = process.cwd()
-const OUT = join(ROOT, 'internal_docs', '20261011_v2_fairness', 'out')
+/** V2_OUT redirects the outputs (e.g. a second persona table without overwriting out/personas_raw.json). */
+const OUT = process.env.V2_OUT ?? join(ROOT, 'internal_docs', '20261011_v2_fairness', 'out')
 const RUNS = join(ROOT, 'data', 'runs')
 const PAYOUTS = [50, 30, 20]
 const load = (slug: string): ParsedRun | null => existsSync(join(RUNS, `${slug}.jsonl`)) ? parseRun(readFileSync(join(RUNS, `${slug}.jsonl`), 'utf8')) : null

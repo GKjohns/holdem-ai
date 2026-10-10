@@ -102,3 +102,34 @@ test('a decision model whose choice is not its own top probability keeps the cho
   assert.equal(d.choiceNotTop, true)
   assert.equal(d.probabilities?.fold, 0.7)
 })
+
+const llm = (text: string, finish: 'stop' | 'length', output = { total: 40, text: 10, reasoning: 30 }) => new MockLanguageModelV4({
+  doGenerate: async () => ({ content: [{ type: 'text', text }], finishReason: { unified: finish, raw: finish }, usage: { inputTokens: { total: 100, noCache: 100, cacheRead: 0, cacheWrite: 0 }, outputTokens: output }, warnings: [] })
+})
+
+test('LLM decisions log the finish reason and reasoning tokens', async () => {
+  const text = JSON.stringify({ reasoning: 'Weak hand.', tableTalk: '', choice: 'fold', amount: 0 })
+  const d = await decide({ modelId: 'openai/gpt-6-luna', view, model: llm(text, 'stop') })
+  assert.equal(d.fallback, false)
+  assert.equal(d.finishReason, 'stop')
+  assert.deepEqual(d.usage, { input: 100, output: 40, reasoning: 30 })
+})
+
+test('an answer cut off at the output cap is a labeled fallback with its finish reason and usage', async () => {
+  const d = await decide({ modelId: 'anthropic/claude-opus-5.5', view, model: llm('{"reasoning": "I think the', 'length', { total: 8000, text: 6, reasoning: 7994 }) })
+  assert.equal(d.fallback, true)
+  assert.match(d.reasoning, /^Truncated at the output cap/)
+  assert.equal(d.finishReason, 'length')
+  assert.equal(d.usage.output, 8000)
+  assert.equal(d.usage.reasoning, 7994)
+})
+
+test('a table-talk line that names the speaker\'s own cards is dropped and flagged', async () => {
+  const hole = view.hole.map(c => c).join(' ')
+  const text = JSON.stringify({ reasoning: 'Fold.', tableTalk: `I had ${hole}`, choice: 'fold', amount: 0 })
+  const d = await decide({ modelId: 'openai/gpt-6-luna', view, model: llm(text, 'stop') })
+  assert.equal(d.tableTalk, undefined)
+  assert.equal(d.tableTalkDropped, true)
+  const quiet = await decide({ modelId: 'openai/gpt-6-luna', view, model: llm(JSON.stringify({ reasoning: 'Fold.', tableTalk: '', choice: 'fold', amount: 0 }), 'stop') })
+  assert.equal(quiet.tableTalkDropped, undefined)
+})
