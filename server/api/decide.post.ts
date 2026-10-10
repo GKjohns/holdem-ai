@@ -38,8 +38,11 @@ const viewSchema = z.object({
     stack: chips,
     committed: chips,
     folded: z.boolean(),
-    allIn: z.boolean()
+    allIn: z.boolean(),
+    position: z.string().max(40).optional()
   })).min(1).max(5),
+  seatOrder: z.array(z.string()).max(6).optional(),
+  priorTableTalk: z.array(z.string().max(200)).max(10).optional(),
   log: z.array(z.object({
     seatId: z.string(),
     street,

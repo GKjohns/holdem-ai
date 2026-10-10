@@ -14,6 +14,8 @@ const props = defineProps<{
   delta?: number
   /** Showdown hand name, shown in place of the last action. */
   handName?: string
+  /** The winning five at showdown: shown cards in it lift, the rest dim. */
+  best5?: Set<string> | null
 }>()
 
 const model = computed(() => findModel(props.seat.modelId))
@@ -79,6 +81,7 @@ const out = computed(() => props.seat.busted || props.seat.folded)
           :key="c"
           :card="c"
           size="sm"
+          :emphasis="best5 ? (best5.has(c) ? 'hi' : 'lo') : undefined"
         />
       </div>
       <div
@@ -108,6 +111,14 @@ const out = computed(() => props.seat.busted || props.seat.folded)
         v-else-if="handName"
         class="truncate text-highlighted"
       >{{ handName }}</span>
+      <UBadge
+        v-else-if="seat.busted"
+        label="Busted"
+        color="error"
+        variant="soft"
+        size="sm"
+        class="opacity-100"
+      />
       <UBadge
         v-else-if="seat.allIn && !seat.folded"
         label="All-in"

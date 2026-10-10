@@ -297,6 +297,18 @@ test('seatView strips every other seat\'s hole cards', () => {
   assert.deepEqual(positions, ['button', 'small blind', 'big blind', 'early', 'middle', 'cutoff'])
 })
 
+test('seatView tells each seat the seating order and every opponent\'s position', () => {
+  let s = startHand(table([1000, 1000, 1000, 1000]))
+  const v = seatView(s, 'seat-2')
+  assert.deepEqual(v.seatOrder, ['you', 'seat-1', 'seat-2', 'seat-3'])
+  assert.deepEqual(v.opponents.map(o => [o.id, o.position]), [['you', 'button'], ['seat-1', 'small blind'], ['seat-3', 'cutoff']])
+  // Next hand the button moves one seat left; a busted seat drops out of the order.
+  s = { ...s, street: 'complete', toAct: null, seats: s.seats.map(x => x.id === 'seat-3' ? { ...x, stack: 0 } : x) }
+  s = startHand(s)
+  assert.deepEqual(seatView(s, 'you').seatOrder, ['seat-1', 'seat-2', 'you'])
+  assert.equal(seatView(s, 'you').opponents.find(o => o.id === 'seat-1')!.position, 'button')
+})
+
 test('illegal turns and actions throw', () => {
   const s = startHand(table([1000, 1000, 1000]))
   assert.throws(() => applyAction(s, 'seat-1', { type: 'call' }), /Not seat-1's turn/)

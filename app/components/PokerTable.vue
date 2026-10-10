@@ -60,17 +60,20 @@ const seats = computed(() => props.state.seats.map((seat, i) => {
   }
 }))
 
-/** One clause per pot: "Jev wins 340 with two pair, aces and sevens". */
-const note = computed(() => {
+/** One line per pot: "Side pot · Jev wins 340 with two pair, aces and sevens". */
+const notes = computed(() => {
   const r = result.value
-  if (!r) return ''
-  return r.pots.map((p) => {
-    const who = p.winners.map(nameOf).join(' & ')
-    const verb = p.winners.length > 1 ? 'split' : p.winners[0] === 'you' ? 'win' : 'wins'
-    const how = p.handName === 'Uncontested' ? '' : ` with ${p.handName.charAt(0).toLowerCase()}${p.handName.slice(1)}`
-    return `${who} ${verb} ${p.amount.toLocaleString()}${how}`
-  }).join(' · ')
+  if (!r) return []
+  return r.pots.map((p, i) => ({ label: potLabel(i, r.pots.length), text: potSentence(p, nameOf) }))
 })
+
+/** The best hand at showdown is the main-pot winner's (everyone contests the main pot). */
+const best5 = computed(() => {
+  const r = result.value
+  if (!r || !Object.keys(r.shown).length) return null
+  return new Set(r.pots[0]?.winners.flatMap(id => r.shown[id]?.best5 ?? []) ?? [])
+})
+const emphasis = (c: string | undefined) => !best5.value || !c ? undefined : best5.value.has(c as never) ? 'hi' as const : 'lo' as const
 </script>
 
 <template>
@@ -113,6 +116,7 @@ const note = computed(() => {
         :winner="winners.has(s.seat.id)"
         :delta="result?.deltas[s.seat.id]"
         :hand-name="result?.shown[s.seat.id]?.handName"
+        :best5="result?.shown[s.seat.id] ? best5 : null"
       />
     </template>
 
@@ -128,15 +132,25 @@ const note = computed(() => {
           v-for="i in 5"
           :key="i"
           :card="state.board[i - 1] ?? null"
+          :emphasis="emphasis(state.board[i - 1])"
         />
       </div>
-      <div
-        v-if="note"
+      <ul
+        v-if="notes.length"
         data-testid="result-strip"
         class="mt-2.5 mx-auto w-max max-w-[240px] sm:max-w-[420px] px-3 py-1 rounded-xl bg-default/85 text-balance text-highlighted text-xs sm:text-[13px] font-medium shadow-sm"
       >
-        {{ note }}
-      </div>
+        <li
+          v-for="(n, i) in notes"
+          :key="i"
+          class="py-px"
+        >
+          <span
+            v-if="n.label"
+            class="text-muted font-normal"
+          >{{ n.label }} · </span>{{ n.text }}
+        </li>
+      </ul>
     </div>
   </div>
 </template>

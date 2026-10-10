@@ -39,7 +39,7 @@ Each turn you see your cards, the board, every player's chips, the action so far
 
 Answer fields:
 - reasoning: one or two plain sentences on why you chose this option.
-- tableTalk: one short in-character line you say out loud at the table (under 80 characters), or an empty string to stay quiet. Banter is fine; never reveal or hint at your exact cards.
+- tableTalk: one short in-character line you say out loud at the table (under 80 characters), or an empty string to stay quiet. Banter is fine; never reveal or hint at your exact cards. Vary it: never repeat a line you've already said this session.
 - choice: the option id you take.`
 
 const EVAL_QUESTION = 'You are the player described under `me` in this no-limit Texas Hold\'em hand. Which option is the best play, given your hole cards, the board, the chips, and how the other players have acted?'
@@ -152,6 +152,7 @@ async function decideWithEvaluation(option: ModelOption, input: DecideInput, men
   })
   const started = Date.now()
   let result: Awaited<ReturnType<typeof ask>>
+  let retried = false
   try {
     result = await ask(EVAL_QUESTION)
   } catch (err) {
@@ -159,12 +160,13 @@ async function decideWithEvaluation(option: ModelOption, input: DecideInput, men
     // a plainer rewording of the same question gets an answer.
     if (!Experimental_DecisionRefusalError.isInstance(err)) throw err
     console.warn('[decide] refusal, retrying reworded', option.id)
+    retried = true
     result = await ask(EVAL_QUESTION_RETRY)
   }
   const answer = result.answers.action
   const usage = { input: result.usage.inputTokens ?? 0, output: result.usage.outputTokens ?? 0 }
   const chosen = menu.find(o => o.id === answer.choice)
-  if (!chosen) return { ...fallbackDecision(menu, option.id, started, 'Illegal choice', answer.choice), usage }
+  if (!chosen) return { ...fallbackDecision(menu, option.id, started, 'Illegal choice', answer.choice), usage, ...(retried ? { retried } : {}) }
   const raw: Record<string, number> = answer.probabilities ?? {}
   const probabilities = Object.fromEntries(menu.map(o => [o.id, raw[o.id] ?? 0])) as Partial<Record<MenuId, number>>
   const ranked = menu
@@ -178,6 +180,7 @@ async function decideWithEvaluation(option: ModelOption, input: DecideInput, men
     reasoning: ranked.length ? `${chosen.describe} — ${ranked.join(', ')}` : chosen.describe,
     probabilities,
     fallback: false,
+    ...(retried ? { retried } : {}),
     model: option.id,
     latencyMs: Date.now() - started,
     usage
@@ -194,6 +197,17 @@ function nameOf(view: SeatView, seatId: string): string {
 /** The human's seat is literally named "You"; a model would read that as itself. */
 function displayName(name: string): string {
   return name === 'You' ? 'Human player' : name
+}
+
+/** "Human player (button), GPT-6 Sol (small blind), Jev (you, big blind)". */
+function seatingWords(view: SeatView): string {
+  const pos = new Map(view.opponents.map(o => [o.id, o.position]))
+  pos.set(view.me.id, view.position)
+  return (view.seatOrder ?? []).map((id) => {
+    if (id === view.me.id) return `${view.me.name} (you, ${view.position})`
+    const o = view.opponents.find(x => x.id === id)
+    return `${displayName(o?.name ?? id)} (${pos.get(id) ?? 'seated'})`
+  }).join(', ')
 }
 
 function positionWords(position: string): string {
@@ -252,14 +266,19 @@ export function renderPrompt(view: SeatView, menu: MenuOption[]): string {
   lines.push('', `Pot: ${view.pot} (every chip put in this hand, including this street).`)
   const myBlind = blindWords(view, blindPosted(view, me.id, me.committed))
   lines.push(`You: ${me.stack} behind, ${me.committed} in front of you this street${myBlind ? `; you ${myBlind}` : ''}. To call: ${view.toCall}.`)
+  const seating = seatingWords(view)
+  if (seating) lines.push('', `Seating, clockwise from the button: ${seating}.`)
   lines.push('', 'Other players:')
   for (const o of view.opponents) {
     const status = o.folded ? 'folded' : o.allIn ? 'all-in' : 'in the hand'
     const blind = blindWords(view, blindPosted(view, o.id, o.committed))
-    lines.push(`- ${displayName(o.name)}: ${o.stack} behind, ${o.committed} in front this street, ${status}${blind ? `; ${blind}` : ''}`)
+    const where = o.position ? ` (${o.position})` : ''
+    lines.push(`- ${displayName(o.name)}${where}: ${o.stack} behind, ${o.committed} in front this street, ${status}${blind ? `; ${blind}` : ''}`)
   }
   const log = actionLines(view)
   lines.push('', 'Action so far this hand (after the blinds):', ...(log.length ? log.map(l => `- ${l}`) : ['- none yet']))
+  const prior = view.priorTableTalk?.filter(Boolean) ?? []
+  if (prior.length) lines.push('', 'Table talk you already said this session (say something new or stay quiet):', ...prior.map(t => `- "${t}"`))
   lines.push('', 'Your options (pick one id):', ...menu.map(o => `- ${o.id} — ${o.describe}`))
   return lines.join('\n')
 }
@@ -281,8 +300,13 @@ export function tableState(view: SeatView) {
     pot: view.pot,
     to_call: view.toCall,
     big_blind: view.bigBlind,
+    seating_clockwise_from_button: (view.seatOrder ?? []).map((id) => {
+      if (id === view.me.id) return `${view.me.name} (me)`
+      return displayName(view.opponents.find(o => o.id === id)?.name ?? id)
+    }),
     opponents: view.opponents.map(o => ({
       name: displayName(o.name),
+      position: o.position,
       stack_behind: o.stack,
       in_front_this_street: o.committed,
       status: o.folded ? 'folded' : o.allIn ? 'all-in' : 'in the hand',

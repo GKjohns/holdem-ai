@@ -32,6 +32,8 @@ Storyboard: frames **6–7** in [`storyboard.html`](./storyboard.html) (Spectato
 **Goal:** pick 2–6 models, hit "Watch", and the hand plays itself, readable at human speed.
 **Estimated effort:** 3 hours
 
+> **2026-10-09:** B1.1–B1.3 (Play/Watch toggle, zero-human tables with pace + auto-deal, live god view) were pulled into main-plan Sprint 3 at Kyle's request. B1.4 (chip race) also moved, into main-plan Sprint 4 (4.4a, with hand history). B1 is now just B1.5–B1.6 (stats tab, cost meter).
+
 #### Tasks
 - B1.1 Setup card: a "Your seat" switch (`USwitch`), **Play** or **Watch**. In Watch mode, seat rows go from 1–5 to 2–6 and the button reads "Start the table".
 - B1.2 `useTable.ts`: allow zero human seats. Add a `pace` setting (`UFieldGroup`: Pause · 1× · 4× · Max). 1× keeps a ~1.5 s floor per action so it reads like a broadcast; Max drops the floor. Auto-deal the next hand after a 2 s beat unless paused. Stop when one seat has all the chips or at a hand cap (default 100).

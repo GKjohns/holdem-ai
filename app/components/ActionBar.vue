@@ -38,6 +38,15 @@ watch(() => props.legal, (l) => {
   if (l) amount.value = l.minRaiseTo
 }, { immediate: true })
 
+// The number field has no min/max of its own (it resets out-of-range input to the min);
+// clamp here so a typed 99999 becomes all-in and a typed 5 becomes the min raise.
+watch(amount, (v) => {
+  const l = props.legal
+  if (!l) return
+  const c = Math.min(l.maxRaiseTo, Math.max(l.minRaiseTo, Math.round(Number.isFinite(v) ? v : l.minRaiseTo)))
+  if (c !== v) amount.value = c
+})
+
 const presets = computed(() => {
   const l = props.legal
   if (!l) return PRESETS.map(p => ({ ...p, to: null as number | null }))
@@ -192,8 +201,6 @@ function raise() {
           />
           <UInputNumber
             v-model="amount"
-            :min="legal?.minRaiseTo ?? 0"
-            :max="legal?.maxRaiseTo ?? 100"
             :disabled="!live"
             orientation="vertical"
             class="w-28"

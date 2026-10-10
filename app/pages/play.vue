@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import type { Decision } from '~~/shared/utils/types'
 import { DEFAULT_LINEUP, MODELS } from '~~/shared/utils/models'
 import { legalActions } from '~~/shared/utils/table'
 import type { Lineup } from '~/composables/useLineup'
@@ -39,7 +38,7 @@ const resolved = resolveLineup()
 if (!resolved) await navigateTo('/')
 
 const table = useTable(resolved ?? { mode: 'play', seats: DEFAULT_LINEUP, stack: 1000, smallBlind: 5, bigBlind: 10 }, { stacks: debugStacks })
-const { state, hasHuman, thinking, decisions, actionLabels, blindsNote, human, humanLegal, humanMenu, canDeal, finished, toActSeat, pace } = table
+const { state, hasHuman, thinking, decisions, actionLabels, blindsNote, human, humanLegal, humanMenu, canDeal, finished, toActSeat, pace, history, startingStacks } = table
 
 const complete = computed(() => state.value.street === 'complete')
 const waitingOn = computed(() => toActSeat.value && toActSeat.value.modelId ? toActSeat.value.name : null)
@@ -57,21 +56,56 @@ const humanToCall = computed(() => table.isHumanTurn.value ? legalActions(state.
 
 // Information hygiene: with a human seated, nothing about AI decisions reaches the panel mid-hand.
 const reveal = computed(() => canRevealReasoning({ hasHuman, street: state.value.street }))
-const handDecisions = computed(() => {
-  const m = new Map<number, Decision>()
-  if (!reveal.value) return m
-  for (const d of decisions.value) if (d.handNo === state.value.handNo) m.set(d.logIndex, d.decision)
-  return m
-})
+const handDecisions = computed(() => reveal.value ? decisions.value.filter(d => d.handNo === state.value.handNo) : [])
 
 watchEffect(() => {
   meta.value = state.value.handNo ? { handNo: state.value.handNo, smallBlind: state.value.smallBlind, bigBlind: state.value.bigBlind } : null
 })
-// Sprint 4 swaps this for the session summary modal.
-watch(leaveRequests, () => {
-  table.stop()
-  navigateTo('/')
+// Session summary: on "Leave table", or by itself when the session can't go on.
+const summaryOpen = ref(false)
+const summaryReason = ref<string | null>(null)
+const summaryMinutes = ref(1)
+let pausedFor: typeof pace.value | null = null
+
+function openSummary(reason: string | null) {
+  summaryReason.value = reason
+  summaryMinutes.value = Math.max(1, Math.round((Date.now() - table.startedAt.value) / 60_000))
+  // Watch mode keeps dealing behind a modal; hold it while the summary is up.
+  if (!hasHuman && pace.value !== 'pause' && !finished.value) {
+    pausedFor = pace.value
+    pace.value = 'pause'
+  }
+  summaryOpen.value = true
+}
+watch(summaryOpen, (open) => {
+  if (!open && pausedFor) {
+    pace.value = pausedFor
+    pausedFor = null
+  }
 })
+watch(leaveRequests, () => openSummary(null))
+watch(finished, (why) => {
+  if (!why) return
+  const h = human.value
+  openSummary(!h ? 'finished' : h.stack <= 0 ? 'busted' : state.value.seats.every(s => s.id === h.id || s.stack <= 0) ? 'cleaned' : 'finished')
+})
+
+const summaryTable = computed(() => summaryRows(state.value.seats, startingStacks, history.value, decisions.value))
+const startingStackLabel = computed(() => {
+  const v = Object.values(startingStacks)
+  return v.every(x => x === v[0]) ? v[0]!.toLocaleString() : 'mixed'
+})
+
+function playAgain() {
+  summaryOpen.value = false
+  pausedFor = null
+  table.reset()
+}
+function newTable() {
+  table.stop()
+  summaryOpen.value = false
+  navigateTo('/')
+}
 
 onMounted(() => table.deal())
 onBeforeUnmount(() => {
@@ -122,8 +156,23 @@ onBeforeUnmount(() => {
           :reveal="reveal"
           :decisions="handDecisions"
           :watching="!hasHuman"
+          :history="history"
+          :starting-stacks="startingStacks"
         />
       </aside>
     </div>
+    <SessionSummary
+      v-model:open="summaryOpen"
+      :rows="summaryTable"
+      :hands="history.length"
+      :minutes="summaryMinutes"
+      :small-blind="state.smallBlind"
+      :big-blind="state.bigBlind"
+      :starting-stack="startingStackLabel"
+      :reason="summaryReason"
+      :watching="!hasHuman"
+      @again="playAgain"
+      @new-table="newTable"
+    />
   </div>
 </template>

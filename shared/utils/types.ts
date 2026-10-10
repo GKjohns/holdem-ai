@@ -111,8 +111,12 @@ export interface SeatView {
   canRaise: boolean
   bigBlind: number
   position: string
-  opponents: { id: string, name: string, stack: number, committed: number, folded: boolean, allIn: boolean }[]
+  opponents: { id: string, name: string, stack: number, committed: number, folded: boolean, allIn: boolean, position: string }[]
+  /** Seat ids still in the game, clockwise starting from the button (includes `me`). */
+  seatOrder: string[]
   log: ActionEvent[]
+  /** Lines this seat has already said this session (client-supplied; LLMs are told not to repeat them). */
+  priorTableTalk?: string[]
 }
 
 export type MenuId = 'fold' | 'check' | 'call' | 'raise_min' | 'raise_half_pot' | 'raise_pot' | 'raise_2x_pot' | 'all_in'
@@ -133,6 +137,8 @@ export interface Decision {
   probabilities?: Partial<Record<MenuId, number>>
   fallback: boolean
   requested?: string
+  /** A decision model refused the first phrasing and answered a reworded retry. */
+  retried?: boolean
   model: string
   latencyMs: number
   usage: { input: number, output: number }

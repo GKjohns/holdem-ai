@@ -37,6 +37,8 @@
   --series-openai: #eb6834;
   --series-google: #1baf7a;
   --series-eval: #3d3630;
+  /* Charts only: the human seat needs its own hue (primary orange collides with OpenAI). Validated all-pairs vs the vendor hues. */
+  --series-human: #b03a8c;
   --chart-grid: #e6dfd2;
   --chart-axis: #cfc6b7;
 }
@@ -69,6 +71,7 @@
   --series-openai: #d95926;
   --series-google: #199e70;
   --series-eval: #d6ccbe;
+  --series-human: #b04fb0;
   --chart-grid: #26221d;
   --chart-axis: #3a342d;
 }

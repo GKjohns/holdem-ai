@@ -209,9 +209,21 @@ export function seatView(state: TableState, seatId: string): SeatView {
     position: positionOf(state, state.seats.indexOf(seat)),
     opponents: state.seats
       .filter(s => s !== seat && !s.busted)
-      .map(s => ({ id: s.id, name: s.name, stack: s.stack, committed: s.committed, folded: s.folded, allIn: s.allIn })),
+      .map(s => ({
+        id: s.id, name: s.name, stack: s.stack, committed: s.committed, folded: s.folded, allIn: s.allIn,
+        position: positionOf(state, state.seats.indexOf(s))
+      })),
+    seatOrder: seatOrder(state),
     log: structuredClone(state.log)
   }
+}
+
+/** Seats still in the game, clockwise from the button. */
+export function seatOrder(state: TableState): string[] {
+  const n = state.seats.length
+  return Array.from({ length: n }, (_, k) => state.seats[(state.button + k) % n]!)
+    .filter(s => !s.busted)
+    .map(s => s.id)
 }
 
 export function potTotal(state: TableState): number {

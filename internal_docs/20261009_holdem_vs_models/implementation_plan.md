@@ -1,7 +1,7 @@
 # Hold'em AI — Implementation Plan
 
 **Created:** October 9, 2026
-**Status:** In Progress — Sprint 1 complete
+**Status:** Sprints 1–4 complete (Phase 5 verification artifact pending)
 **Context:** Kyle wants a no-limit Texas Hold'em game where the human sits at a table of AI opponents, each seat a different model: general LLMs (GPT-6, Claude, Gemini) and the new **decision models** (OpenAI's `gpt-6-luna-decisions` and TypeSafe AI's `jev`), which answer typed questions with probabilities instead of writing prose. It's a sibling of `2048-ai`: same stack, same taste, same "watch models think" hook.
 
 **Goal:** `npm run dev` → pick 1–5 AI opponents → play hands of no-limit hold'em against them in a clean UI, see each model's reasoning (or probability spread) revealed after every hand, and get a session leaderboard when you leave or bust.
@@ -310,7 +310,7 @@ Interactive mock: [`storyboard.html`](./storyboard.html) — open it in a browse
 
 ---
 
-### Sprint 4: Showdown review, session summary, docs `[Not Started]`
+### Sprint 4: Showdown review, session summary, docs `[Complete]`
 **Goal:** the "watch models think" payoff, and a reason to play one more session.
 **Estimated effort:** 2–3 hours
 
@@ -319,13 +319,43 @@ Interactive mock: [`storyboard.html`](./storyboard.html) — open it in a browse
 - 4.2 Hand review inside `TableTalk.vue` (no separate component): at `street === 'complete'` the lock lifts and a `UAccordion` per AI seat shows each decision by street — LLM reasoning prose / decision-model probability bars (`UProgress` per option), latency, fallback badge.
 - 4.3 `SessionSummary.vue` — `UModal` on "Leave table" or when the human busts: `UTable` with player, net chips, hands won, avg decision ms, cost (`pricing.ts` × usage). "Play again (same table)" / "New table".
 - 4.4 AI eliminations: busted seats show "busted" and sit out; if all AIs bust, show summary with "You cleaned out the table".
+- 4.4a **Hand history + chip trends (Kyle, 2026-10-09: "the game happens and it just looks like it disappears").** Pulls B1.4 into the main build.
+  - `useTable` keeps a session history: per completed hand → `{ handNo, board, pots (amount, winners, handName), deltas, stacksAfter, shown, decisions }`. In memory only.
+  - Side panel gets tabs (`UTabs`): **Table talk · Hands · Chips**.
+    - **Hands:** newest-first list of completed hands — `#14 · Jev won 340 (two pair) · board A♠7♣2♥9♦K♣`, your/seat deltas as colored chips; click to expand → the full action log + revealed reasoning for that hand (reuses the 4.2 review rendering).
+    - **Chips:** stack-over-hands line chart, one line per seat in vendor series colors (inline SVG, no chart lib; follow the `dataviz` skill), plus a current-stacks bar list sorted by stack with net +/- since start.
+  - Works in both Play and Watch modes; Watch mode keeps Hands/Chips live as hands auto-deal.
+- 4.4b Follow-ups from Sprint 2:
+  - **SeatView gap:** add seat order + each opponent's position (button/SB/BB/…) — a human at the table sees where everyone sits. Additive field; update `menu`/prompt rendering and tests.
+  - Record refusal retries on the `Decision` (`retried: true`) instead of only logging, so B3 can count them.
+  - Prompt names the human seat "Human player"; fine for Play mode, must not appear in Watch mode.
+  - GPT-6 Luna repeats one table-talk line; add a "vary your table talk, don't repeat earlier lines" instruction and pass the seat's prior lines this session.
 - 4.5 `README.md` (what it is, roster, how decision models differ, how to run, env) and `AGENTS.md` (engine-is-pure rule, relative imports, model-call rules, key-handling rule). Fix the 2048-ai mistake: point at files that exist.
 
-#### Verification (Playwright via subagent)
-- [ ] Showdown screenshot: cards revealed, winner highlighted, review panel shows reasoning for an LLM and probability bars for Jev + Luna Decisions
-- [ ] Force a side pot via `/play?stacks=100,500,1000,1000,1000` and screenshot the correct main/side split
-- [ ] Leave table → summary modal with non-zero cost row for an LLM seat
-- [ ] Bust the human → summary appears automatically
+#### Verification (Playwright, run in the main loop)
+- [x] Showdown screenshot: cards revealed, winning five lifted and the rest dimmed, winner ring, result line, review panel with GPT-6 Sol's reasoning and per-option bars for Jev + Luna Decisions — `sprint4_showdown.webp` (re-take of `sprint3_showdown`, now with the result line), `sprint4_review_luna_decisions.webp` (4 decisions, preflop to river)
+- [x] Side pot via `/play?stacks=100,500,1000,1000,1000`: "Main pot · Luna Decisions wins 201 … / Side pot · Luna Decisions wins 294 …", 495 total — `sprint4_side_pot.webp`
+- [x] Leave table → summary modal; GPT-6 Sol row $0.019 after 3 hands — `sprint4_summary_leave.webp`; Watch-mode Leave pauses the table under the modal — `sprint4_summary_watch.webp`
+- [x] Bust the human → "You're out of chips" summary opens by itself — `sprint4_summary_busted.webp` (and again on the side-pot hand)
+- [x] 4.4a after 10 Watch hands at Max: Hands tab (newest first, board + colored chip swings, expanded hand shows every hole card and the full log with reasoning) — `sprint4_hands_tab_watch.webp`; Chips tab (stack lines with crosshair tooltip, legend, current-stacks bars with net) — `sprint4_chips_tab_watch.webp`
+- [x] Typed raise above max clamps to all-in (99999 → 1,000, button "All-in 1,000"); typed 5 clamps to the min (20)
+- [x] Play mode still sealed mid-hand (0 reasoning/probability nodes); 390 px wide with the Chips tab open: no horizontal scroll; no console errors this session
+- [x] `npm test` (39 tests, +3 prompt, +3 session, +1 seating), `npm run typecheck`, `npm run lint` green
+
+#### Notes & deviations (2026-10-10)
+- **New components:** `HandLog.vue` (the action log, pulled out of `TableTalk.vue` so the live panel and the Hands tab share it), `HandReview.vue` (the 4.2 per-seat accordion), `HandHistory.vue` (Hands tab), `ChipChart.vue` (Chips tab), `SessionSummary.vue`. The plan said "no separate component" for 4.2; reusing the review in the Hands tab needed one. `TableTalk.vue` is now the tabbed panel (`UTabs`: Table talk · Hands · Chips). Pure numbers live in `app/utils/session.ts` (`summaryRows`, `stackSeries`, `potLabel`, `potSentence`) with `tests/session.test.ts`.
+- **Hand review placement:** in Play mode, when the hand ends the review replaces the live log in the Table talk tab (as in storyboard frame 4). The first LLM seat opens by default. Each decision shows street, action, latency, table talk, and either the reasoning or one `UProgress` row per option ≥ 1% (the chosen one in primary). The full chronological log for that hand is in the Hands tab. Watch mode keeps the live log, since hands auto-deal after a short beat. The compact fold/call/raise strip stays in the live log.
+- **`useTable` additions:** `history: HandRecord[]` (`handNo, board, button, pots, shown, deltas, stacksAfter, holes, log, actionLabels, blindsNote, decisions`), `startingStacks`, `startedAt`, `reset()` (same seats and stacks, new seed), `resume`. A decision's `logIndex` is now taken before the action is applied, and a hand is recorded right after its last decision is pushed, so the record includes it.
+- **Hole cards in history:** `HandRecord.holes` keeps every seat's cards, but the Hands tab shows them through `canShowHoleCards`, so Play mode shows only showdown cards and your own.
+- **Chip chart (dataviz skill):** inline SVG with 2 px lines, end dots with a surface ring, hairline grid, three compact y ticks, a crosshair that snaps to the nearest hand, a tooltip with line keys, and a legend. Direct end labels appear only with ≤ 4 seats whose end points are ≥ 11 px apart. Hue follows the vendor `--series-*` colors, and a second or third seat sharing a hue is dashed or dotted. **The human needs its own chart hue:** primary orange is ΔE-indistinguishable from `--series-openai`, so I added `--series-human` (light `#b03a8c`, dark `#b04fb0`). `validate_palette.js --pairs all` passes for both against the three vendor hues (worst CVD ΔE 9.2 light / 8.8 dark). Jev's ink `--series-eval` fails the validator's chroma and lightness checks by design, because it's the neutral; it was kept as is. The human stays primary everywhere else on the table.
+- **Pot labels:** "Main pot / Side pot", or "Side pot 1, Side pot 2" when there are several (standard usage, rather than the plan's "Side pot 2" for the first side pot). Labels appear only on multi-pot hands. The best-five highlight uses the main-pot winner's `best5`; that is the best hand at showdown.
+- **Summary:** it opens on Leave, and on its own when `finished` fires: you busted, "You cleaned out the table" when you hold every chip, or a Watch table that ends or hits the cap. Avg decision and cost are "—" for you. Costs under $0.001 show four decimals. Closing the modal resumes; Watch mode is paused while it's open. "Play again (same table)" resets in place; "New table" goes to `/`.
+- **4.4:** busted seats show a red "Busted" badge and sit out (the engine already skipped them).
+- **4.4b:** `SeatView` gains `opponents[].position`, `seatOrder` (ids clockwise from the button) and an optional client-filled `priorTableTalk` (the seat's last ≤ 6 distinct lines this session). `seatView()`, the zod schema (new fields optional), the prompt ("Seating, clockwise from the button: …", positions on each opponent line, "Table talk you already said…"), the decision-model JSON (`seating_clockwise_from_button`, `opponents[].position`) and the tests were updated together. `Decision.retried` is set when Luna Decisions refuses and the reworded retry answers, and the review shows a "refused once, asked again" badge. `tests/prompt.test.ts` checks that a Watch-mode prompt and its JSON never mention a human. The instructions now say to vary table talk.
+- **Raise input:** `UInputNumber` no longer gets `min`/`max`; it reset out-of-range input to the min. A watcher clamps to [min raise, all-in] instead.
+- **4.5:** `README.md` (what it is, roster, the two decider kinds, the app, a code map that only names files that exist, setup, env) and `AGENTS.md` (pure engine + relative `.ts` imports, `seatView` as the only model input and the checklist for adding a field, reveal gate, model-call rules, key handling).
+- **Spend:** about $0.05 over about 24 hands. That's more hands than the 15 planned: getting a side pot took 8 hands at the short-stack table. Gateway-reported per-seat costs from the summaries: Watch table (Jev, Luna Decisions, Luna, Haiku, 10 hands) $0.020; Sol table (3 hands) $0.019; side-pot table and checks under $0.01. Well under the $1 cap.
+- **Known issues / not verified in the browser:** "You cleaned out the table" (needs every AI to bust) is wired but wasn't reached. The table still shows final bet pills after a hand (Sprint 3 behavior), including a seat's uncalled bet. A Sprint 3 HMR-era `Cannot read properties of null (reading 'hole')` render error was in the Playwright console history from before this session; it didn't recur. The decision models still sometimes pick an option that isn't their top probability (visible now in the review bars).
 
 ---
 

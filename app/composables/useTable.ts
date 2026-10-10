@@ -1,4 +1,4 @@
-import type { Decision, MenuId, PlayerAction, SeatView, Street, TableState } from '~~/shared/utils/types'
+import type { ActionEvent, Card, Decision, HandResult, MenuId, PlayerAction, SeatView, Street, TableState } from '~~/shared/utils/types'
 import { activeSeatCount, applyAction, legalActions, newTable, seatView, startHand, withTableTalk } from '~~/shared/utils/table'
 import { buildMenu } from '~~/shared/utils/menu'
 import { findModel } from '~~/shared/utils/models'
@@ -25,6 +25,27 @@ export interface DecisionRecord {
   decision: Decision
 }
 
+/** One finished hand, kept for the Hands / Chips tabs and the session summary. In memory only. */
+export interface HandRecord {
+  handNo: number
+  board: Card[]
+  button: number
+  pots: HandResult['pots']
+  shown: HandResult['shown']
+  deltas: Record<string, number>
+  /** Every seat's stack once the pot is paid (busted seats included, at 0). */
+  stacksAfter: Record<string, number>
+  /** Every seat's hole cards; the UI shows only what canShowHoleCards allows. */
+  holes: Record<string, Card[]>
+  log: ActionEvent[]
+  actionLabels: string[]
+  blindsNote: string
+  decisions: DecisionRecord[]
+}
+
+/** Lines a seat already said this session, newest last (deduped), so the LLM can vary its banter. */
+const PRIOR_TALK_MAX = 6
+
 export function useTable(lineup: Lineup, opts: { stacks?: number[], seed?: number } = {}) {
   const hasHuman = lineup.mode === 'play'
   const ais = lineup.seats.map((modelId, i) => {
@@ -34,10 +55,15 @@ export function useTable(lineup: Lineup, opts: { stacks?: number[], seed?: numbe
   })
   const players = hasHuman ? [{ id: HUMAN_ID, name: 'You', modelId: null }, ...ais] : ais
   const stacks = opts.stacks?.length === players.length ? opts.stacks : lineup.stack
-  const state = shallowRef<TableState>(newTable(
+  const freshTable = (seed = Math.floor(Math.random() * 2 ** 31)) => newTable(
     { players, stacks, smallBlind: lineup.smallBlind, bigBlind: lineup.bigBlind },
-    opts.seed ?? Math.floor(Math.random() * 2 ** 31)
-  ))
+    seed
+  )
+  const state = shallowRef<TableState>(freshTable(opts.seed))
+  /** Stacks when the session started (net chips and the chart's hand 0). */
+  const startingStacks = Object.fromEntries(state.value.seats.map(s => [s.id, s.stack])) as Record<string, number>
+  const history = ref<HandRecord[]>([])
+  const startedAt = ref(Date.now())
 
   /** Seat id currently waiting on /api/decide. */
   const thinking = ref<string | null>(null)
@@ -92,6 +118,35 @@ export function useTable(lineup: Lineup, opts: { stacks?: number[], seed?: numbe
     const seat = next.seats.find(s => s.id === seatId)!
     actionLabels.value = [...actionLabels.value, seat.lastAction ?? action.type]
     state.value = next
+  }
+
+  /** Snapshot a finished hand into `history` (once per hand). */
+  function recordIfComplete() {
+    const s = state.value
+    if (s.street !== 'complete' || !s.result || history.value.at(-1)?.handNo === s.handNo) return
+    history.value.push({
+      handNo: s.handNo,
+      board: s.board.slice(),
+      button: s.button,
+      pots: s.result.pots,
+      shown: s.result.shown,
+      deltas: s.result.deltas,
+      stacksAfter: Object.fromEntries(s.seats.map(x => [x.id, x.stack])),
+      holes: Object.fromEntries(s.seats.map(x => [x.id, x.hole.slice()])),
+      log: s.log,
+      actionLabels: actionLabels.value.slice(),
+      blindsNote: blindsNote.value,
+      decisions: decisions.value.filter(d => d.handNo === s.handNo)
+    })
+  }
+
+  function priorTalk(seatId: string): string[] {
+    const lines: string[] = []
+    for (const d of decisions.value) {
+      const t = d.seatId === seatId ? d.decision.tableTalk : undefined
+      if (t && !lines.includes(t)) lines.push(t)
+    }
+    return lines.slice(-PRIOR_TALK_MAX)
   }
 
   function startNextHand() {
@@ -168,7 +223,9 @@ export function useTable(lineup: Lineup, opts: { stacks?: number[], seed?: numbe
       if (!seat.modelId) break
 
       const handNo = state.value.handNo
-      const view = seatView(state.value, seat.id)
+      const logIndex = state.value.log.length
+      const prior = priorTalk(seat.id)
+      const view: SeatView = { ...seatView(state.value, seat.id), ...(prior.length ? { priorTableTalk: prior } : {}) }
       thinking.value = seat.id
       const started = performance.now()
       let decision: Decision
@@ -190,7 +247,8 @@ export function useTable(lineup: Lineup, opts: { stacks?: number[], seed?: numbe
         apply(seat.id, decision.action)
       }
       if (decision.fallback) announceFallback(seat.name, decision)
-      decisions.value.push({ handNo, seatId: seat.id, street: view.street, logIndex: actionLabels.value.length - 1, decision })
+      decisions.value.push({ handNo, seatId: seat.id, street: view.street, logIndex, decision })
+      recordIfComplete()
       thinking.value = null
     }
     if (id === runId) thinking.value = null
@@ -206,7 +264,20 @@ export function useTable(lineup: Lineup, opts: { stacks?: number[], seed?: numbe
   function act(action: PlayerAction) {
     if (!isHumanTurn.value) return
     apply(HUMAN_ID, action)
+    recordIfComplete()
     runAI()
+  }
+
+  /** Same seats and stacks, fresh session. */
+  function reset() {
+    stop()
+    state.value = freshTable()
+    decisions.value = []
+    history.value = []
+    actionLabels.value = []
+    blindsNote.value = ''
+    startedAt.value = Date.now()
+    deal()
   }
 
   function stop() {
@@ -220,8 +291,9 @@ export function useTable(lineup: Lineup, opts: { stacks?: number[], seed?: numbe
 
   return {
     state, hasHuman, thinking, decisions, actionLabels, blindsNote, pace,
+    history, startingStacks, startedAt, lineup,
     toActSeat, isHumanTurn, human, humanLegal, humanMenu, canDeal, finished,
-    deal, act, stop
+    deal, act, stop, reset, resume: runAI
   }
 }
 
