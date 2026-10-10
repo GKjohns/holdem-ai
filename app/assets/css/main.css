@@ -21,11 +21,16 @@
   --ui-text: #3d3630;
   --ui-text-highlighted: #1f1a16;
 
-  /* Table: felt sits on the warm paper page; cards stay paper-white with red/ink suits. */
-  --felt-bg: #2f5d46;
-  --felt-border: #6b4f36;
+  /* Table: muted sage felt (storyboard) on the warm paper page; cards stay paper-white with red/ink suits. */
+  --felt-bg: #a4ae9f;
+  --felt-border: #8f9a8b;
+  --felt-ink: #2b3329;
+  --felt-ink-muted: #4c5649;
+  --card-bg: #fffdf9;
   --card-red: #c0392b;
   --card-black: #1f1a16;
+  --back-a: #d6cebf;
+  --back-b: #e2dbcf;
 
   /* Series: hue = vendor (validated all-pairs on this surface), TypeSafe/Jev = ink. */
   --series-anthropic: #2a78d6;
@@ -50,10 +55,15 @@
   --ui-text: #d6ccbe;
   --ui-text-highlighted: #f3ede4;
 
-  --felt-bg: #1d3a2c;
-  --felt-border: #3f2f21;
-  --card-red: #e05a4b;
+  --felt-bg: #2c3530;
+  --felt-border: #3a453e;
+  --felt-ink: #dfe3db;
+  --felt-ink-muted: #9aa597;
+  --card-bg: #ebe5da;
+  --card-red: #b23a2c;
   --card-black: #1f1a16;
+  --back-a: #463f36;
+  --back-b: #38322c;
 
   --series-anthropic: #3987e5;
   --series-openai: #d95926;
@@ -72,6 +82,11 @@
 }
 
 @keyframes think-pulse {
-  0%, 100% { opacity: 0.35; }
-  50% { opacity: 1; }
+  0%, 100% { opacity: 0.3; transform: scale(0.85); }
+  50% { opacity: 1; transform: scale(1.15); }
+}
+
+@utility num {
+  font-family: var(--font-serif);
+  font-variant-numeric: lining-nums tabular-nums;
 }

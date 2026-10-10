@@ -280,7 +280,7 @@ Interactive mock: [`storyboard.html`](./storyboard.html) — open it in a browse
 
 ---
 
-### Sprint 3: Setup screen + playable table `[Not Started]`
+### Sprint 3: Setup screen + playable table `[Complete]`
 **Goal:** a human can sit down, pick opponents, and play complete hands in the browser.
 **Estimated effort:** 4 hours
 
@@ -291,11 +291,22 @@ Interactive mock: [`storyboard.html`](./storyboard.html) — open it in a browse
 - 3.4 `app/pages/play.vue` — grid `lg:grid-cols-[minmax(0,1fr)_360px]`, stacks on mobile; header shows hand #, blinds, "Leave table". Redirect to `/` if no lineup.
 
 #### Verification (Playwright via subagent)
-- [ ] Setup → Deal me in → table renders 5 seats, blinds posted, hole cards shown (screenshot, light + dark)
-- [ ] An AI seat shows thinking state then an action; log updates
-- [ ] Human fold / call / raise (preset + slider) all advance the hand; illegal amounts impossible
-- [ ] Play 3 full hands to completion incl. one showdown; no console errors
-- [ ] 390 px wide viewport: no horizontal scroll, action bar usable
+- [x] Setup → Deal me in → table renders 5 seats, blinds posted, hole cards shown (screenshot, light + dark) — `sprint3_setup.webp`, `sprint3_setup_menu.webp`, `sprint3_your_turn.webp`, `sprint3_your_turn_dark.webp`
+- [x] An AI seat shows thinking state then an action; log updates — `sprint3_ai_thinking.webp`
+- [x] Human fold / call / raise (preset + slider) all advance the hand; illegal amounts impossible — `sprint3_raise_preset.webp` (Pot preset = 35 at 5/10 preflop; slider arrows move it; typing 5 or 99999 snaps back into range)
+- [x] Play 3 full hands to completion incl. one showdown; no console errors — `sprint3_showdown.webp`, `sprint3_mobile_390_result.webp` (3-way all-in)
+- [x] 390 px wide viewport: no horizontal scroll, action bar usable — `sprint3_mobile_390.webp` (scrollWidth 390)
+- [x] Watch mode (added): 4 cheap seats at Max, ~20 hands unattended, chips conserved (sum 4,000), live reasoning / table talk / probability bars, Pause · 1× · 4× · Max — `sprint3_setup_watch.webp`, `sprint3_watch_mode.webp`, `sprint3_watch_mode_dark.webp`
+- [x] Play mode keeps reasoning sealed mid-hand: `tests/reveal.test.ts` + Playwright DOM check (0 reasoning/probability nodes before the hand ends)
+
+#### Notes & deviations (2026-10-09)
+- **Watch mode pulled in from B1.1–B1.3 (Kyle).** Setup has a "Your seat" Play / Watch `UFieldGroup`; Watch takes 2–6 AI seats (ids `seat-1`..`seat-6`, no `you`) and the button reads "Start the table". `useTable` allows zero human seats and has `pace` (Pause · 1× · 4× · Max = 1.5 s / 0.4 s / 0 floor per action), auto-deals after a beat, and stops when one seat holds every chip or at 100 hands. Every hole card is face up; Table talk shows reasoning, table talk and probability bars live. `WatchBar.vue` replaces the action bar. The engine needed no change. Chip race, stats tab, cost meter and narrator stay in B1/B2.
+- **Information hygiene:** `app/utils/reveal.ts` (`canRevealReasoning`, `canShowHoleCards`) is the single gate, tested in `tests/reveal.test.ts`. In Play mode `play.vue` passes Table talk an empty decision map until `street === 'complete'`, so reasoning never reaches the DOM mid-hand. Once a Play hand completes the inline reasoning/probabilities show (Sprint 4 can restyle that as the per-seat accordion).
+- **Finished hands stay up (Kyle):** board, showdown cards and final bets stay until the next deal; a result strip over the felt ("Jev wins 340 with two pair, …", one clause per pot) and a per-seat +/− chip pill. On < 640 px the final bet pills hide to make room for the strip. Watch-mode deal beat is 4 s at 1×, 2 s at 4×, 1 s at Max; pausing during the beat restarts it on resume.
+- **Storyboard deviations:** felt/card tokens now use the storyboard's sage felt (`--felt-bg #a4ae9f`, plus `--felt-ink`, `--card-bg`, `--back-a/b`), replacing Sprint 1's deep green. Hand # / blinds / Leave table live in the app header via `useTableHeader()` (Leave currently returns to `/`; Sprint 4 swaps in the summary modal by watching `leaveRequests`). Probability bars group menu ids into fold / check / call / raise (`DecisionDetail.vue`, reusable by Sprint 4).
+- **Debug params:** `/play?stacks=…` (per Sprint 3.1), plus `?seats=jev,gpt-6-luna` (id or suffix) and `?mode=watch`, which skip the setup screen.
+- **For Sprint 4:** `useTable().decisions` holds every `DecisionRecord { handNo, seatId, street, logIndex, decision }` for the session; `actionLabels` holds the engine's per-event text. `SeatPod` takes `delta`/`handName`/`shown`; `PlayingCard` takes `emphasis: 'hi' | 'lo'` for best5 highlighting (not wired yet).
+- **Known issues:** `UInputNumber` resets an out-of-range typed value to the min rather than clamping to the max (still legal). The decision models sometimes choose an option that isn't their top probability (seen on Luna Decisions); worth a look in Sprint 2/4. `sprint3_showdown.webp` predates the result strip, chip pills and bar-color fix; `sprint3_watch_mode.webp` shows the final look. Spend: about 25 hands of real play (mostly the Watch run at Max, which went longer than planned), cheap seats only.
 
 ---
 

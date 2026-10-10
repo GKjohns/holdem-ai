@@ -11,6 +11,8 @@ useHead({
   }
 })
 
+const { meta: tableMeta, leaveRequests } = useTableHeader()
+
 const title = 'Hold\'em AI'
 const description = 'Play no-limit Texas Hold\'em against a table of AI models, then see how each one reasoned once the hand is over.'
 
@@ -26,17 +28,37 @@ useSeoMeta({
 <template>
   <UApp>
     <div class="min-h-screen flex flex-col">
-      <header class="max-w-6xl w-full mx-auto px-4 pt-6 flex items-center justify-between">
-        <div class="flex items-baseline gap-3">
+      <header class="border-b border-default">
+        <div class="max-w-[1240px] mx-auto px-4 h-14 flex items-center gap-2.5">
           <NuxtLink
             to="/"
-            class="focus-visible:outline-2 outline-primary/40 rounded-md"
+            class="mr-auto focus-visible:outline-2 outline-primary/40 rounded-md"
           >
             <AppLogo />
           </NuxtLink>
-          <span class="text-sm text-muted">no-limit, against the models</span>
-        </div>
-        <div class="flex items-center gap-1">
+          <template v-if="tableMeta">
+            <UBadge
+              :label="`Hand #${tableMeta.handNo}`"
+              color="neutral"
+              variant="soft"
+              class="max-sm:hidden"
+            />
+            <UBadge
+              :label="`Blinds ${tableMeta.smallBlind}/${tableMeta.bigBlind}`"
+              color="neutral"
+              variant="outline"
+            />
+            <UButton
+              icon="i-lucide-log-out"
+              color="neutral"
+              variant="ghost"
+              size="sm"
+              aria-label="Leave table"
+              @click="leaveRequests++"
+            >
+              <span class="max-sm:hidden">Leave table</span>
+            </UButton>
+          </template>
           <UColorModeButton />
         </div>
       </header>
@@ -45,7 +67,7 @@ useSeoMeta({
         <NuxtPage />
       </main>
 
-      <footer class="max-w-6xl w-full mx-auto px-4 py-6">
+      <footer class="max-w-[1240px] w-full mx-auto px-4 py-6">
         <a
           href="https://monumentlabs.io"
           target="_blank"
