@@ -73,7 +73,7 @@ export function instructionsFor(game?: GameFormat['type']): string {
 }
 
 /** How a strategy card or persona is introduced to its seat, right before the current hand. */
-export const CARD_HEADING = 'Your strategy card (your coach\'s plan for how you play at this table; follow it, using only what you can see from your seat):'
+export const CARD_HEADING = 'Your approach at this table (how you play here; follow it, using only what you can see from your seat):'
 
 const EVAL_QUESTION = 'You are the player described under `me` in this no-limit Texas Hold\'em hand. Which option is the best play, given your hole cards, the board, the chips, how the other players have acted, and what you remember of earlier hands?'
 const EVAL_QUESTION_RETRY = 'Which option is the best poker play here?'
