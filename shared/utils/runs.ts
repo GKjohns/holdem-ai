@@ -27,6 +27,11 @@ export interface RunStartLine extends Base {
   players?: RunPlayer[]
   /** B4: which lab run, generation and table this run file is. */
   lab?: { run: string, gen: number | 'heldout', table: string }
+  /**
+   * v2 (2026-10-11): seats got the v2 information (structure sheet + payouts, knocked-out players,
+   * remembered hands, side pots, acting order, chips in the pot). Absent on B3/B4 runs.
+   */
+  memory?: true
 }
 
 /**

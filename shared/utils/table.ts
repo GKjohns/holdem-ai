@@ -4,7 +4,7 @@
  * returns a new state; illegal input throws.
  */
 import type {
-  ActionEvent, Card, GameFormat, HandResult, LegalActions, PlayerAction, Seat, SeatView, TableConfig, TableState
+  ActionEvent, Card, GameFormat, HandResult, LegalActions, PastHand, PlayerAction, Seat, SeatView, TableConfig, TableState
 } from './types.ts'
 import { fullDeck, shuffle } from './cards.ts'
 import { rankHand } from './handRank.ts'
@@ -220,7 +220,7 @@ export function seatView(state: TableState, seatId: string, game?: GameFormat): 
     street: state.street,
     board: state.board.slice(),
     hole: seat.hole.slice(),
-    me: { id: seat.id, name: seat.name, stack: seat.stack, committed: seat.committed },
+    me: { id: seat.id, name: seat.name, stack: seat.stack, committed: seat.committed, inPot: seat.totalCommitted },
     pot: potTotal(state),
     toCall: legal.toCall,
     minRaiseTo: legal.minRaiseTo,
@@ -232,12 +232,95 @@ export function seatView(state: TableState, seatId: string, game?: GameFormat): 
       .filter(s => s !== seat && !s.busted)
       .map(s => ({
         id: s.id, name: s.name, stack: s.stack, committed: s.committed, folded: s.folded, allIn: s.allIn,
-        position: positionOf(state, state.seats.indexOf(s))
+        position: positionOf(state, state.seats.indexOf(s)), inPot: s.totalCommitted
       })),
     seatOrder: seatOrder(state),
     log: structuredClone(state.log),
-    ...(game ? { game: structuredClone(game) } : {})
+    ...(game ? { game: structuredClone(game) } : {}),
+    ...(state.street === 'complete' || state.street === 'showdown' ? {} : { actingAfter: actingAfter(state, seat), pots: currentPots(state) })
   }
+}
+
+/** Seat indexes of the small and big blind this hand (heads-up, the button is the small blind). */
+function blindIndexes(state: TableState): { sb: number, bb: number } {
+  const live = state.seats.filter(s => !s.busted).length
+  const sb = live === 2 ? state.button : nextIndex(state, state.button, s => !s.busted)
+  return { sb, bb: nextIndex(state, sb, s => !s.busted) }
+}
+
+/**
+ * Who acts after `seat` on this street if nobody raises: the seats after it in this street's order
+ * (preflop from left of the big blind, later streets from left of the button) that are still in
+ * the hand with chips. What a player sees by looking left.
+ */
+export function actingAfter(state: TableState, seat: Seat): string[] {
+  const n = state.seats.length
+  const first = state.street === 'preflop' ? blindIndexes(state).bb : state.button
+  const order = Array.from({ length: n }, (_, k) => state.seats[(first + 1 + k) % n]!).filter(s => !s.busted)
+  const me = order.indexOf(seat)
+  if (me < 0) return []
+  return order.slice(me + 1).filter(s => inHand(s) && !s.allIn).map(s => s.id)
+}
+
+/**
+ * The pot as the dealer splits it right now: one pot, or once someone is all-in, a main pot and
+ * side pots, each with the seats that can still win it. Layers are cut at each all-in player's
+ * total; a seat that isn't all-in can still match any layer.
+ */
+export function currentPots(state: TableState): { amount: number, eligible: string[] }[] {
+  const contenders = state.seats.filter(inHand)
+  const caps = [...new Set(contenders.filter(s => s.allIn).map(s => s.totalCommitted))].sort((a, b) => a - b)
+  if (!caps.length) return [{ amount: potTotal(state), eligible: contenders.map(s => s.id) }]
+  const out: { amount: number, eligible: string[] }[] = []
+  let prev = 0
+  for (const cap of [...caps, Infinity]) {
+    const amount = state.seats.reduce((sum, s) => sum + Math.min(s.totalCommitted, cap) - Math.min(s.totalCommitted, prev), 0)
+    const eligible = contenders.filter(s => !s.allIn || s.totalCommitted >= cap).map(s => s.id)
+    prev = cap
+    if (amount > 0) out.push({ amount, eligible })
+  }
+  return out
+}
+
+/** A finished hand as the whole table saw it (no hole cards unless shown at showdown). */
+export function pastHand(state: TableState): PastHand {
+  if (state.street !== 'complete' || !state.result) throw new Error('Hand not finished')
+  const n = state.seats.length
+  const dealt = Array.from({ length: n }, (_, k) => state.seats[(state.button + k) % n]!).filter(s => !s.busted)
+  return {
+    handNo: state.handNo,
+    smallBlind: state.smallBlind,
+    bigBlind: state.bigBlind,
+    players: dealt.map(s => ({ id: s.id, name: s.name, stack: s.stack - (state.result!.deltas[s.id] ?? 0) })),
+    log: structuredClone(state.log),
+    board: state.board.slice(),
+    shown: Object.fromEntries(Object.entries(state.result.shown).map(([id, x]) => [id, x.cards.slice()])),
+    pots: state.result.pots.map(p => ({ amount: p.amount, winners: p.winners.slice() })),
+    busted: dealt.filter(s => s.stack === 0).map(s => s.id)
+  }
+}
+
+/** Hands per memory block: a seat remembers this block of 10 hands and the one before. */
+export const MEMORY_BLOCK = 10
+
+/**
+ * The earlier hands a seat remembers on hand `handNo`: those since the start of the previous block
+ * of MEMORY_BLOCK hands (10–19 hands). Within a block the window only grows, so the rendered
+ * history is a stable prompt prefix that prompt caching can reuse.
+ */
+export function memoryWindow(history: PastHand[], handNo: number, block = MEMORY_BLOCK): PastHand[] {
+  const start = Math.floor((handNo - 1) / block) * block + 1 - block
+  return history.filter(h => h.handNo >= start && h.handNo < handNo)
+}
+
+/** Adds the remembered hands, and this seat's own cards in them, to a view. */
+export function withMemory(view: SeatView, history: PastHand[], holes: Map<number, Record<string, Card[]>>): SeatView {
+  const remembered = memoryWindow(history, view.handNo)
+  if (!remembered.length) return view
+  const myCards = remembered
+    .map(h => ({ handNo: h.handNo, cards: holes.get(h.handNo)?.[view.me.id] ?? [] }))
+    .filter(x => x.cards.length === 2)
+  return { ...view, history: remembered, ...(myCards.length ? { myCards } : {}) }
 }
 
 /** Seats still in the game, clockwise from the button. */

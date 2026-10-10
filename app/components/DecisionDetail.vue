@@ -10,12 +10,14 @@ const props = defineProps<{
 type Group = 'fold' | 'check' | 'call' | 'raise'
 const GROUP: Record<MenuId, Group> = {
   fold: 'fold', check: 'check', call: 'call',
-  raise_min: 'raise', raise_half_pot: 'raise', raise_pot: 'raise', raise_2x_pot: 'raise', all_in: 'raise'
+  raise_min: 'raise', raise_third_pot: 'raise', raise_half_pot: 'raise', raise_3q_pot: 'raise', raise_pot: 'raise',
+  raise_1_5x_pot: 'raise', raise_2x_pot: 'raise', raise_to: 'raise', all_in: 'raise'
 }
 const COLOR: Record<Group, string> = { fold: 'bg-(--ui-text-dimmed)', check: 'bg-(--ui-text-toned)', call: 'bg-(--ui-text-toned)', raise: 'bg-primary' }
 const OPTION: Record<MenuId, string> = {
   fold: 'Fold', check: 'Check', call: 'Call',
-  raise_min: 'Min raise', raise_half_pot: '½ pot', raise_pot: 'Pot', raise_2x_pot: '2× pot', all_in: 'All-in'
+  raise_min: 'Min raise', raise_third_pot: '⅓ pot', raise_half_pot: '½ pot', raise_3q_pot: '¾ pot', raise_pot: 'Pot',
+  raise_1_5x_pot: '1½× pot', raise_2x_pot: '2× pot', raise_to: 'Custom raise', all_in: 'All-in'
 }
 const ORDER_IDS = Object.keys(OPTION) as MenuId[]
 

@@ -98,19 +98,21 @@ const view = seatView(startHand(newTable({
   bigBlind: 10
 }, 3)), 'seat-1')
 
-test('a strategy card rides in the LLM instructions, never in the seat view; decision models refuse cards', async () => {
+test('a strategy card rides in the LLM prompt (v2: the user turn, after the shared part), never in the seat view; decision models refuse cards', async () => {
   assert.equal(instructionsFor(), INSTRUCTIONS)
-  assert.ok(instructionsFor('Be a maniac.').endsWith('Be a maniac.'))
   let system = ''
+  let user = ''
   const model = new MockLanguageModelV4({
     doGenerate: async (opts) => {
       system = JSON.stringify(opts.prompt.filter(m => m.role === 'system'))
-      return { content: [{ type: 'text', text: JSON.stringify({ reasoning: 'r', tableTalk: '', choice: 'fold' }) }], finishReason: { unified: 'stop', raw: 'stop' }, usage: { inputTokens: { total: 10, noCache: 10, cacheRead: 0, cacheWrite: 0 }, outputTokens: { total: 5, text: 5, reasoning: 0 } }, warnings: [] }
+      user = JSON.stringify(opts.prompt.filter(m => m.role === 'user'))
+      return { content: [{ type: 'text', text: JSON.stringify({ reasoning: 'r', tableTalk: '', choice: 'fold', amount: 0 }) }], finishReason: { unified: 'stop', raw: 'stop' }, usage: { inputTokens: { total: 10, noCache: 10, cacheRead: 0, cacheWrite: 0 }, outputTokens: { total: 5, text: 5, reasoning: 0 } }, warnings: [] }
     }
   })
   const d = await decide({ modelId: 'openai/gpt-6-luna', view, model, strategyCard: 'Fold everything but aces.' })
   assert.equal(d.fallback, false)
-  assert.match(system, /Fold everything but aces/)
+  assert.match(user, /Fold everything but aces/)
+  assert.doesNotMatch(system, /Fold everything but aces/)
   assert.ok(!JSON.stringify(view).includes('Fold everything'))
   const e = await decide({ modelId: 'typesafe-ai/jev', view, strategyCard: 'x' })
   assert.equal(e.fallback, true)

@@ -17,8 +17,8 @@
  * ones, so a rerun of a finished run costs $0 and a killed run loses at most the in-flight calls.
  * Raising --matches on the same slug extends the run with new seeds.
  *
- * Watchdogs: decide() bounds each call at 30 s of awake time; on top, each decision has a 45 s
- * wall-clock watchdog and each hand a 5 min one (a stuck hand abandons its tournament for this
+ * Watchdogs: decide() bounds each call at 60 s of awake time (v2; --decision-timeout); each decision has a 75 s
+ * wall-clock watchdog and each hand a 10 min one (a stuck hand abandons its tournament for this
  * invocation; a rerun picks it up). Run long batches under `caffeinate -ims` so the Mac stays awake.
  *
  * The runner itself lives in bench/runner.ts (shared with the B4 lab, bench/lab.ts).
@@ -32,7 +32,7 @@ import { narratorCost, scoutingMarkdown } from '../shared/utils/narration.ts'
 import type { NarrateHand } from '../shared/utils/narration.ts'
 import { parseRun } from '../shared/utils/runs.ts'
 import type { RunEndLine, RunHandLine, RunScoutingLine } from '../shared/utils/runs.ts'
-import { SNG_TURBO } from '../shared/utils/tournament.ts'
+import { SNG_TURBO, SNG_V2 } from '../shared/utils/tournament.ts'
 import type { TournamentFormat } from '../shared/utils/tournament.ts'
 import { estimateRun, openRun, plainPlayers, runPool } from './runner.ts'
 import type { RunOptions, Spend } from './runner.ts'
@@ -50,9 +50,13 @@ const { values: args } = parseArgs({
     'dry-run': { type: 'boolean', default: false },
     'fake': { type: 'boolean', default: false },
     'scout': { type: 'boolean', default: false },
-    'decision-watchdog': { type: 'string', default: '45' },
-    'hand-watchdog': { type: 'string', default: '300' },
-    'fake-delay': { type: 'string', default: '0' }
+    'decision-watchdog': { type: 'string', default: '75' },
+    'hand-watchdog': { type: 'string', default: '600' },
+    'fake-delay': { type: 'string', default: '0' },
+    // v2 defaults: the natural-finish structure with payouts, seats with memory, 60 s per call.
+    'structure': { type: 'string', default: 'v2' },
+    'seat-info': { type: 'string', default: 'v2' },
+    'decision-timeout': { type: 'string', default: '60' }
   }
 })
 
@@ -68,7 +72,9 @@ const fake = args.fake!
 const tournamentFormat: TournamentFormat = format === 'cash'
   // Cash: fixed blinds, busted seats rebuy, a fixed number of hands per rotation.
   ? { stack: 2000, levels: [{ sb: 10, bb: 20, hands: 1e9 }], maxHands: Number(args.hands ?? 50) }
-  : { ...SNG_TURBO, maxHands: Number(args.hands ?? SNG_TURBO.maxHands) }
+  : args.structure === 'turbo'
+    ? { ...SNG_TURBO, maxHands: Number(args.hands ?? SNG_TURBO.maxHands) }
+    : { ...SNG_V2, maxHands: Number(args.hands ?? SNG_V2.maxHands) }
 
 const short = (id: string) => id.split('/').at(-1)!.replace(/^gpt-6-|^claude-|-preview$/g, '').replace(/[^a-z0-9.]+/gi, '-')
 const today = new Date().toISOString().slice(0, 10).replaceAll('-', '')
@@ -82,7 +88,8 @@ if (!args['dry-run'] && !fake && !process.env.AI_GATEWAY_API_KEY) throw new Erro
 
 const opts: RunOptions = {
   dir: DIR, slug, players: plainPlayers(lineup), matches, baseSeed: Number(args.seed), format, tournament: tournamentFormat, fake,
-  decisionWatchdogMs: Number(args['decision-watchdog']) * 1000, handWatchdogMs: Number(args['hand-watchdog']) * 1000, fakeDelayMs: Number(args['fake-delay'])
+  decisionWatchdogMs: Number(args['decision-watchdog']) * 1000, handWatchdogMs: Number(args['hand-watchdog']) * 1000, fakeDelayMs: Number(args['fake-delay']),
+  decisionTimeoutMs: Number(args['decision-timeout']) * 1000, memory: args['seat-info'] !== 'v1'
 }
 
 // ── scouting report for the lineup ───────────────────────────────────────────────────────────

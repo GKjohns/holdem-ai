@@ -15,12 +15,14 @@ export interface ModelOption {
    */
   kind: 'llm' | 'evaluation'
   /**
-   * ai@7 top-level reasoning effort. Every OpenAI LLM needs an explicit value
-   * (unset is slow); GPT-6 has no 'minimal', so Luna uses 'none'. Haiku 5.5 is
-   * 'low': measured 2026-10-09 on 5 views, unset averaged 2.5 s with a 4.5 s
-   * thinking tail, low 1.6 s with the same choice on 4 of 5. Evaluation models
-   * take no `reasoning`; Luna Decisions rejects `providerOptions.openai.reasoningEffort`
-   * as unsupported, so it runs at its default effort.
+   * ai@7 top-level reasoning effort. v2 policy (2026-10-11): **'low' for every
+   * language model**. v1 ran Luna at 'none' (flat ~57 output tokens, i.e. no
+   * thinking) while Sol, Haiku, Opus and Gemini ran 'low'; unequal effort is an
+   * artifact. 'low' is the lowest level all of them support, what Sol won v1
+   * with, and keeps Opus/Fable affordable. GPT-6 has no 'minimal'. Evaluation
+   * models take no `reasoning`; Luna Decisions rejects
+   * `providerOptions.openai.reasoningEffort` as unsupported, so it runs at its
+   * default effort.
    */
   reasoning?: Reasoning
 }
@@ -28,7 +30,8 @@ export interface ModelOption {
 export const MODELS: ModelOption[] = [
   { id: 'openai/gpt-6-sol', label: 'GPT-6 Sol', vendor: 'OpenAI', kind: 'llm', reasoning: 'low' },
   { id: 'openai/gpt-6-astra', label: 'GPT-6 Astra', vendor: 'OpenAI', kind: 'llm', reasoning: 'low' },
-  { id: 'openai/gpt-6-luna', label: 'GPT-6 Luna', vendor: 'OpenAI', kind: 'llm', reasoning: 'none' },
+  { id: 'openai/gpt-6-luna', label: 'GPT-6 Luna', vendor: 'OpenAI', kind: 'llm', reasoning: 'low' },
+  { id: 'anthropic/claude-fable-5.1', label: 'Claude Fable 5.1', vendor: 'Anthropic', kind: 'llm', reasoning: 'low' },
   { id: 'anthropic/claude-opus-5.5', label: 'Claude Opus 5.5', vendor: 'Anthropic', kind: 'llm', reasoning: 'low' },
   { id: 'anthropic/claude-sonnet-5.5', label: 'Claude Sonnet 5.5', vendor: 'Anthropic', kind: 'llm', reasoning: 'low' },
   { id: 'anthropic/claude-haiku-5.5', label: 'Claude Haiku 5.5', vendor: 'Anthropic', kind: 'llm', reasoning: 'low' },
@@ -50,7 +53,7 @@ export function findModel(value: unknown): ModelOption | undefined {
 }
 
 /**
- * B4 Strategy Lab's researcher: writes strategy cards and memos from completed hands, never sits.
- * Deliberately not in MODELS, so findModel() can't seat it and the setup screen never lists it.
+ * B4 Strategy Lab's researcher: writes strategy cards and memos from completed hands. In B4 it never
+ * sat; v2 (2026-10-11) also seats it (it's in MODELS) so it gets a fair shake as a player.
  */
 export const PLANNER_MODEL = { id: 'anthropic/claude-fable-5.1', label: 'Claude Fable 5.1', vendor: 'Anthropic', role: 'planner' as const }

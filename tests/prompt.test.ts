@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { cleanTableTalk, INSTRUCTIONS, instructionsFor, renderPrompt, SNG_INSTRUCTIONS, tableState } from '../server/utils/decide.ts'
+import { cleanTableTalk, INSTRUCTIONS, instructionsFor, promptParts, renderPrompt, SNG_INSTRUCTIONS, tableState } from '../server/utils/decide.ts'
 import { buildMenu } from '../shared/utils/menu.ts'
 import { newTable, recentTalk, seatView, startHand } from '../shared/utils/table.ts'
 import { SNG_TURBO, sngFormat, withLevel } from '../shared/utils/tournament.ts'
@@ -54,13 +54,13 @@ test('cash view: instructions and prompt say cash game; a view without `game` ke
   const s = startHand(newTable({ players, stacks: 1000, smallBlind: 5, bigBlind: 10 }, 7))
   const v = seatView(s, 'seat-1', { type: 'cash' })
   assert.deepEqual(v.game, { type: 'cash' })
-  assert.match(renderPrompt(v, buildMenu(v)), /^Hand #1, preflop\. Cash game, big blind 10\./)
+  assert.match(promptParts(v, buildMenu(v)).seat, /^Hand #1, preflop\. Cash game, big blind 10\./)
   assert.equal(tableState(v).game, 'No-limit Texas Hold\'em cash game')
-  assert.match(instructionsFor(undefined, 'cash'), /cash game/)
-  assert.equal(instructionsFor(undefined, 'cash'), INSTRUCTIONS)
+  assert.match(instructionsFor('cash'), /cash game/)
+  assert.equal(instructionsFor('cash'), INSTRUCTIONS)
   const old = seatView(s, 'seat-1')
   assert.equal('game' in old, false, 'no format unless the caller states one')
-  assert.match(renderPrompt(old, buildMenu(old)), /^Hand #1, preflop\. Big blind 10\./)
+  assert.match(promptParts(old, buildMenu(old)).seat, /^Hand #1, preflop\. Big blind 10\./)
 })
 
 test('sit-and-go view: tournament wording, blind level and hands until the next level', () => {
@@ -71,14 +71,14 @@ test('sit-and-go view: tournament wording, blind level and hands until the next 
   const id = s.seats[s.toAct!]!.id
   const v = seatView(s, id, sngFormat(SNG_TURBO.levels, s.handNo))
   assert.deepEqual(v.game, { type: 'sng', level: 2, handsLeftAtLevel: 6, next: { smallBlind: 40, bigBlind: 80 } })
-  const p = renderPrompt(v, buildMenu(v))
+  const p = promptParts(v, buildMenu(v)).seat
   assert.match(p, /^Hand #14, preflop\. Sit-and-go tournament, blind level 2, big blind 40\. 6 more hands at this level after this one, then the blinds go up to 40\/80\./)
   assert.equal(/cash game/i.test(p), false)
   const json = tableState(v)
   assert.equal(json.game, 'No-limit Texas Hold\'em sit-and-go tournament')
   assert.equal(json.blind_level, 2)
   assert.equal(json.next_level_blinds, '40/80')
-  assert.equal(instructionsFor(undefined, 'sng'), SNG_INSTRUCTIONS)
+  assert.equal(instructionsFor('sng'), SNG_INSTRUCTIONS)
   const last = sngFormat(SNG_TURBO.levels, 20)
   assert.deepEqual(last, { type: 'sng', level: 2, handsLeftAtLevel: 0, next: { smallBlind: 40, bigBlind: 80 } })
   assert.match(renderPrompt({ ...v, game: last }, buildMenu(v)), /This is the last hand at this level; the blinds go up to 40\/80 next hand\./)
@@ -87,7 +87,7 @@ test('sit-and-go view: tournament wording, blind level and hands until the next 
   assert.match(renderPrompt({ ...v, game: top }, buildMenu(v)), /This is the top level; the blinds stay here\./)
   assert.match(SNG_INSTRUCTIONS, /sit-and-go tournament/)
   assert.equal(/cash game/i.test(SNG_INSTRUCTIONS), false)
-  assert.equal(/cash game/i.test(instructionsFor('Be tight.', 'sng')), false)
+  assert.equal(/cash game/i.test(renderPrompt(v, buildMenu(v), 'Be tight.')), false)
   // Only human-visible facts: no odds, equity or strength words sneak in with the format.
   assert.equal(/odds|equity|strength|probab/i.test(JSON.stringify(v.game) + p.split('\n')[0]), false)
 })

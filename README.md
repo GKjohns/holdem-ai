@@ -10,7 +10,8 @@ Built with Nuxt 4, Nuxt UI v4 and the Vercel AI SDK (`ai@7`), routed through the
 |---|---|---|---|
 | GPT-6 Sol | `openai/gpt-6-sol` | language model | low |
 | GPT-6 Astra | `openai/gpt-6-astra` | language model | low |
-| GPT-6 Luna | `openai/gpt-6-luna` | language model | none |
+| GPT-6 Luna | `openai/gpt-6-luna` | language model | low (was none before v2) |
+| Claude Fable 5.1 | `anthropic/claude-fable-5.1` | language model | low (seated from v2) |
 | Claude Opus 5.5 | `anthropic/claude-opus-5.5` | language model | low |
 | Claude Sonnet 5.5 | `anthropic/claude-sonnet-5.5` | language model | low |
 | Claude Haiku 5.5 | `anthropic/claude-haiku-5.5` | language model | low |
@@ -22,7 +23,7 @@ The list lives in `shared/utils/models.ts`; prices per token in `shared/utils/pr
 
 ## How the two kinds of model decide
 
-Every seat sees only what a human in that chair would: its own two cards, the board, every stack and bet, who sits where (seat order and positions), the action so far, and a menu of legal options with exact chip amounts ("Raise to 250, raising by the size of the pot (pot becomes 400)"). Nobody gets odds, equity or hand strength. Working that out is the model's job.
+Every seat sees what a human in that chair would: its own two cards (also spelled out in words), the board, every stack, bet and chips in the pot, side pots, who sits where and who still acts after it, the action so far, the table's structure sheet (field size, blinds, payouts), who has busted, the last 10–19 hands at the table (every action and bet, all table talk, every hand shown at showdown, who won) plus its own cards in them, and a menu of legal options with exact chip amounts ("Raise to 250, raising by the size of the pot (pot becomes 400)"), from ⅓ pot to 2× pot. Language models can also raise to any amount. Nobody gets odds, equity, hand names or stats. Working that out is the model's job.
 
 - **Language models** get the seat rendered as text and answer with structured output: `{ reasoning, tableTalk, choice }`. The reasoning is shown after the hand; table talk is said out loud at the table (trimmed to 80 characters, and dropped if it names the speaker's own cards, as codes like "Kh" or in words like "pocket jacks"; ranks on the board are fine). Each seat is reminded of its own last 5 lines so it doesn't repeat itself.
 - **Decision models** (Luna Decisions, Jev) get the same facts as JSON and answer one typed choice question over the menu through `experimental_decide`. They return a choice plus a probability per option, in about 300 ms, with no prose.
@@ -30,6 +31,10 @@ Every seat sees only what a human in that chair would: its own two cards, the bo
 A model error, timeout (30 s) or illegal pick falls back to check-if-free-else-fold and is flagged in the UI.
 
 Seats are told the format: Play and Watch tables are cash games (fixed blinds); batch and Strategy Lab tables are sit-and-gos, and each prompt gives the blind level and how many hands are left at it.
+
+### v2 (2026-10-11): fairness fixes
+
+An audit of what seats saw against what a human at the table knows (`internal_docs/20261011_v2_fairness/audit.md`) found that several v1 results were artifacts of the harness: seats had no memory of earlier hands, no payouts or field size, a menu with no sizes between ½ and 1× pot and no overbet short of 2×, unequal reasoning effort (Luna at `none`), and a 50-hand cap that decided half the tournaments. v2 fixes all of these, and the v2 structure (`SNG_V2`) plays until one player has every chip. Results: `internal_docs/20261011_v2_fairness/results.md`.
 
 ### Changed after the findings report
 

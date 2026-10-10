@@ -44,8 +44,8 @@ const pretty = (cards: string[]) => cards.map(c => `${c[0] === 'T' ? '10' : c[0]
 const clip = (s: string, n: number) => s.length > n ? `${s.slice(0, n - 1)}…` : s
 
 const ACTION_WORDS: Record<MenuId, string> = {
-  fold: 'fold', check: 'check', call: 'call', raise_min: 'min raise', raise_half_pot: 'half-pot',
-  raise_pot: 'pot', raise_2x_pot: '2x pot', all_in: 'all-in'
+  fold: 'fold', check: 'check', call: 'call', raise_min: 'min raise', raise_third_pot: 'third-pot', raise_half_pot: 'half-pot',
+  raise_3q_pot: '3/4-pot', raise_pot: 'pot', raise_1_5x_pot: '1.5x pot', raise_2x_pot: '2x pot', raise_to: 'custom raise', all_in: 'all-in'
 }
 
 function kindWords(modelId: string | null): string {

@@ -101,7 +101,8 @@ export interface SeatView {
   street: Street
   board: Card[]
   hole: Card[]
-  me: { id: string, name: string, stack: number, committed: number }
+  /** `inPot` (v2): every chip this seat has put in this hand, all streets. */
+  me: { id: string, name: string, stack: number, committed: number, inPot?: number }
   /** All chips in, including the current street. */
   pot: number
   toCall: number
@@ -111,7 +112,7 @@ export interface SeatView {
   canRaise: boolean
   bigBlind: number
   position: string
-  opponents: { id: string, name: string, stack: number, committed: number, folded: boolean, allIn: boolean, position: string }[]
+  opponents: { id: string, name: string, stack: number, committed: number, folded: boolean, allIn: boolean, position: string, inPot?: number }[]
   /** Seat ids still in the game, clockwise starting from the button (includes `me`). */
   seatOrder: string[]
   log: ActionEvent[]
@@ -123,6 +124,36 @@ export interface SeatView {
    * (written before this field existed) still parse; a view without it reads as a cash game.
    */
   game?: GameFormat
+  // ── v2 (2026-10-11): what else a human at the table knows. All optional, so older run files parse. ──
+  /** Seats still in the hand (not all-in) that act after this one on this street, in order. */
+  actingAfter?: string[]
+  /** The pot as the dealer splits it: one entry, or main + side pots once someone is all-in. */
+  pots?: { amount: number, eligible: string[] }[]
+  /** Players already knocked out (sit-and-go), in bust order. */
+  eliminated?: { id: string, name: string, place: number, handNo: number }[]
+  /** Earlier hands at this table a player would remember (public events only); see memoryWindow(). */
+  history?: PastHand[]
+  /** This seat's own hole cards in those hands. */
+  myCards?: { handNo: number, cards: Card[] }[]
+}
+
+/**
+ * One finished hand as everyone at the table saw it: no hole cards except those shown at showdown,
+ * no hand names. Built by pastHand() in table.ts.
+ */
+export interface PastHand {
+  handNo: number
+  smallBlind: number
+  bigBlind: number
+  /** Seats dealt in, clockwise starting with the button, with their stacks at the start of the hand. */
+  players: { id: string, name: string, stack: number }[]
+  log: ActionEvent[]
+  board: Card[]
+  /** Hole cards turned face up at showdown. */
+  shown: Record<string, Card[]>
+  pots: { amount: number, winners: string[] }[]
+  /** Seats that ran out of chips on this hand. */
+  busted: string[]
 }
 
 export type GameFormat
@@ -135,9 +166,18 @@ export type GameFormat
       handsLeftAtLevel: number
       /** Blinds at the next level; absent at the last level, which repeats. */
       next?: { smallBlind: number, bigBlind: number }
+      /** v2: the structure sheet. Players who started, chips each, hands per level, payout % by place. */
+      entrants?: number
+      startingStack?: number
+      handsPerLevel?: number
+      payouts?: number[]
     }
 
-export type MenuId = 'fold' | 'check' | 'call' | 'raise_min' | 'raise_half_pot' | 'raise_pot' | 'raise_2x_pot' | 'all_in'
+/**
+ * v2 added ⅓, ¾ and 1½× pot presets and `raise_to` (language models only: any amount, sent as
+ * `amount`). Older run files only use the v1 ids.
+ */
+export type MenuId = 'fold' | 'check' | 'call' | 'raise_min' | 'raise_third_pot' | 'raise_half_pot' | 'raise_3q_pot' | 'raise_pot' | 'raise_1_5x_pot' | 'raise_2x_pot' | 'raise_to' | 'all_in'
 
 export interface MenuOption {
   id: MenuId
@@ -163,5 +203,6 @@ export interface Decision {
   choiceNotTop?: boolean
   model: string
   latencyMs: number
-  usage: { input: number, output: number }
+  /** `input` counts every prompt token; v2 also logs how many of them were cache reads / writes. */
+  usage: { input: number, output: number, cacheRead?: number, cacheWrite?: number }
 }

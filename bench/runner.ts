@@ -26,10 +26,10 @@ import { costUsd, PRICING } from '../shared/utils/pricing.ts'
 import { seededRng } from '../shared/utils/rng.ts'
 import { parseRun } from '../shared/utils/runs.ts'
 import type { RunDecisionRecord, RunEndLine, RunHandLine, RunPlayer, RunSeat, RunStartLine, TournamentLine } from '../shared/utils/runs.ts'
-import { applyAction, newTable, recentTalk, seatView, startHand, withTableTalk } from '../shared/utils/table.ts'
+import { applyAction, newTable, pastHand, recentTalk, seatView, startHand, withMemory, withTableTalk } from '../shared/utils/table.ts'
 import { bustsThisHand, sngFormat, survivorsPlaced, withLevel } from '../shared/utils/tournament.ts'
 import type { Finish, TournamentFormat } from '../shared/utils/tournament.ts'
-import type { Decision, SeatView, TableState } from '../shared/utils/types.ts'
+import type { Card, Decision, PastHand, SeatView, TableState } from '../shared/utils/types.ts'
 
 /** Shared by every run in one process: `--budget` caps `spent`, which includes earlier invocations. */
 export interface Spend { spent: number, cap: number, halted: boolean, live: number, replayed: number }
@@ -47,6 +47,14 @@ export interface RunOptions {
   lab?: RunStartLine['lab']
   decisionWatchdogMs?: number
   handWatchdogMs?: number
+  /** decide()'s own deadline per call (awake time). Default CALL_TIMEOUT_MS (30 s); v2 runs use 60 s. */
+  decisionTimeoutMs?: number
+  /**
+   * v2 seat information: the structure sheet and payouts in `game`, knocked-out players, and the
+   * remembered hands (`history` / `myCards`). Off for B3/B4 runs, so their views (and cache hashes)
+   * are unchanged and they still resume from cache.
+   */
+  memory?: boolean
   fakeDelayMs?: number
 }
 
@@ -152,9 +160,9 @@ export function measuredTournamentLength(players: number, dirs = dataDirs()): { 
 /** Fallback when a model has no history: chars/4 tokens (scaled as in selfplay.ts) × pricing. */
 export function tokenEstimate(modelId: string, view: SeatView, card?: string): number {
   const kind = findModel(modelId)!.kind
-  const menu = buildMenu(view)
+  const menu = buildMenu(view, { custom: kind === 'llm' })
   const chars = kind === 'llm'
-    ? SNG_INSTRUCTIONS.length + (card?.length ?? 0) + renderPrompt(view, menu).length
+    ? SNG_INSTRUCTIONS.length + renderPrompt(view, menu, card).length
     : JSON.stringify(tableState(view)).length + JSON.stringify(menu.map(o => o.describe)).length
   const scale = kind === 'llm' ? 1.3 : modelId === 'typesafe-ai/jev' ? 3.1 : 1.9
   return costUsd(modelId, { input: Math.ceil(chars / 4 * scale), output: kind === 'llm' ? 250 : 0 })
@@ -219,9 +227,9 @@ export function openRun(opts: RunOptions): RunHandle {
   // B3 run_start lines are unchanged (no `players`), so existing runs resume and replay as before.
   const startLine: RunStartLine = {
     type: 'run_start', ...base, ts: now(), lineup, format: opts.format, tournament: opts.tournament, baseSeed: opts.baseSeed, fake: opts.fake, narrator: false,
-    ...(plain ? {} : { players: opts.players }), ...(opts.lab ? { lab: opts.lab } : {})
+    ...(plain ? {} : { players: opts.players }), ...(opts.lab ? { lab: opts.lab } : {}), ...(opts.memory ? { memory: true as const } : {})
   }
-  const identity = (s: RunStartLine) => JSON.stringify([s.lineup, s.format, s.tournament, s.baseSeed, s.fake, s.players ?? null])
+  const identity = (s: RunStartLine) => JSON.stringify([s.lineup, s.format, s.tournament, s.baseSeed, s.fake, s.players ?? null, ...(s.memory ? ['memory'] : [])])
   let done = new Set<string>()
   if (!existsSync(RUN_FILE)) {
     writeFileSync(RUN_FILE, `${JSON.stringify(startLine)}\n`)
@@ -268,7 +276,7 @@ export function openRun(opts: RunOptions): RunHandle {
       }, DECISION_WATCHDOG_MS)
     })
     try {
-      return await Promise.race([decide({ modelId, view, signal: ctrl.signal, ...(card ? { strategyCard: card } : {}) }), backstop])
+      return await Promise.race([decide({ modelId, view, signal: ctrl.signal, ...(card ? { strategyCard: card } : {}), ...(opts.decisionTimeoutMs ? { timeoutMs: opts.decisionTimeoutMs } : {}) }), backstop])
     } finally {
       clearTimeout(timer)
       handSignal.removeEventListener('abort', onHand)
@@ -285,6 +293,10 @@ export function openRun(opts: RunOptions): RunHandle {
     let state: TableState = newTable({ players: seats.map(s => ({ id: s.id, name: s.name, modelId: s.modelId })), stacks: opts.tournament.stack, smallBlind: 1, bigBlind: 2 }, t.seed)
     const talk = new Map<string, string[]>()
     const finishes: Finish[] = []
+    // v2 memory: every finished hand as the table saw it, and each seat's own hole cards per hand.
+    const past: PastHand[] = []
+    const holes = new Map<number, Record<string, Card[]>>()
+    const sheet = { entrants: seats.length, startingStack: opts.tournament.stack, ...(opts.tournament.payouts ? { payouts: opts.tournament.payouts } : {}) }
     let rebuys = 0
     let engineErrors = 0
     let chipsConserved = true
@@ -317,8 +329,21 @@ export function openRun(opts: RunOptions): RunHandle {
           const player = playerOfSeat.get(seat.id)!
           const modelId = player.modelId
           const prior = recentTalk(talk.get(seat.id) ?? [])
-          const game = opts.format === 'sng' ? sngFormat(opts.tournament.levels, state.handNo) : { type: 'cash' as const }
-          const view: SeatView = { ...seatView(state, seat.id, game), ...(prior.length ? { priorTableTalk: prior } : {}) }
+          const game = opts.format === 'sng' ? sngFormat(opts.tournament.levels, state.handNo, opts.memory ? sheet : undefined) : { type: 'cash' as const }
+          let view: SeatView = { ...seatView(state, seat.id, game), ...(prior.length ? { priorTableTalk: prior } : {}) }
+          if (opts.memory) {
+            view = withMemory(view, past, holes)
+            if (opts.format === 'sng' && finishes.length) {
+              view.eliminated = finishes.slice().sort((a, b) => b.place - a.place)
+                .map(f => ({ id: f.seatId, name: seats.find(x => x.id === f.seatId)!.name, place: f.place, handNo: f.bustHand ?? 0 }))
+            }
+          } else {
+            // B3/B4 views had none of the v2 fields; keep them byte-identical so old caches replay.
+            delete view.actingAfter
+            delete view.pots
+            delete view.me.inPot
+            for (const o of view.opponents) delete o.inPot
+          }
           const logIndex = state.log.length
           const key = cacheKey(t.tournamentId, state.handNo, logIndex)
           const hash = viewHash(view, player.card)
@@ -379,6 +404,8 @@ export function openRun(opts: RunOptions): RunHandle {
       }
       const busts = opts.format === 'sng' ? bustsThisHand(stacksBefore, stacksAfter, live(), state.handNo) : []
       finishes.push(...busts)
+      past.push(pastHand(state))
+      holes.set(state.handNo, Object.fromEntries(state.seats.map(s => [s.id, s.hole.slice()])))
       const line: RunHandLine = {
         type: 'hand', ...base, ts: now(), sessionId: t.tournamentId, mode: 'batch',
         matchId: t.matchId, tournamentId: t.tournamentId, rotation: t.rotation, seed: t.seed,

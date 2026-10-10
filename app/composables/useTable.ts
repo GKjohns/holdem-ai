@@ -1,5 +1,5 @@
-import type { ActionEvent, Card, Decision, HandResult, MenuId, PlayerAction, SeatView, Street, TableState } from '~~/shared/utils/types'
-import { activeSeatCount, applyAction, legalActions, newTable, recentTalk, seatView, startHand, withTableTalk } from '~~/shared/utils/table'
+import type { ActionEvent, Card, Decision, HandResult, MenuId, PastHand, PlayerAction, SeatView, Street, TableState } from '~~/shared/utils/types'
+import { activeSeatCount, applyAction, legalActions, newTable, recentTalk, seatView, startHand, withMemory, withTableTalk } from '~~/shared/utils/table'
 import { buildMenu } from '~~/shared/utils/menu'
 import { seatStats, sessionCost } from '~~/shared/utils/stats'
 import { narratorCost, scoutingMarkdown, type Narration, type ScoutingReport } from '~~/shared/utils/narration'
@@ -258,6 +258,30 @@ export function useTable(lineup: Lineup, opts: { stacks?: number[], seed?: numbe
   })
   if (!snap && import.meta.client) logSessionStart()
 
+  /**
+   * v2 memory for AI seats: finished hands as the table saw them (PastHand), rebuilt from the hand
+   * history, so a model remembers what a human at the table would (withMemory() picks the window).
+   */
+  function pastHands(): { past: PastHand[], holes: Map<number, Record<string, Card[]>> } {
+    const seats = state.value.seats
+    const n = seats.length
+    const past = history.value.map((h): PastHand => {
+      const dealt = Array.from({ length: n }, (_, k) => seats[(h.button + k) % n]!).filter(s => (h.holes[s.id]?.length ?? 0) > 0)
+      return {
+        handNo: h.handNo,
+        smallBlind: lineup.smallBlind,
+        bigBlind: lineup.bigBlind,
+        players: dealt.map(s => ({ id: s.id, name: s.name, stack: (h.stacksAfter[s.id] ?? 0) - (h.deltas[s.id] ?? 0) })),
+        log: h.log,
+        board: h.board,
+        shown: Object.fromEntries(Object.entries(h.shown).map(([id, x]) => [id, x.cards])),
+        pots: h.pots.map(p => ({ amount: p.amount, winners: p.winners })),
+        busted: dealt.filter(s => (h.stacksAfter[s.id] ?? 0) === 0).map(s => s.id)
+      }
+    })
+    return { past, holes: new Map(history.value.map(h => [h.handNo, h.holes])) }
+  }
+
   /** This seat's own recent lines, most recently used last (see recentTalk()). */
   function priorTalk(seatId: string): string[] {
     return recentTalk(decisions.value.flatMap(d => d.seatId === seatId && d.decision.tableTalk ? [d.decision.tableTalk] : []))
@@ -389,7 +413,8 @@ export function useTable(lineup: Lineup, opts: { stacks?: number[], seed?: numbe
       const logIndex = state.value.log.length
       const prior = priorTalk(seat.id)
       // Interactive tables are cash-style: fixed blinds, so the seat is told it's a cash game.
-      const view: SeatView = { ...seatView(state.value, seat.id, { type: 'cash' }), ...(prior.length ? { priorTableTalk: prior } : {}) }
+      const memory = pastHands()
+      const view: SeatView = withMemory({ ...seatView(state.value, seat.id, { type: 'cash' }), ...(prior.length ? { priorTableTalk: prior } : {}) }, memory.past, memory.holes)
       thinking.value = seat.id
       const started = performance.now()
       let decision: Decision
