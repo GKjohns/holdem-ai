@@ -7,15 +7,16 @@
  * --source v1  B3 run (data/runs/20261010_main.jsonl), the B4 lab and the B5 notebook
  *              outputs (internal_docs/20261009_holdem_vs_models/findings/notebook/out/).
  * --source v2  The v2 study (internal_docs/20261011_v2_fairness/): Study A run files
- *              (data/runs/20261011_v2A_{sol,opus,fable}.jsonl), Study B (personas) and
- *              out/{standings,styles_raw,personas,talk}.json. Replays use HANDS_V2; figures
+ *              (data/runs/20261011_v2A_{sol,opus,fable}.jsonl), Study B (personas on Luna,
+ *              data/runs/20261011_v2B_luna.jsonl, and on Sol, 20261012_v2B_sol.jsonl) and
+ *              out/{standings,styles_raw,personas,personas_sol,talk}.json. Replays use HANDS_V2; figures
  *              and facts come from buildFiguresV2() (prize share, personas, the v2 talk test).
  *              The post is v2-only, so v2 facts carry no v1 numbers.
  *
  * Outputs (each must stay under 150 KB):
  *   replays.json  { source, hands: { [id]: ReplayHand } }
  *   figures.json  v1: { source, standings, personalities, talk, lab, facts }
- *                 v2: { source, standings, guestPairs, personalities, talk, personas, facts }
+ *                 v2: { source, standings, guestPairs, personalities, talk, personas, personasSol, facts }
  *
  * The post reads every number from figures.json (`facts` for prose, the rest for
  * figures). Strings are cleaned of em and en dashes (the site bans them).
@@ -282,6 +283,7 @@ function loadV2(): Input {
     standings: readJson(`${V2_DIR}/out/standings.json`),
     styles: readJson(`${V2_DIR}/out/styles_raw.json`),
     personas: readJson(`${V2_DIR}/out/personas.json`),
+    personasSol: readJson(`${V2_DIR}/out/personas_sol.json`),
     talk: readJson(`${V2_DIR}/out/talk.json`)
   }
   // Ops (hands, decisions, fallbacks, cost) straight from the run files' tournament lines
@@ -300,6 +302,7 @@ function loadV2(): Input {
   }
   out.opsA = Object.fromEntries(V2_TABLES.map(t => [t, ops(`20261011_v2A_${t}`)]))
   out.opsB = ops('20261011_v2B_luna')
+  out.opsBSol = ops('20261012_v2B_sol')
   const start = out.opsA.sol.start
   return {
     source: 'v2',
@@ -918,6 +921,17 @@ function buildFiguresV2(inp: Input) {
       return { key: k, name: p.label, prize: r1(p.prizeShare.value), lo: r1(p.prizeShare.lo), hi: r1(p.prizeShare.hi), wins: p.wins, plays: r0(p.vpip), talks: r0(p.talkRatePct), remembers: r0(p.reasoningCitesHistoryPct) }
     })
   }
+  // Study B on Sol: same personas, seeds and structure as the Luna table, 3 matches (same row order as Luna)
+  const PS = o.personasSol.personas as any[]
+  const personaSol = (k: string) => PS.find(p => p.id === k)
+  const personasSol = {
+    base: 'Sol',
+    fair: r1(100 / 6),
+    rows: ['control', 'reader', 'aggressive', 'talker', 'tight', 'math'].map((k) => {
+      const p = personaSol(k)
+      return { key: k, name: p.label, prize: r1(p.prizeShare.value), lo: r1(p.prizeShare.lo), hi: r1(p.prizeShare.hi), wins: p.wins, plays: r0(p.vpip), talks: r0(p.talkRatePct), remembers: r0(p.reasoningCitesHistoryPct) }
+    })
+  }
 
   // ---------- facts: every number the prose uses (v2 only) ----------
   const id = { sol: 'openai/gpt-6-sol', opus: 'anthropic/claude-opus-5.5', fable: 'anthropic/claude-fable-5.1', luna: 'openai/gpt-6-luna', ld: 'openai/gpt-6-luna-decisions', haiku: 'anthropic/claude-haiku-5.5', jev: 'typesafe-ai/jev' } as const
@@ -943,6 +957,11 @@ function buildFiguresV2(inp: Input) {
   const personaLeadMax = Math.max(...P.filter(p => p.vsControl).map(p => p.vsControl.prizePts.value))
   const personaOff = Math.max(...P.map(p => Math.abs(p.prizeShare.value - 100 / 6)))
   const costA = A.reduce((a, x) => a + x.cost, 0)
+  const BS = o.opsBSol
+  const ctlSol = personaSol('control')
+  const solLeads = PS.filter(p => p.vsControl).map(p => p.vsControl.prizePts)
+  const solBest = solLeads.reduce((a, b) => (b.value > a.value ? b : a))
+  const solWords = ['none', 'one', 'two', 'three', 'four', 'five']
 
   const facts: Record<string, string> = {
     // the study
@@ -1034,10 +1053,40 @@ function buildFiguresV2(inp: Input) {
     persona_reader_history: pct(persona('reader').reasoningCitesHistoryPct),
     persona_control_history: pctSmall(ctl.reasoningCitesHistoryPct),
     persona_best_behind: `${r1(-personaLeadMax)} points`,
-    persona_max_off: `${r1(personaOff)}`
+    persona_max_off: `${r1(personaOff)}`,
+    persona_control_lo: pct(Math.max(0, ctl.prizeShare.lo)),
+    persona_control_hi: pct(ctl.prizeShare.hi),
+
+    // personas on Sol (Study B, Sol table): same personas, seeds and structure as Luna, 3 matches
+    persona_sol_tournaments: num(BS.tournaments),
+    persona_sol_matches: num(o.personasSol.design.match(/(\d+) duplicate matches/)?.[1] ?? 0),
+    persona_sol_hands: num(BS.hands),
+    persona_sol_decisions: num(BS.decisions),
+    persona_sol_fallbacks: num(BS.fallbacks),
+    persona_sol_control: `${r1(ctlSol.prizeShare.value)}%`,
+    persona_sol_control_lo: pct(Math.max(0, ctlSol.prizeShare.lo)),
+    persona_sol_control_hi: pct(ctlSol.prizeShare.hi),
+    persona_sol_tight_plays: pct(personaSol('tight').vpip),
+    persona_sol_aggressive_plays: pct(personaSol('aggressive').vpip),
+    persona_sol_aggressive_wins: num(personaSol('aggressive').wins),
+    persona_sol_control_wins: num(ctlSol.wins),
+    persona_sol_talker_talks: pct(personaSol('talker').talkRatePct),
+    persona_sol_control_talks: pct(ctlSol.talkRatePct),
+    persona_sol_reader_history: pct(personaSol('reader').reasoningCitesHistoryPct),
+    persona_sol_control_history: pctSmall(ctlSol.reasoningCitesHistoryPct),
+    persona_sol_plays_min: pct(Math.min(...PS.map(p => p.vpip))),
+    persona_sol_plays_max: pct(Math.max(...PS.map(p => p.vpip))),
+    persona_sol_talks_min: pct(Math.min(...PS.map(p => p.talkRatePct))),
+    persona_sol_talks_max: pct(Math.max(...PS.map(p => p.talkRatePct))),
+    persona_sol_below: solWords[solLeads.filter(l => l.value < 0).length] ?? num(solLeads.filter(l => l.value < 0).length),
+    persona_sol_best_label: String(PS.find(p => p.vsControl?.prizePts === solBest).label).toLowerCase(),
+    persona_sol_best_lead: `${r1(solBest.value)} points`,
+    persona_sol_best_range: `${signed(solBest.lo)} to ${signed(solBest.hi)} points`,
+    cost_b_sol: usd(BS.cost),
+    fallbacks_all: num(A.reduce((a, x) => a + x.fallbacks, 0) + B.fallbacks + BS.fallbacks)
   }
 
-  return { standings, guestPairs, personalities, talk, personas, facts }
+  return { standings, guestPairs, personalities, talk, personas, personasSol, facts }
 }
 
 // ---------- main ----------
