@@ -1,86 +1,122 @@
 # Hold'em AI
 
-No-limit Texas Hold'em against a table of AI models. Sit down with one to five opponents, play hands, and once each hand is over see how every model reasoned: language models explain themselves in prose, decision models show the probability they put on each option. Or skip the seat and watch an all-AI table play itself.
+Seven AI models play No-Limit Texas Hold'em tournaments on identical cards, and you can watch them think or take a seat yourself.
 
-Built with Nuxt 4, Nuxt UI v4 and the Vercel AI SDK (`ai@7`), routed through the Vercel AI Gateway on one key. Local dev only for now.
+**Read the write-up:** [AI poker night: what happened when seven AIs played Hold'em](https://www.kylejohnson.ai/blog/ai-poker-night). It has step-through hand replays and a [live table](https://www.kylejohnson.ai/blog/ai-poker-night#sit-in-yourself) you can watch or play at in the browser.
 
-## The roster
+## What it is
 
-| Seat | Model id | Kind | Reasoning effort |
+A Nuxt 4 app and a set of headless benchmark scripts. Language models (GPT-6 Sol, Claude Opus 5.5, Claude Fable 5.1, GPT-6 Luna, Claude Haiku 5.5 and others) and decision models (GPT-6 Luna Decisions, Jev) sit at a full NLHE engine: blinds, min-raises, short all-ins, side pots, split pots, eliminations. Every model call goes through the [Vercel AI Gateway](https://vercel.com/ai-gateway) on one key, using the AI SDK (`ai@7`).
+
+- **Language models** read the seat as text and answer `{ reasoning, tableTalk, choice }`. Their table talk is said out loud to the other seats.
+- **Decision models** get the same facts as JSON and return a probability for every option on the menu, in about 0.3 s, with no prose.
+
+## Headline results (v2)
+
+Three guests (Sol, Opus, Fable) each played 10 tournaments against the same four regulars on the same decks, in the same seat. Prize share is the average slice of a 50/30/20 payout; an average player gets 20%.
+
+| Seat | Tournaments | Prize share [95% CI] | Wins |
 |---|---|---|---|
-| GPT-6 Sol | `openai/gpt-6-sol` | language model | low |
-| GPT-6 Astra | `openai/gpt-6-astra` | language model | low |
-| GPT-6 Luna | `openai/gpt-6-luna` | language model | low (was none before v2) |
-| Claude Fable 5.1 | `anthropic/claude-fable-5.1` | language model | low (seated from v2) |
-| Claude Opus 5.5 | `anthropic/claude-opus-5.5` | language model | low |
-| Claude Sonnet 5.5 | `anthropic/claude-sonnet-5.5` | language model | low |
-| Claude Haiku 5.5 | `anthropic/claude-haiku-5.5` | language model | low |
-| Gemini 3.1 Pro | `google/gemini-3.1-pro-preview` | language model | low |
-| GPT-6 Luna Decisions | `openai/gpt-6-luna-decisions` | decision model | default |
-| Jev | `typesafe-ai/jev` | decision model | — |
+| GPT-6 Sol (guest) | 10 | 31% [17, 45] | 4 |
+| Claude Opus 5.5 (guest) | 10 | 31% [15, 47] | 5 |
+| GPT-6 Luna | 30 | 29% [21, 36] | 11 |
+| Claude Haiku 5.5 | 30 | 22% [14, 30] | 9 |
+| GPT-6 Luna Decisions | 30 | 17% [12, 22] | 1 |
+| Claude Fable 5.1 (guest) | 10 | 14% [5, 23] | 0 |
+| Jev | 30 | 7% [2, 11] | 0 |
 
-The list lives in `shared/utils/models.ts`; prices per token in `shared/utils/pricing.ts`.
+- Sol and Opus can't be separated (paired difference 0 points [-26, +26]).
+- Opus beat Fable by 17 points [+2, +32] on the same cards. Fable costs about 2.5x Opus per decision.
+- Personas ("tight and patient", "loose and aggressive", ...) changed how Luna and Sol played and didn't beat a no-persona control on either model.
+- Almost no reasoning weighed what an opponent said at the table.
 
-## How the two kinds of model decide
+Full numbers, intervals and caveats: [`internal_docs/20261011_v2_fairness/results.md`](internal_docs/20261011_v2_fairness/results.md).
 
-Every seat sees what a human in that chair would: its own two cards (also spelled out in words), the board, every stack, bet and chips in the pot, side pots, who sits where and who still acts after it, the action so far, the table's structure sheet (field size, blinds, payouts), who has busted, the last 6–11 hands at the table, i.e. one to two orbits (every action and bet, all table talk, every hand shown at showdown, who won) plus its own cards in them, and a menu of legal options with exact chip amounts ("Raise to 250, raising by the size of the pot (pot becomes 400)"), from ⅓ pot to 2× pot. Language models can also raise to any amount. Nobody gets odds, equity, hand names or stats. Working that out is the model's job.
+## How fairness works
 
-- **Language models** get the seat rendered as text and answer with structured output: `{ reasoning, tableTalk, choice }`. The reasoning is shown after the hand; table talk is said out loud at the table (trimmed to 80 characters, and dropped if it names the speaker's own cards, as codes like "Kh" or in words like "pocket jacks"; ranks on the board are fine). Each seat is reminded of its own last 5 lines so it doesn't repeat itself.
-- **Decision models** (Luna Decisions, Jev) get the same facts as JSON and answer one typed choice question over the menu through `experimental_decide`. They return a choice plus a probability per option, in about 300 ms, with no prose.
+**A seat sees what a human in that chair would, and nothing computed.** That's its two cards (also spelled out in words), the board, every stack and bet, chips each player has in the pot, side pots, who still acts after it, the payouts and field size, who has busted, and a memory of the last 6 to 11 hands (every action, all table talk, every hand shown down, who won). The menu has exact chip amounts from 1/3 pot to 2x pot (1/3, 1/2, 3/4, pot, 1.5x, 2x), and language models can also raise to any amount. No odds, equity, hand names or opponent stats, ever. `seatView()` in `shared/utils/table.ts` is the only thing a model receives. Every language model runs at the same reasoning effort, `low`.
 
-A model error, timeout (30 s) or illegal pick falls back to check-if-free-else-fold and is flagged in the UI.
+**Duplicate seeding cancels the cards.** A match is one deck seed replayed once per seat rotation, so every player plays every seat's cards (`shared/utils/duplicate.ts`). In the main study the three guest tables share seeds and seat order, so in any given tournament Sol, Opus and Fable held exactly the same cards against the same opponents. Guest-vs-guest comparisons are paired, bridge-style.
 
-Seats are told the format: Play and Watch tables are cash games (fixed blinds); batch and Strategy Lab tables are sit-and-gos, and each prompt gives the blind level and how many hands are left at it.
+**Tournament format** (`SNG_V2` in `shared/utils/tournament.ts`): 1,500 chips, blinds 10/20 doubling every 10 hands, payouts 50/30/20, played until one player has every chip. There's a safety cap of 250 hands; no v2 tournament got near it (21 to 62 hands).
 
-### v2 (2026-10-11): fairness fixes
+## Quick start
 
-An audit of what seats saw against what a human at the table knows (`internal_docs/20261011_v2_fairness/audit.md`) found that several v1 results were artifacts of the harness: seats had no memory of earlier hands, no payouts or field size, a menu with no sizes between ½ and 1× pot and no overbet short of 2×, unequal reasoning effort (Luna at `none`), and a 50-hand cap that decided half the tournaments. v2 fixes all of these, and the v2 structure (`SNG_V2`) plays until one player has every chip. Results: `internal_docs/20261011_v2_fairness/results.md`.
-
-### Changed after the findings report
-
-The B5 findings report (`internal_docs/20261009_holdem_vs_models/findings/report.html`) flagged three prompt bugs, fixed 2026-10-10: the seat prompt called every table a "cash game", even sit-and-gos with blinds doubling every 10 hands; table talk could name a seat's own hole cards in words; and the repeat-guard window could drop a seat's habitual line ("Your move.", 100 times from Sol). **The B3, B4 and B5 numbers were all measured before these fixes**, so they describe seats that were told "cash game" in a tournament. Rerunning would change the benchmark and costs money; nothing has been rerun. Old run files still parse and show on `/results` and `/lab`.
-
-## In the app
-
-- **Play**: you plus 1–5 AIs. Reasoning and probabilities stay sealed until the hand ends, then a per-seat hand review opens.
-- **Watch**: 2–6 AIs and no human, so every card and every thought is live. Pace: Pause, 1×, 4×, Max.
-- The side panel has four tabs: **Table talk** (live log, or the hand review), **Hands** (every finished hand: winner, board, chip swings, and the full log with reasoning), **Chips** (stack-over-hands chart and current stacks), and **Stats** (per seat: VPIP, PFR, aggression factor, went-to-showdown and won-at-showdown %, average decision time, cost). Stats are for you to read; no seated model ever sees them.
-- The header shows what the session has cost so far ("$0.042 this session", from `pricing.ts` × tokens). Click it to set a session cap (default $2). At the cap, Watch pauses and Play holds AI turns, with a toast to raise the cap and resume.
-- A reload resumes the table where it was. Every finished hand is also appended to `data/sessions/<sessionId>.jsonl` (gitignored; schema in `AGENTS.md`).
-- **The Booth** (narrator, default Claude Sonnet 5.5): after each hand ends, a headline, a short play-by-play and the key moment are pinned at the top of Table talk and shown in the Hands tab. It gets the god view, but only of finished hands, so in Play mode nothing reaches it mid-hand. A switch in the Booth row turns it off. It costs about $0.01 a hand and counts toward the session cap.
-- **Leave table**, or busting, opens a session summary: net chips, hands won, average decision time and gateway cost per seat, a "Narrator" cost row, and a **scouting report** on each model (style, tendencies that each cite a stat or hand number, signature hand, how to beat it, table-talk voice) with Copy as Markdown. It's saved as `data/sessions/<id>_scouting.md`.
-- Debug URLs: `/play?stacks=100,500,1000,1000,1000` sets starting stacks, `?seats=jev,gpt-6-luna` picks opponents by id or id suffix, `?mode=watch` skips straight to an all-AI table.
-
-## Code map
-
-- `shared/utils/table.ts` — the pure NLHE engine: blinds, min-raise, short all-ins, side pots, run-outs, `seatView()` (the only thing sent to a model).
-- `shared/utils/handRank.ts`, `cards.ts`, `menu.ts`, `types.ts`, `models.ts`, `pricing.ts`, `rng.ts` — hand ranking, deck, the shared action menu, contracts, roster, prices, seeded RNG.
-- `server/utils/decide.ts` — both decider paths, prompts, timeouts, fallbacks. `server/api/decide.post.ts` validates the request and calls it.
-- `app/composables/useTable.ts` — the client game loop, decision log and hand history. `app/pages/play.vue` and `app/components/` are the table UI.
-- `app/utils/reveal.ts` — the one gate for what the UI may show mid-hand. `app/utils/session.ts` — summary and chart numbers. `app/utils/persist.ts` — the resume snapshot and session log posts.
-- `shared/utils/stats.ts` — per-seat VPIP, PFR, AF, WTSD, W$SD, latency and cost from hand history.
-- `server/api/log.post.ts` — appends session log lines to `data/sessions/`.
-- `server/utils/narrate.ts` — the Booth: hand narration and the scouting report (prompts, god-view hand rendering, notable-hand picker). `server/api/narrate.post.ts` and `server/api/scouting.post.ts` call it; `shared/utils/narration.ts` has the shared types, stat wording and markdown.
-- `bench/blog_export.ts` — writes the kylejohnson.ai post's replays and figure numbers. The engine and `decide()` are vendored into PersonalWebsite; re-copy after upstream edits.
-- `bench/selfplay.ts` — all-AI self-play through the engine and `decide()` directly; `bench/latency.ts` — latency probe.
-- `tests/` — engine, menu, prompt, narrator, reveal, session and stats tests.
-
-## Setup
+You need Node 22 and a Vercel AI Gateway key.
 
 ```bash
 nvm use 22
 npm install
-cp .env.example .env   # add AI_GATEWAY_API_KEY
+cp .env.example .env   # set AI_GATEWAY_API_KEY
 npm run dev            # http://localhost:3000
 ```
 
+- **Play:** you plus 1 to 5 AIs. Their reasoning and probabilities stay sealed until the hand ends, then a per-seat review opens.
+- **Watch:** 2 to 6 AIs and no human, with every card and every thought live. Pause, 1x, 4x or Max.
+
+The header shows what the session has cost and enforces a session cap (default $2). A narrator ("the Booth", Claude Sonnet 5.5) writes a headline and play-by-play after each hand, about $0.01 a hand; you can switch it off.
+
 ```bash
-npm test               # node --test, no build step
+npm test            # node --test, no build step
 npm run lint
 npm run typecheck
-node --env-file=.env bench/selfplay.ts --hands 20   # cheap seats by default; prints cost
 ```
+
+## Running a tournament or benchmark
+
+Batch runs are headless: the engine plus `decide()` directly, no browser. Each run writes `data/runs/<slug>.jsonl` (gitignored) and shows up at `/results`.
+
+```bash
+# Price it first: simulated play x measured $/decision, no gateway calls
+node --env-file=.env bench/tournament.ts --dry-run \
+  --lineup openai/gpt-6-sol,anthropic/claude-haiku-5.5,openai/gpt-6-luna,openai/gpt-6-luna-decisions,typesafe-ai/jev \
+  --matches 2 --slug my_run
+
+# Run it, capped at $10 for the whole run
+node --env-file=.env bench/tournament.ts --lineup ... --matches 2 --budget 10 --concurrency 4 --slug my_run
+```
+
+| Flag | Default | What |
+|---|---|---|
+| `--lineup` | four cheap seats | comma-separated model ids, seat order for rotation 0 |
+| `--matches` | 1 | duplicate matches; each is one seed played once per rotation |
+| `--budget` | 1 | USD cap for the whole run, across resumes; halts cleanly |
+| `--concurrency` | 4 | tournaments in flight |
+| `--seed` | 20261010 | base seed; the same seed deals the same decks |
+| `--slug` | | run name and file name |
+| `--dry-run` / `--fake` | | cost estimate only / full run with random deciders at $0 |
+
+Runs are resumable and idempotent: every live decision is cached the moment it lands, so a killed run loses only in-flight calls and a rerun of a finished run costs $0. Run long batches under `caffeinate -ims` on a Mac.
+
+Other scripts in `bench/`: `personas.ts --base openai/gpt-6-luna` (Study B persona table), `v2talk.ts` (table-talk claim test), `v2report.ts` and `v2allin.ts` (analysis), `lab.ts` (the v1 Strategy Lab), `selfplay.ts`, `latency.ts`.
+
+**What things cost** (measured in v2 Study A, reasoning `low`): per seat per tournament, about $1.40 for Fable, $0.70 for Sol or Opus, and $0.01 to $0.04 for Luna, Haiku or the decision models. A 10-tournament guest table (2 matches, one guest plus four cheap seats) cost $6.91 with Opus, $7.82 with Sol and $14.82 with Fable. The 6-seat persona table cost about $0.85 per match on Luna and $14 per match on Sol. The whole v2 study came to about $79 of gateway spend.
+
+> **Use a key with a spend quota.** Batch runs can make thousands of calls. Create a dedicated gateway key with a monthly quota (Vercel dashboard, AI Gateway, API keys) and set `--budget` on every run.
+
+## Repo layout
+
+```
+app/              Nuxt UI: setup, /play (Play + Watch), /results, /lab
+server/api/       decide, narrate, scouting, log, results, lab endpoints
+server/utils/     decide.ts (prompts, both model paths, timeouts, fallbacks), narrate.ts, results.ts, lab.ts
+shared/utils/     the pure engine: table.ts (NLHE + seatView), handRank, menu, tournament, duplicate, models, pricing, stats
+bench/            headless runners and analysis scripts
+tests/            node --test suites for the engine, menu, prompts, reveal gate, stats
+internal_docs/    plans, audits and results for each round of work (see internal_docs/README.md)
+```
+
+The engine in `shared/utils/` has no Nuxt or Vue imports, so tests and bench scripts run it under bare Node. `AGENTS.md` has the rules and the JSONL schemas.
+
+The kylejohnson.ai post runs a vendored, modified copy of the engine and `decide()` in a separate repo; `bench/blog_export.ts` writes the post's replay and figure data. Changes here don't flow there automatically.
+
+## Environment
 
 | Variable | Required | What |
 |---|---|---|
-| `AI_GATEWAY_API_KEY` | yes | Vercel AI Gateway key. Without it `/api/decide` returns 503 with a message saying so. |
+| `AI_GATEWAY_API_KEY` | yes | Vercel AI Gateway key. Without it `/api/decide` returns 503 saying so. |
+| `NARRATOR_MODEL` | no | Override the Booth's model (default `anthropic/claude-sonnet-5.5`). |
+
+## License
+
+MIT. See [LICENSE](LICENSE). Built by [Kyle Johnson](https://www.kylejohnson.ai) with Nuxt, Nuxt UI and the Vercel AI SDK.

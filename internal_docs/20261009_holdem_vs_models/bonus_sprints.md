@@ -44,7 +44,7 @@ Storyboard: frames **6–7** in [`storyboard.html`](./storyboard.html) (Spectato
 
 - B1.7 **Durability (Kyle, 2026-10-10, added mid-sprint after an HMR reload wiped a session):** on-disk JSONL log per session + resume after reload. See Notes.
 
-#### Verification (Playwright, main loop)
+#### Verification (Playwright)
 - [x] Watch mode with 4 cheap seats (Jev, Luna Decisions, Luna, Haiku) played 13 hands unattended at Max, across one full reload and one HMR; 4,000 chips after every hand (snapshot and JSONL); no console errors after the toast fix below — `b1_stats_tab_watch.webp`
 - [x] Stats tab numbers recomputed by `seatStats()` from the on-disk JSONL match the UI exactly (VPIP/PFR/AF/WTSD/W$SD); avg ms differs by a few ms because the UI includes the hand in progress
 - [x] Pause / 1× / Max unchanged (Sprint 3); the session cap pauses Watch at $0.010 of $0.01 with a toast, and "Raise cap to $1.02 and resume" goes back to Max — `b1_cap_paused.webp`, `b1_cost_meter_cap.webp`
@@ -79,7 +79,7 @@ Storyboard: frames **6–7** in [`storyboard.html`](./storyboard.html) (Spectato
 - B2.3 End-of-session **scouting report** (in the summary modal, plus a `Copy as Markdown` button): the narrator gets `stats.ts` output + 3–5 notable hands per seat and writes a profile for each seat: style label (e.g. "loose-passive caller"), tendencies backed by the numbers, a signature hand, how to beat it, and one line on its table-talk voice. Prompt rule: every claim must cite a stat or a hand number.
 - B2.4 Cost: narration is one call per hand. Show it as its own row ("Narrator") in the cost table. Add a toggle to turn it off.
 
-#### Verification (Playwright, main loop)
+#### Verification (Playwright)
 - [x] 10-hand Watch session (Jev, Luna Decisions, Luna, Haiku at Max): 10/10 hands got a headline. `db7f125b….jsonl` has 10 `hand` + 10 `narration` lines, then `session_end` and `scouting_report`, plus `db7f125b…_scouting.md`. — `b2_booth_watch.webp`, `b2_hands_tab.webp`, `b2_summary.webp`
 - [x] Spot-check of 3 scouting claims against `seatStats()` re-run on the JSONL. All 3 match: Haiku VPIP 80% (8/10) / PFR 50% (5/10) / 17 bets/raises and 0 calls; Jev AF 0.1 (1/9), WTSD 57% (4/7), W$SD 50% (2/4); Haiku won 8 of 10 pots. One narrative slip: #5 says Luna "check-called three streets" after it check-raised the flop. Every tendency line cites a number.
 - [x] Play mode: on hand 1 there was no Booth entry, no narrate request and 0 reasoning nodes until `complete`. Mid-hand 2 the Booth shows hand #1. The network order is hand-1 `log` → `narrate` → `log` → hand-2 `decide`s. — `b2_play_midhand.webp`

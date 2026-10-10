@@ -16,7 +16,7 @@
 - Repo: `~/Programming/Workspace/holdem-ai/` (new, its own repo). Nuxt app at the **repo root** (no `src/`, no Supabase, no auth) — deliberately copies the shape of `~/Programming/Workspace/2048-ai/`, not cosmo, because there's no DB/auth/SaaS shell to inherit. The folder currently holds only `.env` (see below) and this `internal_docs/` folder.
 - Node 22 (`nvm use 22`). Commands once scaffolded: `npm run dev`, `npm run typecheck` (`nuxt typecheck`), `npm run lint` (`eslint .`), `npm test` (`node --test tests/*.test.ts` — Node's built-in TS stripping, no vitest).
 - **Gateway key is already provisioned.** `holdem-ai/.env` (mode 600) contains `AI_GATEWAY_API_KEY` for a dedicated Vercel AI Gateway key named `holdem-ai-50` (team scope, **$50/month quota**, alerts at 50/75/100%; created via `vercel ai-gateway api-keys create`; the earlier $25 `holdem-ai` key was removed). See **Budget** below. Verified working against `openai/gpt-6-sol`, `openai/gpt-6-luna-decisions`, and `typesafe-ai/jev` on 2026-10-09. **Never print, copy, or commit it.** Do not reuse cosmo's or 2048-ai's key.
-- Run the app for verification: `npm run dev` → `http://localhost:3000`. Per Kyle's standing preference, start the dev server in the background and open the page early so he can click around.
+- Run the app for verification: `npm run dev` → `http://localhost:3000`.
 
 **Conventions to match** (copy from 2048-ai, file pointers below)
 - `package.json` deps: `nuxt ^4.5.2`, `@nuxt/ui ^4.11.1`, `ai ^7.0.68`, `zod ^4.4.3`, `tailwindcss ^4.3.3`, `@iconify-json/lucide`; dev: `@nuxt/eslint`, `eslint`, `eslint-plugin-better-tailwindcss`, `typescript`, `vue-tsc`. No `@ai-sdk/gateway` dep — bare `provider/model` strings resolve through the gateway inside `ai`. `.npmrc`: `legacy-peer-deps=true`.
@@ -119,7 +119,7 @@ interface Decision {
 
 **Execution order & rules**
 - Sprint 1 is foundational (scaffold + engine + `types.ts` + `models.ts` + tests). After it, **Sprints 2 and 3 can run in parallel** (disjoint files: 2 owns `server/`, `shared/utils/pricing.ts`, `bench/`; 3 owns `app/`). Until Sprint 2 lands, Sprint 3 runs against a throwaway `server/api/decide.post.ts` stub only if needed — Sprint 2 overwrites it. Sprint 4 is sequential after both.
-- Per-sprint loop: implement → `npm run typecheck && npm run lint && npm test` → Playwright check for UI sprints (delegate to a subagent; screenshots stay out of the main loop) → update this file's sprint status + deviations → report.
+- Per-sprint loop: implement → `npm run typecheck && npm run lint && npm test` → Playwright check for UI sprints → update this file's sprint status + deviations → report.
 - Phase 5 verification artifact (`verification/index.html` + `.webp` screenshots) is required before calling it done.
 
 **Budget (Kyle, 2026-10-09): $50 total across this plan + bonus sprints.** The key's quota is the hard stop; these are the soft allocations:
@@ -290,7 +290,7 @@ Interactive mock: [`storyboard.html`](./storyboard.html) — open it in a browse
 - 3.3 Components: `PlayingCard.vue` (face/back, sm/md sizes), `PokerTable.vue` (felt + seat positions for 2–6 players, human bottom-center, board + pot center), `SeatPod.vue` (name, vendor `UBadge` in series color, LLM/Decision tag, stack in Fraunces, bet pill, dealer button, thinking pulse / folded dim / all-in badge / last action), `ActionBar.vue` (Fold / Check-or-Call N / raise presets Min · ½ pot · Pot · All-in + `USlider` + amount; disabled with "Waiting on X…" when not your turn), `TableTalk.vue` (newest-first log; LLM table talk in quotes; reasoning locked mid-hand — Sprint 4 unlocks it inline).
 - 3.4 `app/pages/play.vue` — grid `lg:grid-cols-[minmax(0,1fr)_360px]`, stacks on mobile; header shows hand #, blinds, "Leave table". Redirect to `/` if no lineup.
 
-#### Verification (Playwright via subagent)
+#### Verification (Playwright)
 - [x] Setup → Deal me in → table renders 5 seats, blinds posted, hole cards shown (screenshot, light + dark) — `sprint3_setup.webp`, `sprint3_setup_menu.webp`, `sprint3_your_turn.webp`, `sprint3_your_turn_dark.webp`
 - [x] An AI seat shows thinking state then an action; log updates — `sprint3_ai_thinking.webp`
 - [x] Human fold / call / raise (preset + slider) all advance the hand; illegal amounts impossible — `sprint3_raise_preset.webp` (Pot preset = 35 at 5/10 preflop; slider arrows move it; typing 5 or 99999 snaps back into range)
@@ -332,7 +332,7 @@ Interactive mock: [`storyboard.html`](./storyboard.html) — open it in a browse
   - GPT-6 Luna repeats one table-talk line; add a "vary your table talk, don't repeat earlier lines" instruction and pass the seat's prior lines this session.
 - 4.5 `README.md` (what it is, roster, how decision models differ, how to run, env) and `AGENTS.md` (engine-is-pure rule, relative imports, model-call rules, key-handling rule). Fix the 2048-ai mistake: point at files that exist.
 
-#### Verification (Playwright, run in the main loop)
+#### Verification (Playwright)
 - [x] Showdown screenshot: cards revealed, winning five lifted and the rest dimmed, winner ring, result line, review panel with GPT-6 Sol's reasoning and per-option bars for Jev + Luna Decisions — `sprint4_showdown.webp` (re-take of `sprint3_showdown`, now with the result line), `sprint4_review_luna_decisions.webp` (4 decisions, preflop to river)
 - [x] Side pot via `/play?stacks=100,500,1000,1000,1000`: "Main pot · Luna Decisions wins 201 … / Side pot · Luna Decisions wins 294 …", 495 total — `sprint4_side_pot.webp`
 - [x] Leave table → summary modal; GPT-6 Sol row $0.019 after 3 hands — `sprint4_summary_leave.webp`; Watch-mode Leave pauses the table under the modal — `sprint4_summary_watch.webp`

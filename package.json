@@ -1,7 +1,16 @@
 {
   "name": "holdem-ai",
   "private": true,
+  "description": "No-Limit Texas Hold'em where LLMs and decision models play each other through the Vercel AI Gateway, with duplicate-seeded tournaments.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/GKjohns/holdem-ai.git"
+  },
   "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "build": "nuxt build",
     "dev": "nuxt dev",
